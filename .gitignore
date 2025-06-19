@@ -24,4 +24,5 @@ gradle-app.setting
 **/.idea/
 
 privateKey.txt
-alipayPublicKey.txt
+alipayPublicKey_RSA2.txt
+src/main/resources/application-*.properties
