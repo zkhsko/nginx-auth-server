@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="/include/css.html"></div>
+</head>
+
+<body>
+    <div class="container">
+        <div style="margin-top: 150px;"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="license-input" class="form-label">License</label>
+                        <input type="text" class="form-control" id="license-input" name="username"
+                            th:classappend="${#strings.isEmpty(#strings.trim(licenseNotFountError)) ? '' : 'is-invalid'}"
+                            th:value="${licenseText}"
+                            aria-describedby="license-input-help">
+                        <div class="invalid-feedback" th:text="${licenseNotFountError}">
+                            Please choose a username.
+                        </div>
+                        <div class="form-text">The license has been sent to your email address.</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+    <div th:replace="/include/script.html"></div>
+    <script>
+    </script>
+</body>
+
+</html>

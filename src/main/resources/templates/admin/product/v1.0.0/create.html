@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="/include/css.html"></div>
+</head>
+
+<body>
+    <div class="container">
+
+        <form action="#" th:action="@{/admin/product/v1.0.0/create.html}" method="post">
+            <div class="mb-3">
+                <label for="product-name-input" class="form-label">商品名称</label>
+                <input type="text" class="form-control" id="product-name-input" name="productName"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productNameFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.productName}">
+                <div class="invalid-feedback" th:text="${productNameFormError}"></div>
+                <!-- <div class="form-text">The license has been sent to your email address.</div> -->
+            </div>
+            <div class="mb-3">
+                <label for="product-desc-input" class="form-label">商品详情</label>
+                <!-- <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea> -->
+                <textarea class="form-control" id="product-desc-input" rows="3" name="productDesc"
+                    th:text="${form?.productDesc}"></textarea>
+                <div class="invalid-feedback" th:text="${productDescFormError}"></div>
+                <!-- <div class="form-text">The license has been sent to your email address.</div> -->
+            </div>
+            <div class="mb-3">
+                <label for="product-name-input" class="form-label">关联路由</label>
+                <div class="form-text" style="display: block;"
+                    th:class="${#strings.isEmpty(#strings.trim(routeListFormError)) ? 'form-text' : 'invalid-feedback'}">
+                    需要至少关联一个路由规则
+                </div>
+                <div style="max-height: 200px; overflow: scroll; padding: 12px;">
+                    <th:block th:each="routeItem : ${routeList}">
+                        <div class="form-check">
+                            <!-- th:checked="${routeItem.checked}" -->
+                            <input class="form-check-input" type="checkbox" name="routeList" id="routeItemCheck_1"
+                                th:classappend="${#strings.isEmpty(#strings.trim(routeListFormError)) ? '' : 'is-invalid'}"
+                                th:checked="${#lists.contains(form?.routeList, routeItem.id)}"
+                                th:id="${'routeItemCheck_' + routeItem.id}" value="1" th:value="${routeItem.id}">
+                            <label class="form-check-label" for="routeItemCheck_1"
+                                th:for="${'routeItemCheck_' + routeItem.id}" th:text="${routeItem.routePredicate}">
+                                -- routeItem.routePredicate --
+                            </label>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="product-price-input" class="form-label">商品价格</label>
+                <input type="text" class="form-control" id="product-price-input" name="productPrice"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productPriceFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.productPrice}">
+                <div class="invalid-feedback" th:text="${productPriceFormError}"></div>
+                <div class="form-text">0.00，单位：元，保留至多两位小数</div>
+            </div>
+            <div class="input-group mb-3">
+                <!-- <input type="text" class="form-control" aria-label="Text input with dropdown button"> -->
+                <input type="number" class="form-control" id="product-time-value-input" name="productTimeValue"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productTimeValueFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.productTimeValue}">
+                <select class="form-select" id="productTimeUnit" name="productTimeUnit"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productTimeUnitFormError)) ? '' : 'is-invalid'}">
+                    <!-- <option selected>Choose...</option> -->
+                    <option value="DAY" th:selected="form?.productTimeUnit=='DAY'">天</option>
+                    <option value="MONTH" th:selected="form?.productTimeUnit=='MONTH'">月</option>
+                    <option value="YEAR" th:selected="form?.productTimeUnit=='YEAR'">年</option>
+                </select>
+                <div class="invalid-feedback" th:text="${productTimeValueFormError}"></div>
+                <div class="invalid-feedback" th:text="${productTimeUnitFormError}"></div>
+            </div>
+            <div class="mb-3">
+                <label for="product-stock-input" class="form-label">库存</label>
+                <input type="text" class="form-control" id="product-stock-input" name="productStock"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productStockFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.productStock}">
+                <div class="invalid-feedback" th:text="${productStockFormError}"></div>
+                <!-- <div class="form-text">0.00，单位：元，保留至多两位小数</div> -->
+            </div>
+            <div class="mb-3">
+                <!-- <label for="product-name-input" class="form-label">开启上架销售</label> -->
+                <!-- <input type="text" class="form-control" id="product-name-input" name="productName"
+                    th:classappend="${#strings.isEmpty(#strings.trim(productNameFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.productName}">
+                <div class="invalid-feedback" th:text="${productNameFormError}"></div>
+                <div class="form-text">0.00，单位：元，保留至多两位小数</div> -->
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="true" id="inUse"
+                        th:checked="${form?.inUse==true}" name="inUse">
+                    <label class="form-check-label" for="inUse">
+                        开启上架销售
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </div>
+    <div th:replace="/include/script.html"></div>
+    <script>
+    </script>
+</body>
+
+</html>

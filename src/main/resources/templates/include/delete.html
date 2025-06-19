@@ -1,0 +1,44 @@
+<div th:fragment="deleteConfirmModalHtml">
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteConfirmModal">删除警告</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    确认要删除吗？
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <form action="#" method="post">
+                        <button type="submit" href="#" class="btn btn-primary">确认删除</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:fragment="deleteConfirmModalScript">
+    <script>
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal')
+        if (deleteConfirmModal) {
+            deleteConfirmModal.addEventListener('show.bs.modal', event => {
+                // Button that triggered the modal
+                const button = event.relatedTarget;
+                // Extract info from data-bs-* attributes
+                const href = button.getAttribute('data-bs-href');
+
+                const id = button.getAttribute('data-bs-id');
+                deleteConfirmModal.querySelector('.modal-body').textContent = `确认要删除id为${id}的数据吗？`;
+
+                // If necessary, you could initiate an Ajax request here
+                // and then do the updating in a callback.
+
+                // Update the modal's botton href.
+                deleteConfirmModal.querySelector('.modal-footer form').action = href;
+
+            })
+        }
+    </script>
+</div>
