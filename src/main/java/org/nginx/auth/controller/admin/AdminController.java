@@ -4,13 +4,13 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageParam;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.MapUtils;
-import org.nginx.auth.dto.form.AdminProductInfoCreateForm;
-import org.nginx.auth.dto.form.AdminProductInfoUpdateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
-import org.nginx.auth.model.PlanInfo;
+import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.model.User;
 import org.nginx.auth.service.AdminAccountService;
-import org.nginx.auth.service.AdminProductService;
+import org.nginx.auth.service.AdminPremiumPlanService;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
 import org.nginx.auth.util.ValidatorUtil;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.LinkedHashSet;
 import java.util.Map;
 
 /**
@@ -33,7 +32,7 @@ import java.util.Map;
 public class AdminController {
 
     @Autowired
-    private AdminProductService adminProductService;
+    private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
     private AdminAccountService adminAccountService;
 
@@ -42,10 +41,10 @@ public class AdminController {
         return "/admin/index.html";
     }
 
-    // -- product --
+    // -- premium plan --
 
-    @GetMapping("/product/index.html")
-    public String productListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
+    @GetMapping("/premium-plan/index.html")
+    public String premiumPlanListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
@@ -53,64 +52,64 @@ public class AdminController {
             size = 10;
         }
 
-        BasicPaginationVO<PlanInfo> productInfoPageVO = adminProductService.productListPage(page, size);
-        model.addAttribute("pagination", productInfoPageVO);
+        BasicPaginationVO<PremiumPlan> premiumPlanPageVO = adminPremiumPlanService.premiumPlanListPage(page, size);
+        model.addAttribute("pagination", premiumPlanPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/product/index.html";
+        return "/admin/premium_plan/index.html";
     }
 
-    @GetMapping("/product/{version}/create.html")
-    public String createProductPage(@PathVariable String version, Model model) {
+    @GetMapping("/premium-plan/{version}/create.html")
+    public String createPremiumPlanPage(@PathVariable String version, Model model) {
 
         PageParam pageParam = new PageParam(null, null, "id desc");
         PageHelper.startPage(pageParam);
 
-        AdminProductInfoCreateForm productInfoCreateForm = new AdminProductInfoCreateForm();
-        productInfoCreateForm.setProductTimeUnit("DAY");
-        model.addAttribute("form", productInfoCreateForm);
+        AdminPremiumPlanCreateForm premiumPlanCreateForm = new AdminPremiumPlanCreateForm();
+        premiumPlanCreateForm.setPremiumPlanTimeUnit("DAY");
+        model.addAttribute("form", premiumPlanCreateForm);
 
-        return "/admin/product/" + version + "/create.html";
+        return "/admin/premium_plan/" + version + "/create.html";
     }
 
-    @PostMapping("/product/{version}/create.html")
-    public String createProductAction(@PathVariable String version, Model model,
-                                      AdminProductInfoCreateForm productInfoCreateForm) {
+    @PostMapping("/premium-plan/{version}/create.html")
+    public String createPremiumPlanAction(@PathVariable String version, Model model,
+                                          AdminPremiumPlanCreateForm premiumPlanCreateForm) {
 
-        if (productInfoCreateForm.getInUse() == null) {
-            productInfoCreateForm.setInUse(false);
+        if (premiumPlanCreateForm.getInUse() == null) {
+            premiumPlanCreateForm.setInUse(false);
         }
 
-        Map<String, String> validateRtn = ValidatorUtil.validate(productInfoCreateForm);
+        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanCreateForm);
         if (MapUtils.isNotEmpty(validateRtn)) {
             model.addAllAttributes(validateRtn);
-            model.addAttribute("form", productInfoCreateForm);
+            model.addAttribute("form", premiumPlanCreateForm);
 
             PageParam pageParam = new PageParam(null, null, "id desc");
             PageHelper.startPage(pageParam);
 
-            return "/admin/product/" + version + "/create.html";
+            return "/admin/premium_plan/" + version + "/create.html";
         }
 
-        adminProductService.createProduct(productInfoCreateForm);
-        return "redirect:/admin/product/index.html";
+        adminPremiumPlanService.createPremiumPlan(premiumPlanCreateForm);
+        return "redirect:/admin/premium-plan/index.html";
     }
 
-    @PostMapping("/product/delete.html")
-    public String deleteProductAction(HttpServletRequest request, @RequestParam Long id, @RequestParam String redirect) {
-        adminProductService.deleteProduct(id);
+    @PostMapping("/premium-plan/delete.html")
+    public String deletePremiumPlanAction(HttpServletRequest request, @RequestParam Long id, @RequestParam String redirect) {
+        adminPremiumPlanService.deletePremiumPlan(id);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
-    @GetMapping("/product/{version}/update.html")
-    public String updateProductPage(HttpServletRequest request, @PathVariable String version, Model model,
-                                    @RequestParam Long id, @RequestParam String redirect) {
-        PlanInfo planInfo = adminProductService.getProduct(id);
+    @GetMapping("/premium-plan/{version}/update.html")
+    public String updatePremiumPlanPage(HttpServletRequest request, @PathVariable String version, Model model,
+                                        @RequestParam Long id, @RequestParam String redirect) {
+        PremiumPlan premiumPlan = adminPremiumPlanService.getPremiumPlan(id);
 
         model.addAttribute("redirect", redirect);
 
-        if (planInfo == null) {
-            return "redirect:/admin/product/index.html";
+        if (premiumPlan == null) {
+            return "redirect:/admin/premium-plan/index.html";
         }
 
         PageParam pageParam = new PageParam(null, null, "id desc");
@@ -118,37 +117,36 @@ public class AdminController {
 //        List<RouteInfo> routeInfoList = routeInfoRepository.selectList(null);
 //        model.addAttribute("routeList", routeInfoList);
 
-        AdminProductInfoUpdateForm productInfoUpdateForm = new AdminProductInfoUpdateForm();
-        BeanCopyUtil.copy(planInfo, productInfoUpdateForm);
-        String productPrice = new BigDecimal(planInfo.getPrice())
-                .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP)
-                .toEngineeringString();
-        productInfoUpdateForm.setProductPrice(productPrice);
-        String routeListText = planInfo.getRouteListText();
-        if (routeListText != null) {
-            String[] routeList = routeListText.split(",");
-            LinkedHashSet<Long> routeListSet = new LinkedHashSet<>();
-            for (String routeId : routeList) {
-                routeListSet.add(Long.valueOf(routeId));
-            }
-            productInfoUpdateForm.setRouteList(routeListSet);
-        } else {
-            productInfoUpdateForm.setRouteList(new LinkedHashSet<>());
-        }
-        productInfoUpdateForm.setProductStock(planInfo.getStock().toString());
-        productInfoUpdateForm.setProductTimeValue(planInfo.getPlanTimeValue().toString());
-        model.addAttribute("form", productInfoUpdateForm);
+        AdminPremiumPlanUpdateForm premiumPlanUpdateForm = new AdminPremiumPlanUpdateForm();
+        BeanCopyUtil.copy(premiumPlan, premiumPlanUpdateForm);
+        BigDecimal premiumPlanPrice = new BigDecimal(premiumPlan.getPremiumPlanPrice())
+                .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
+        premiumPlanUpdateForm.setPremiumPlanPrice(premiumPlanPrice);
+//        String routeListText = premiumPlan.getRouteListText();
+//        if (routeListText != null) {
+//            String[] routeList = routeListText.split(",");
+//            LinkedHashSet<Long> routeListSet = new LinkedHashSet<>();
+//            for (String routeId : routeList) {
+//                routeListSet.add(Long.valueOf(routeId));
+//            }
+//            premiumPlanUpdateForm.setRouteList(routeListSet);
+//        } else {
+//            premiumPlanUpdateForm.setRouteList(new LinkedHashSet<>());
+//        }
+        premiumPlanUpdateForm.setPremiumPlanStock(premiumPlan.getPremiumPlanStock());
+        premiumPlanUpdateForm.setPremiumPlanTimeValue(premiumPlan.getPremiumPlanTimeValue());
+        model.addAttribute("form", premiumPlanUpdateForm);
 
-        return "/admin/product/" + version + "/update.html";
+        return "/admin/premium_plan/" + version + "/update.html";
     }
 
-    @PostMapping("/product/{version}/update.html")
-    public String updateProductAction(HttpServletRequest request, @PathVariable String version,
-                                      @RequestParam Long id, @RequestParam String redirect,
-                                      Model model, AdminProductInfoUpdateForm productInfoUpdateForm) {
-        productInfoUpdateForm.setId(id);
-        if (productInfoUpdateForm.getInUse() == null) {
-            productInfoUpdateForm.setInUse(false);
+    @PostMapping("/premium-plan/{version}/update.html")
+    public String updatePremiumPlanAction(HttpServletRequest request, @PathVariable String version,
+                                          @RequestParam Long id, @RequestParam String redirect,
+                                          Model model, AdminPremiumPlanUpdateForm premiumPlanUpdateForm) {
+        premiumPlanUpdateForm.setId(id);
+        if (premiumPlanUpdateForm.getInUse() == null) {
+            premiumPlanUpdateForm.setInUse(false);
         }
 
         PageParam pageParam = new PageParam(null, null, "id desc");
@@ -156,15 +154,15 @@ public class AdminController {
 //        List<RouteInfo> routeInfoList = routeInfoRepository.selectList(null);
 //        model.addAttribute("routeList", routeInfoList);
 
-        Map<String, String> validateRtn = ValidatorUtil.validate(productInfoUpdateForm);
+        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanUpdateForm);
         if (MapUtils.isNotEmpty(validateRtn)) {
             model.addAllAttributes(validateRtn);
-            model.addAttribute("form", productInfoUpdateForm);
+            model.addAttribute("form", premiumPlanUpdateForm);
             model.addAttribute("redirect", redirect);
-            return "/admin/product/" + version + "/update.html";
+            return "/admin/premium_plan/" + version + "/update.html";
         }
 
-        adminProductService.updateProduct(productInfoUpdateForm);
+        adminPremiumPlanService.updatePremiumPlan(premiumPlanUpdateForm);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 

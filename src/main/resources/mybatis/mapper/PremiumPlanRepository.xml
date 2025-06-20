@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.nginx.auth.repository.PremiumPlanRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.PremiumPlan">
+        <id column="id" property="id"/>
+        <result column="premium_plan_name" property="premiumPlanName"/>
+        <result column="premium_plan_desc" property="premiumPlanDesc"/>
+        <result column="route_list_text" property="routeListText"/>
+        <result column="price" property="price"/>
+        <result column="premium_plan_time_unit" property="premiumPlanTimeUnit"/>
+        <result column="premium_plan_time_value" property="premiumPlanTimeValue"/>
+        <result column="stock" property="stock"/>
+        <result column="in_use" property="inUse"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `premium_plan_name`, `premium_plan_desc`, `route_list_text`, `price`, `premium_plan_time_unit`, `premium_plan_time_value`,
+        `stock`, `in_use`, `create_time`, `update_time`
+    </sql>
+
+    <update id="reduceStock" parameterType="org.nginx.auth.model.PremiumPlan">
+        UPDATE premium_plan
+        SET stock = stock - 1
+        WHERE id = #{id}
+        AND stock > 0
+    </update>
+
+</mapper>
+

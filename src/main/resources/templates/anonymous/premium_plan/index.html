@@ -25,11 +25,11 @@
             </thead>
             <tbody>
                 <tr th:each="item : ${pagination.data}">
-                    <td th:text="${item.productName}">Mark</td>
-                    <td th:text="${item.productDesc}">Otto</td>
-                    <td th:text="${item.productPrice}">@mdo</td>
-                    <td th:text="${item.productTimeUnit}">@mdo</td>
-                    <td th:text="${item.productTimeValue}">@mdo</td>
+                    <td th:text="${item.premiumPlanName}">Mark</td>
+                    <td th:text="${item.premiumPlanDesc}">Otto</td>
+                    <td th:text="${item.premiumPlanPrice}">@mdo</td>
+                    <td th:text="${item.premiumPlanTimeUnit}">@mdo</td>
+                    <td th:text="${item.premiumPlanTimeValue}">@mdo</td>
                     <td>
                         <a href="/admin/route/update.html"
                             th:href="@{/admin/route/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">购买</a>
