@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.constant.BasicConstant;
-import org.nginx.auth.model.AccountInfo;
+import org.nginx.auth.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -40,8 +40,8 @@ public class AdminSessionInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        AccountInfo accountInfo = (AccountInfo) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
-        if (accountInfo == null || !adminSet.contains(accountInfo.getEmail())) {
+        User user = (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
+        if (user == null || !adminSet.contains(user.getEmail())) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
             return false;
         }

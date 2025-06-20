@@ -4,7 +4,7 @@ package org.nginx.auth.model;
  * @author dongpo.li
  * @date 2023/12/15
  */
-public class AccountInfo extends AutoIncrementBaseEntity {
+public class User extends AutoIncrementBaseEntity {
 
     /**
      * 绑定的电子邮箱
@@ -18,7 +18,6 @@ public class AccountInfo extends AutoIncrementBaseEntity {
      * 账号是否被禁用
      */
     private Boolean blocked;
-
 
     public String getEmail() {
         return email;

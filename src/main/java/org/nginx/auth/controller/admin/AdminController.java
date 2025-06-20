@@ -7,8 +7,8 @@ import org.apache.commons.collections4.MapUtils;
 import org.nginx.auth.dto.form.AdminProductInfoCreateForm;
 import org.nginx.auth.dto.form.AdminProductInfoUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
-import org.nginx.auth.model.AccountInfo;
 import org.nginx.auth.model.PlanInfo;
+import org.nginx.auth.model.User;
 import org.nginx.auth.service.AdminAccountService;
 import org.nginx.auth.service.AdminProductService;
 import org.nginx.auth.util.BeanCopyUtil;
@@ -39,7 +39,7 @@ public class AdminController {
 
     @RequestMapping(value = {"", "/"})
     public String index() {
-        return "index";
+        return "/admin/index.html";
     }
 
     // -- product --
@@ -168,9 +168,9 @@ public class AdminController {
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
-    // -- account --
-    @GetMapping("/account/index.html")
-    public String accountListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
+    // -- user --
+    @GetMapping("/user/index.html")
+    public String userListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
@@ -178,23 +178,23 @@ public class AdminController {
             size = 10;
         }
 
-        BasicPaginationVO<AccountInfo> accountInfoPageVO = adminAccountService.accountListPage(page, size);
-        model.addAttribute("pagination", accountInfoPageVO);
+        BasicPaginationVO<User> userInfoPageVO = adminAccountService.userListPage(page, size);
+        model.addAttribute("pagination", userInfoPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/account/index.html";
+        return "/admin/user/index.html";
     }
 
     // block
-    @PostMapping("/account/block.html")
+    @PostMapping("/user/block.html")
     public String blockAccountAction(@RequestParam Long id, @RequestParam String redirect) {
-        adminAccountService.changeAccountBlock(id, true);
+        adminAccountService.changeUserBlock(id, true);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
-    @PostMapping("/account/unblock.html")
+    @PostMapping("/user/unblock.html")
     public String unblockAccountAction(@RequestParam Long id, @RequestParam String redirect) {
-        adminAccountService.changeAccountBlock(id, false);
+        adminAccountService.changeUserBlock(id, false);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 

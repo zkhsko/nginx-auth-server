@@ -30,13 +30,13 @@
                     <td th:text="${item.blocked? '已禁用' : '使用中'}">@mdo</td>
                     <td>
                         <!-- <form method="post"
-                            th:action="@{'/admin/account/' + ${item.blocked? 'unblock.html' : 'block.html'}(id=${item.id}, redirect=${redirect})}">
+                            th:action="@{'/admin/user/' + ${item.blocked? 'unblock.html' : 'block.html'}(id=${item.id}, redirect=${redirect})}">
                             <a type="button" href="javascript:void(0);" onclick="this.parentNode.submit()"
                                 th:text="${item.blocked? '启用' : '禁用'}">禁用</a>
                         </form> -->
-                        <a type="button" href="#" data-bs-toggle="modal" data-bs-href="/admin/account/block.html?id=1"
-                            th:data-bs-href="@{'/admin/account/' + ${item.blocked? 'unblock.html' : 'block.html'}(id=${item.id}, redirect=${redirect})}"
-                            data-bs-id="1" th:data-bs-id="${item.id}" data-bs-target="#accountBlockConfirmModal"
+                        <a type="button" href="#" data-bs-toggle="modal" data-bs-href="/admin/user/block.html?id=1"
+                            th:data-bs-href="@{'/admin/user/' + ${item.blocked? 'unblock.html' : 'block.html'}(id=${item.id}, redirect=${redirect})}"
+                            data-bs-id="1" th:data-bs-id="${item.id}" data-bs-target="#userBlockConfirmModal"
                             th:text="${item.blocked? '启用' : '禁用'}">删除</a>
 
                     </td>
@@ -48,11 +48,11 @@
 
     </div>
     <!-- Delete Modal -->
-    <div class="modal fade" id="accountBlockConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModal">
+    <div class="modal fade" id="userBlockConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModal">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="accountBlockConfirmModal">确认禁用用户</h1>
+                    <h1 class="modal-title fs-5" id="userBlockConfirmModal">确认禁用用户</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -70,26 +70,26 @@
     <div th:replace="/include/script.html"></div>
     <!-- Delete Modal -->
     <script>
-        const accountBlockConfirmModal = document.getElementById('accountBlockConfirmModal')
-        if (accountBlockConfirmModal) {
-            accountBlockConfirmModal.addEventListener('show.bs.modal', event => {
+        const userBlockConfirmModal = document.getElementById('userBlockConfirmModal')
+        if (userBlockConfirmModal) {
+            userBlockConfirmModal.addEventListener('show.bs.modal', event => {
                 // Button that triggered the modal
                 const button = event.relatedTarget;
                 // Extract info from data-bs-* attributes
                 const href = button.getAttribute('data-bs-href');
 
-                console.log(accountBlockConfirmModal.querySelector('.modal-header'))
+                console.log(userBlockConfirmModal.querySelector('.modal-header'))
 
-                accountBlockConfirmModal.querySelector('.modal-header').textContent = `确认要${button.innerText}吗？`;
+                userBlockConfirmModal.querySelector('.modal-header').textContent = `确认要${button.innerText}吗？`;
 
                 const id = button.getAttribute('data-bs-id');
-                accountBlockConfirmModal.querySelector('.modal-body').textContent = `确认要${button.innerText}id为${id}的用户吗？`;
+                userBlockConfirmModal.querySelector('.modal-body').textContent = `确认要${button.innerText}id为${id}的用户吗？`;
 
                 // If necessary, you could initiate an Ajax request here
                 // and then do the updating in a callback.
 
                 // Update the modal's botton href.
-                accountBlockConfirmModal.querySelector('.modal-footer form').action = href;
+                userBlockConfirmModal.querySelector('.modal-footer form').action = href;
 
             })
         }

@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
-import org.nginx.auth.model.AccountInfo;
-import org.nginx.auth.repository.AccountInfoRepository;
+import org.nginx.auth.model.User;
+import org.nginx.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,14 +20,14 @@ public class AuthApiController {
     private String accessTokenKey;
 
     @Autowired
-    private AccountInfoRepository accountInfoRepository;
+    private UserRepository userRepository;
 
     @RequestMapping("/access")
     public String access(HttpServletRequest request, HttpServletResponse response) {
 
         HttpSession session = request.getSession();
-        AccountInfo accountInfo = (AccountInfo) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
-        if (accountInfo == null) {
+        User user = (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
+        if (user == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             return "401 Authorization Required";
         }

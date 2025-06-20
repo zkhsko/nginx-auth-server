@@ -6,8 +6,8 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
-import org.nginx.auth.model.AccountInfo;
-import org.nginx.auth.repository.AccountInfoRepository;
+import org.nginx.auth.model.User;
+import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.util.BasicPaginationUtils;
 
 import java.util.List;
@@ -20,20 +20,20 @@ import java.util.List;
 public class AdminAccountService {
 
     @Autowired
-    private AccountInfoRepository accountInfoRepository;
+    private UserRepository userRepository;
 
-    public BasicPaginationVO<AccountInfo> accountListPage(int page, int size) {
+    public BasicPaginationVO<User> userListPage(int page, int size) {
         PageHelper.startPage(page, size, "id desc");
-        List<AccountInfo> accountInfoList = accountInfoRepository.selectList(null);
-        PageInfo<AccountInfo> pageInfo = new PageInfo<>(accountInfoList);
+        List<User> userList = userRepository.selectList(null);
+        PageInfo<User> pageInfo = new PageInfo<>(userList);
         return BasicPaginationUtils.create(pageInfo);
     }
 
-    public void changeAccountBlock(Long id, Boolean block) {
-        LambdaUpdateWrapper<AccountInfo> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
-        lambdaUpdateWrapper.eq(AccountInfo::getId, id);
-        lambdaUpdateWrapper.set(AccountInfo::getBlocked, block);
-        accountInfoRepository.update(null, lambdaUpdateWrapper);
+    public void changeUserBlock(Long id, Boolean block) {
+        LambdaUpdateWrapper<User> lambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        lambdaUpdateWrapper.eq(User::getId, id);
+        lambdaUpdateWrapper.set(User::getBlocked, block);
+        userRepository.update(null, lambdaUpdateWrapper);
     }
 
 }

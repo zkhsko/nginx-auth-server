@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
-import org.nginx.auth.model.AccountInfo;
-import org.nginx.auth.repository.AccountInfoRepository;
+import org.nginx.auth.model.User;
+import org.nginx.auth.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,14 +25,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/account")
-public class AccountController {
-    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
+public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Value("${access.token.key}")
     private String accessTokenKey;
 
     @Autowired
-    private AccountInfoRepository accountInfoRepository;
+    private UserRepository userRepository;
 
     @RequestMapping("/")
     @ResponseBody
@@ -48,17 +48,17 @@ public class AccountController {
     @PostMapping("/login.html")
     public String loginAction(String username, HttpServletRequest request, HttpServletResponse response, Model model) {
 
-        LambdaQueryWrapper<AccountInfo> queryWrapper = new LambdaQueryWrapper<AccountInfo>()
-                .eq(AccountInfo::getLicense, username);
-        AccountInfo accountInfo = accountInfoRepository.selectOne(queryWrapper);
-        if (accountInfo == null) {
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>()
+                .eq(User::getLicense, username);
+        User user = userRepository.selectOne(queryWrapper);
+        if (user == null) {
             model.addAttribute("licenseText", username);
             model.addAttribute("licenseNotFountError", "License invalid");
             return "login.html";
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute(BasicConstant.CURRENT_USER_SESSION_KEY, accountInfo);
+        session.setAttribute(BasicConstant.CURRENT_USER_SESSION_KEY, user);
 
         String browserUserAgent = request.getHeaders("User-Agent").nextElement();
 
