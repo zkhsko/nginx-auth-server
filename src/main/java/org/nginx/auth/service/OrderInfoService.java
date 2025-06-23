@@ -1,10 +1,19 @@
 package org.nginx.auth.service;
 
+import com.alipay.api.domain.AlipayInsSceneInsserviceprodLightserprogressSyncModel;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.enums.PaymentChannelEnum;
-import org.nginx.auth.model.PaymentHistory;
+import org.nginx.auth.model.OrderInfo;
+import org.nginx.auth.model.OrderPaymentInfo;
+import org.nginx.auth.model.OrderSkuInfo;
 import org.nginx.auth.model.PremiumPlan;
+import org.nginx.auth.repository.OrderInfoRepository;
+import org.nginx.auth.repository.OrderSkuInfoRepository;
 import org.nginx.auth.repository.PaymentHistoryRepository;
 import org.nginx.auth.repository.PremiumPlanRepository;
 import org.nginx.auth.request.OrderCreateParam;
@@ -14,7 +23,15 @@ import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.OrderInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author dongpo.li
@@ -24,60 +41,144 @@ import org.springframework.stereotype.Service;
 public class OrderInfoService {
     private static final Logger logger = LoggerFactory.getLogger(OrderInfoService.class);
 
-    @Resource
+    @Autowired
     private PremiumPlanRepository premiumPlanRepository;
-    @Resource
+    @Autowired
     private PaymentHistoryRepository paymentHistoryRepository;
+    @Autowired
+    private OrderInfoRepository orderInfoRepository;
+    @Autowired
+    private OrderSkuInfoRepository orderSkuInfoRepository;
 
-    public OrderCreateDTO createOrder(PaymentChannelEnum paymentChannelEnum, OrderCreateParam param) {
+    public String createOrder(List<OrderCreateParam> paramList) {
 
-        long productId = NumberUtils.toLong(param.getProductId(), 0);
-
-        PremiumPlan premiumPlan = premiumPlanRepository.selectById(productId);
-        if (premiumPlan == null || premiumPlan.getInUse() == null || !premiumPlan.getInUse()) {
-            logger.info("商品不存在,下单失败, productId={}", productId);
-            return null;
+        if (CollectionUtils.isEmpty(paramList)) {
+            logger.info("下单参数错误, paramList is empty");
+            return "";
         }
 
-        int reduceStock = premiumPlanRepository.reduceStock(premiumPlan.getId());
-        if (reduceStock <= 0) {
-            logger.info("下单扣减库存失败,应该是没有库存了, productId={}", productId);
-            return null;
-        }
 
+        // TODO 校验是否合法商品 存在 上架 库存 等信息
+
+        // 假的,记得替换
         Long userId = 3L;
-
-        PaymentHistory paymentHistoryInsert = new PaymentHistory();
-        OrderInfoUtils.PREMIUM_PLA_2_PAYMENT_INFO
-                .copy(premiumPlan, paymentHistoryInsert, null);
-
         String orderId = OrderInfoUtils.generateOrderId(userId);
-        paymentHistoryInsert.setId(null);
-        paymentHistoryInsert.setAccountId(userId);
-        paymentHistoryInsert.setOrderId(orderId);
-        paymentHistoryInsert.setProductId(premiumPlan.getId());
-        paymentHistoryInsert.setOrderPayChannel(paymentChannelEnum.name());
-        paymentHistoryRepository.insert(paymentHistoryInsert);
 
-        // 创建支付平台订单,获取支付二维码
-        OrderCreateDTO rsp = new OrderCreateDTO();
-        rsp.setOrderId(orderId);
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(null);
+        orderInfo.setOrderId(orderId);
+        orderInfo.setUserId(userId);
+        orderInfo.setOrderAmount(0L);
+        orderInfo.setOrderStatus("INIT");
+        orderInfo.setOrderCreateTime(new Date());
 
-        switch (paymentChannelEnum) {
-            case ALIPAY: {
-                PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
-                OrderCreateDTO orderCreateDTO = paymentService.createOrder(paymentHistoryInsert);
-                rsp.setImageData(orderCreateDTO.getImageData());
-                break;
+        BigDecimal totalOrderAmount = BigDecimal.ZERO;
+
+        List<OrderSkuInfo> orderSkuInfoList = new ArrayList<>();
+
+        for (OrderCreateParam param : paramList) {
+
+            long skuId = Long.parseLong(param.getSkuId());
+            PremiumPlan premiumPlan = premiumPlanRepository.selectById(skuId);
+
+            int reduceStock = premiumPlanRepository.reduceStock(premiumPlan.getId());
+            if (reduceStock <= 0) {
+                logger.info("下单扣减库存失败,应该是没有库存了, skuId={}", param.getSkuId());
+                // 手动回滚事务
+                TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+                return "";
             }
-            case WECHAT_PAY: {
 
-                break;
-            }
+            OrderSkuInfo orderSkuInfo = new OrderSkuInfo();
+            OrderInfoUtils.PREMIUM_PLAN_2_ORDER_SKU_INFO
+                    .copy(premiumPlan, orderSkuInfo, null);
+            orderSkuInfo.setId(null);
+            orderSkuInfo.setPremiumPlanId(premiumPlan.getId());
+            orderSkuInfo.setOrderId(orderId);
+            orderSkuInfo.setCnt(param.getCnt());
+            orderSkuInfoList.add(orderSkuInfo);
+
+
+            totalOrderAmount = totalOrderAmount.add(BigDecimal.valueOf(premiumPlan.getPremiumPlanPrice() * param.getCnt()));
+
         }
 
-        return rsp;
+        orderInfo.setOrderAmount(totalOrderAmount.longValue());
+        orderInfoRepository.insert(orderInfo);
 
+        orderSkuInfoRepository.insert(orderSkuInfoList);
+
+        return orderId;
+
+
+//        orderPaymentInfoInsert.setId(null);
+//        orderPaymentInfoInsert.setUserId(userId);
+//        orderPaymentInfoInsert.setOrderId(orderId);
+//        orderPaymentInfoInsert.setPremiumPlanId(premiumPlan.getId());
+//        orderPaymentInfoInsert.setOrderPayChannel(paymentChannelEnum.name());
+//        paymentHistoryRepository.insert(orderPaymentInfoInsert);
+//
+//        // 创建支付平台订单,获取支付二维码
+//        OrderCreateDTO rsp = new OrderCreateDTO();
+//        rsp.setOrderId(orderId);
+//
+//        switch (paymentChannelEnum) {
+//            case ALIPAY: {
+//                PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
+//                OrderCreateDTO orderCreateDTO = paymentService.createOrder(orderPaymentInfoInsert);
+//                rsp.setImageData(orderCreateDTO.getImageData());
+//                break;
+//            }
+//            case WECHAT_PAY: {
+//
+//                break;
+//            }
+//        }
+//
+//        return rsp;
+
+    }
+
+    public OrderDetailVO getOrderDetail(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            return null;
+        }
+
+        OrderInfo orderInfo = this.selectByOrderId(orderId);
+        if (orderInfo == null) {
+            return null;
+        }
+
+        List<OrderSkuInfo> orderSkuInfoList = this.selectOrderSkuInfoListByOrderId(orderId);
+
+        OrderDetailVO orderDetailVO = new OrderDetailVO();
+        orderDetailVO.setOrderInfo(orderInfo);
+        orderDetailVO.setOrderSkuInfoList(orderSkuInfoList);
+
+        return orderDetailVO;
+    }
+
+    public OrderInfo selectByOrderId(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            return null;
+        }
+
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getOrderId, orderId);
+
+        return orderInfoRepository.selectOne(queryWrapper);
+    }
+
+    public List<OrderSkuInfo> selectOrderSkuInfoListByOrderId(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            return null;
+        }
+
+        LambdaQueryWrapper<OrderSkuInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderSkuInfo::getOrderId, orderId);
+        queryWrapper.orderBy(true, true, OrderSkuInfo::getId);
+
+        return orderSkuInfoRepository.selectList(queryWrapper);
     }
 
 }

@@ -1,6 +1,6 @@
 package org.nginx.auth.service.payment.impl;
 
-import org.nginx.auth.model.PaymentHistory;
+import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.repository.PaymentHistoryRepository;
 import org.nginx.auth.service.payment.PaymentService;
 
@@ -18,14 +18,14 @@ public abstract class AbstractPaymentService implements PaymentService {
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
 
-    protected void updateOrderPayInfo(PaymentHistory paymentHistory) {
+    protected void updateOrderPayInfo(OrderPaymentInfo orderPaymentInfo) {
 
-        PaymentHistory paymentHistoryUpdate = new PaymentHistory();
-        paymentHistoryUpdate.setTradeNo(paymentHistory.getTradeNo());
-        paymentHistoryUpdate.setOrderPayTime(new Date());
-        paymentHistoryUpdate.setOrderPayAmount(paymentHistory.getOrderPayAmount());
+        OrderPaymentInfo orderPaymentInfoUpdate = new OrderPaymentInfo();
+        orderPaymentInfoUpdate.setTradeNo(orderPaymentInfo.getTradeNo());
+        orderPaymentInfoUpdate.setOrderPayTime(new Date());
+        orderPaymentInfoUpdate.setOrderPayAmount(orderPaymentInfo.getOrderPayAmount());
 
-        paymentHistoryRepository.updateOrderPayInfo(paymentHistoryUpdate);
+        paymentHistoryRepository.updateOrderPayInfo(orderPaymentInfoUpdate);
 
     }
 

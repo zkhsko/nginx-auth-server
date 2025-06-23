@@ -1,27 +1,29 @@
 package org.nginx.auth.request;
 
+import java.util.List;
+
 /**
  * @author dongpo.li
  * @date 2023/12/22
  */
 public class OrderCreateParam {
 
-    private String productId;
-    private String paymentChannel;
+    private String skuId;
+    private Long cnt;
 
-    public String getProductId() {
-        return productId;
+    public String getSkuId() {
+        return skuId;
     }
 
-    public void setProductId(String productId) {
-        this.productId = productId;
+    public void setSkuId(String skuId) {
+        this.skuId = skuId;
     }
 
-    public String getPaymentChannel() {
-        return paymentChannel;
+    public Long getCnt() {
+        return cnt;
     }
 
-    public void setPaymentChannel(String paymentChannel) {
-        this.paymentChannel = paymentChannel;
+    public void setCnt(Long cnt) {
+        this.cnt = cnt;
     }
 }

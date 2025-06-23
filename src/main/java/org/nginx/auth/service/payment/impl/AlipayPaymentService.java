@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
-import org.nginx.auth.model.PaymentHistory;
+import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.util.JsonUtils;
 
@@ -47,7 +47,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
     private String notifyUrl;
 
     @Override
-    public OrderCreateDTO createOrder(PaymentHistory paymentHistory) {
+    public OrderCreateDTO createOrder(OrderPaymentInfo orderPaymentInfo) {
 
         String privateKey = readPrivateKey();
         String alipayPublicKey = readAlipayPublicKey();
@@ -56,11 +56,11 @@ public class AlipayPaymentService extends AbstractPaymentService {
         AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
         request.setNotifyUrl(buildNotifyUrl());
         Map<String, Object> bizContent = new HashMap<>();
-        bizContent.put("out_trade_no", paymentHistory.getOrderId());
-        BigDecimal totalPayAmount = BigDecimal.valueOf(paymentHistory.getProductPrice())
+        bizContent.put("out_trade_no", orderPaymentInfo.getOrderId());
+        BigDecimal totalPayAmount = BigDecimal.valueOf(orderPaymentInfo.getPremiumPlanPrice())
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
         bizContent.put("total_amount", totalPayAmount.doubleValue());
-        bizContent.put("subject", paymentHistory.getProductName());
+        bizContent.put("subject", orderPaymentInfo.getPremiumPlanName());
 
 
         request.setBizContent(JsonUtils.toJson(bizContent));
@@ -83,7 +83,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
         String imageData = translateQRCodeStringToBase64Image(qrCode);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setOrderId(paymentHistory.getOrderId());
+        orderCreateDTO.setOrderId(orderPaymentInfo.getOrderId());
         orderCreateDTO.setImageData(imageData);
 
 
@@ -139,10 +139,10 @@ public class AlipayPaymentService extends AbstractPaymentService {
     }
 
     @Override
-    public void pay(PaymentHistory paymentHistory) {
-        paymentHistory.setOrderPayAmount(1000L);
-        paymentHistory.setTradeNo(StringUtils.remove(UUID.randomUUID().toString(), '-'));
+    public void pay(OrderPaymentInfo orderPaymentInfo) {
+        orderPaymentInfo.setOrderPayAmount(1000L);
+        orderPaymentInfo.setTradeNo(StringUtils.remove(UUID.randomUUID().toString(), '-'));
 
-        updateOrderPayInfo(paymentHistory);
+        updateOrderPayInfo(orderPaymentInfo);
     }
 }

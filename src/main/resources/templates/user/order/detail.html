@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="~{/include/css.html}"></div>
+</head>
+
+<body>
+<div class="container">
+<!--    <div th:replace="~{/include/nav.html}"></div>-->
+
+    <table class="table">
+        <!--<thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">商品名称</th>
+            <th scope="col">商品详情</th>
+            <th scope="col">价格</th>
+            <th scope="col">库存</th>
+            <th scope="col"></th>
+        </tr>
+        </thead>-->
+        <tbody>
+        <tr>
+            <td th:text="${'订单号: ' + orderId}"></td>
+        </tr>
+        <tr>
+            <td th:text="${'下单时间: ' + #dates.format(orderDetailVO.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        <tr th:each="item : ${orderDetailVO.orderSkuInfoList}">
+            <td th:text="${item.premiumPlanName + ' * ' + item.cnt}"></td>
+        </tr>
+        <tr>
+            <td th:if="${orderDetailVO.orderInfo.orderStatus=='INIT'}">
+                <a class="btn btn-primary"
+                   th:href="@{/user/order/pay}">支付宝支付</a>
+                <a class="btn btn-primary"
+                   th:href="@{/user/order/pay}">微信支付</a>
+            </td>
+        </tr>
+<!--        <tr th:each="item : ${pagination.data}">-->
+<!--            <td th:text="${item.id}">id</td>-->
+<!--            <td th:text="${item.premiumPlanName}">Mark</td>-->
+<!--            <td th:text="${item.premiumPlanDesc}">Otto</td>-->
+<!--            <td th:text="${item.premiumPlanTimeValue + '/' + item.premiumPlanTimeUnit}">@mdo</td>-->
+<!--            <td th:text="${item.premiumPlanStock}">@mdo</td>-->
+<!--            <td>-->
+<!--                <a href="/admin/route/update.html"-->
+<!--                   th:href="@{/admin/route/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">购买</a>-->
+<!--            </td>-->
+<!--        </tr>-->
+        </tbody>
+    </table>
+
+</div>
+<div th:replace="~{/include/script.html}"></div>
+</body>
+
+</html>

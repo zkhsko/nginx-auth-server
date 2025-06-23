@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="org.nginx.auth.repository.PaymentHistoryRepository">
 
-    <resultMap id="BaseResultMap" type="org.nginx.auth.model.PaymentHistory">
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.OrderPaymentInfo">
         <id column="id" property="id" />
         <result column="order_id" property="orderId" />
         <result column="user_id" property="userId" />
@@ -36,7 +36,7 @@
 <!--        ORDER BY id DESC-->
     </select>
 
-    <update id="updateOrderPayInfo" parameterType="org.nginx.auth.model.PaymentHistory">
+    <update id="updateOrderPayInfo" parameterType="org.nginx.auth.model.OrderPaymentInfo">
         UPDATE payment_history
         SET trade_no = #{tradeNo},
         order_pay_time = #{orderPayTime},

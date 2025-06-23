@@ -11,6 +11,9 @@ import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.service.OrderInfoService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author dongpo.li
  * @date 2024/12/27 20:17
@@ -22,21 +25,6 @@ public class SystemController {
 
     @Autowired
     private OrderInfoService orderInfoService;
-
-    @PostMapping("/order/create")
-    @ResponseBody
-    public OrderCreateDTO createOrder(@RequestBody OrderCreateParam param) {
-
-        String paymentChannel = param.getPaymentChannel();
-        boolean validEnum = EnumUtils.isValidEnum(PaymentChannelEnum.class, paymentChannel);
-        if (!validEnum) {
-            throw new IllegalArgumentException("支付渠道不合法");
-        }
-        PaymentChannelEnum paymentChannelEnum = EnumUtils.getEnum(PaymentChannelEnum.class, paymentChannel);
-
-        return orderInfoService.createOrder(paymentChannelEnum, param);
-    }
-
 
 //    @RequestMapping(value = "/order/alipay/notify")
 //    @ResponseBody

@@ -1,39 +1,18 @@
 package org.nginx.auth.model;
 
-import java.util.Date;
+public class OrderSkuInfo extends AutoIncrementBaseEntity {
 
-/**
- * @author dongpo.li
- * @date 2023/12/15
- */
-public class PaymentHistory extends AutoIncrementBaseEntity {
-
-    /**
-     * 订单唯一编号
-     */
     private String orderId;
-    private Long userId;
+
     /**
      * premium_plan表的id
      */
     private Long premiumPlanId;
     /**
-     * 支付渠道
-     *
+     * 数量
      */
-    private String orderPayChannel;
-    /**
-     * 支付流水号
-     */
-    private String tradeNo;
-    /**
-     * 支付时间
-     */
-    private Date orderPayTime;
-    /**
-     * 实付金额,单位分
-     */
-    private Long orderPayAmount;
+    private Long cnt;
+
 
     // --- 以下字段来自product_info表 ---
     private String premiumPlanName;
@@ -59,20 +38,13 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
     private Long premiumPlanTimeValue;
     // --- premium_plan表结束 ---
 
+
     public String getOrderId() {
         return orderId;
     }
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public Long getPremiumPlanId() {
@@ -83,36 +55,12 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
         this.premiumPlanId = premiumPlanId;
     }
 
-    public String getOrderPayChannel() {
-        return orderPayChannel;
+    public Long getCnt() {
+        return cnt;
     }
 
-    public void setOrderPayChannel(String orderPayChannel) {
-        this.orderPayChannel = orderPayChannel;
-    }
-
-    public String getTradeNo() {
-        return tradeNo;
-    }
-
-    public void setTradeNo(String tradeNo) {
-        this.tradeNo = tradeNo;
-    }
-
-    public Date getOrderPayTime() {
-        return orderPayTime;
-    }
-
-    public void setOrderPayTime(Date orderPayTime) {
-        this.orderPayTime = orderPayTime;
-    }
-
-    public Long getOrderPayAmount() {
-        return orderPayAmount;
-    }
-
-    public void setOrderPayAmount(Long orderPayAmount) {
-        this.orderPayAmount = orderPayAmount;
+    public void setCnt(Long cnt) {
+        this.cnt = cnt;
     }
 
     public String getPremiumPlanName() {

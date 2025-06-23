@@ -1,6 +1,6 @@
 package org.nginx.auth.util;
 
-import org.nginx.auth.model.PaymentHistory;
+import org.nginx.auth.model.OrderSkuInfo;
 import org.nginx.auth.model.PremiumPlan;
 import org.springframework.cglib.beans.BeanCopier;
 
@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
  */
 public class OrderInfoUtils {
 
-    public static final BeanCopier PREMIUM_PLA_2_PAYMENT_INFO = BeanCopier.create(PremiumPlan.class, PaymentHistory.class, false);
+    public static final BeanCopier PREMIUM_PLAN_2_ORDER_SKU_INFO = BeanCopier.create(PremiumPlan.class, OrderSkuInfo.class, false);
 
     /**
      * 生成订单号,规则如下
