@@ -12,11 +12,11 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
      * 订单唯一编号
      */
     private String orderId;
-    private Long accountId;
+    private Long userId;
     /**
-     * product_info表的id
+     * premium_plan表的id
      */
-    private Long productId;
+    private Long premiumPlanId;
     /**
      * 支付渠道
      *
@@ -36,8 +36,8 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
     private Long orderPayAmount;
 
     // --- 以下字段来自product_info表 ---
-    private String productName;
-    private String productDesc;
+    private String premiumPlanName;
+    private String premiumPlanDesc;
     /**
      * 权限路径表达式,参见AntPathMatcher
      */
@@ -45,20 +45,19 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
     /**
      * 产品价格,单位分
      */
-    private Long productPrice;
+    private Long premiumPlanPrice;
     /**
-     * TODO 改名Plan了
      * 产品有效期单位 可选值：
      * DAY: 天,从当前时间到几天后的这个时间
      * MONTH: 月,...
      * YEAR: 年:...
      */
-    private String productTimeUnit;
+    private String premiumPlanTimeUnit;
     /**
      * 产品有效期值,和单位一起计算过期时间
      */
-    private Long productTimeValue;
-    // --- product_info表结束 ---
+    private Long premiumPlanTimeValue;
+    // --- premium_plan表结束 ---
 
     public String getOrderId() {
         return orderId;
@@ -68,20 +67,20 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
         this.orderId = orderId;
     }
 
-    public Long getAccountId() {
-        return accountId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Long getProductId() {
-        return productId;
+    public Long getPremiumPlanId() {
+        return premiumPlanId;
     }
 
-    public void setProductId(Long productId) {
-        this.productId = productId;
+    public void setPremiumPlanId(Long premiumPlanId) {
+        this.premiumPlanId = premiumPlanId;
     }
 
     public String getOrderPayChannel() {
@@ -116,20 +115,20 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
         this.orderPayAmount = orderPayAmount;
     }
 
-    public String getProductName() {
-        return productName;
+    public String getPremiumPlanName() {
+        return premiumPlanName;
     }
 
-    public void setProductName(String productName) {
-        this.productName = productName;
+    public void setPremiumPlanName(String premiumPlanName) {
+        this.premiumPlanName = premiumPlanName;
     }
 
-    public String getProductDesc() {
-        return productDesc;
+    public String getPremiumPlanDesc() {
+        return premiumPlanDesc;
     }
 
-    public void setProductDesc(String productDesc) {
-        this.productDesc = productDesc;
+    public void setPremiumPlanDesc(String premiumPlanDesc) {
+        this.premiumPlanDesc = premiumPlanDesc;
     }
 
     public String getPattern() {
@@ -140,28 +139,27 @@ public class PaymentHistory extends AutoIncrementBaseEntity {
         this.pattern = pattern;
     }
 
-    public Long getProductPrice() {
-        return productPrice;
+    public Long getPremiumPlanPrice() {
+        return premiumPlanPrice;
     }
 
-    public void setProductPrice(Long productPrice) {
-        this.productPrice = productPrice;
+    public void setPremiumPlanPrice(Long premiumPlanPrice) {
+        this.premiumPlanPrice = premiumPlanPrice;
     }
 
-    public String getProductTimeUnit() {
-        return productTimeUnit;
+    public String getPremiumPlanTimeUnit() {
+        return premiumPlanTimeUnit;
     }
 
-    public void setProductTimeUnit(String productTimeUnit) {
-        this.productTimeUnit = productTimeUnit;
+    public void setPremiumPlanTimeUnit(String premiumPlanTimeUnit) {
+        this.premiumPlanTimeUnit = premiumPlanTimeUnit;
     }
 
-    public Long getProductTimeValue() {
-        return productTimeValue;
+    public Long getPremiumPlanTimeValue() {
+        return premiumPlanTimeValue;
     }
 
-    public void setProductTimeValue(Long productTimeValue) {
-        this.productTimeValue = productTimeValue;
+    public void setPremiumPlanTimeValue(Long premiumPlanTimeValue) {
+        this.premiumPlanTimeValue = premiumPlanTimeValue;
     }
-
 }
