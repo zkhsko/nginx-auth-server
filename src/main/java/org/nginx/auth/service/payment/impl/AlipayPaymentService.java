@@ -15,15 +15,16 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.model.OrderInfo;
+import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.model.OrderSkuInfo;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
-import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.util.JsonUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,7 +49,11 @@ public class AlipayPaymentService extends AbstractPaymentService {
     private String alipayPublicKeyFile;
     @Value(value = "${payment.alipay.notify-url:}")
     private String notifyUrl;
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
+    @Autowired
+    private ApplicationContext applicationContext;
     @Autowired
     private OrderSkuInfoRepository orderSkuInfoRepository;
 
@@ -110,14 +115,24 @@ public class AlipayPaymentService extends AbstractPaymentService {
 
 
     private String buildNotifyUrl() {
-        return notifyUrl + "/harbor/order/alipay/notify";
+        StringBuilder builder = new StringBuilder(notifyUrl);
+        if (StringUtils.endsWith(notifyUrl, "/")) {
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        if (!StringUtils.startsWith(contextPath, "/")) {
+            builder.append("/");
+        }
+        builder.append(contextPath);
+        builder.append("/alipay/notify");
+        return builder.toString();
+//        return notifyUrl + "/" + contextPath + "/alipay/notify";
     }
 
     private String readPrivateKey() {
         return readFileContent(privateKeyFile);
     }
 
-    private String readAlipayPublicKey() {
+    public String readAlipayPublicKey() {
         return readFileContent(alipayPublicKeyFile);
     }
 

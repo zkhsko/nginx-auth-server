@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.nginx.auth.repository.PaymentNotifyHistoryRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.PaymentNotifyHistory">
+        <id column="id" property="id"/>
+        <result column="notify_id" property="notifyId"/>
+        <result column="order_pay_channel" property="orderPayChannel"/>
+        <result column="request_param" property="requestParam"/>
+        <result column="request_body" property="requestBody"/>
+        <result column="in_use" property="resolved"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `notify_id`, `order_pay_channel`, `request_param`, `request_body`, `resolved`,
+        `create_time`, `update_time`
+    </sql>
+
+    <update id="changeToResolved" parameterType="org.nginx.auth.model.OrderPaymentInfo">
+        UPDATE payment_notify_history
+        SET resolved = 1
+        WHERE id = #{id}
+        AND resolved = 0
+    </update>
+
+</mapper>
