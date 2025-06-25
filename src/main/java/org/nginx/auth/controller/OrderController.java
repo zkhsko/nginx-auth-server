@@ -1,8 +1,6 @@
 package org.nginx.auth.controller;
 
 import org.nginx.auth.dto.vo.OrderDetailVO;
-import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.OrderSkuInfo;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.service.OrderInfoService;
 import org.slf4j.Logger;
@@ -62,6 +60,17 @@ public class OrderController {
         model.addAttribute("orderDetailVO", detail);
 
         return "/user/order/detail.html";
+    }
+
+    @GetMapping("/pay.html")
+    public String orderDetail(String orderId, String paymentChannel, Model model) {
+        String pay = orderInfoService.pay(orderId, paymentChannel);
+
+        pay = "data:image/png;base64," + pay;
+
+        model.addAttribute("pay", pay);
+
+        return "/user/order/pay.html";
     }
 
 

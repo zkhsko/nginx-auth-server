@@ -1,6 +1,6 @@
 package org.nginx.auth.service;
 
-import org.nginx.auth.repository.PaymentHistoryRepository;
+import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class SubscriptionService {
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionService.class);
 
     @Autowired
-    public PaymentHistoryRepository paymentHistoryRepository;
+    public OrderPaymentInfoRepository orderPaymentInfoRepository;
 
 //    public Date calcExpireTime(Long accountId) {
 //

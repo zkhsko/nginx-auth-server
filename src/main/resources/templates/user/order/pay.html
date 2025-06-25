@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="~{/include/css.html}"></div>
+</head>
+
+<body>
+<div class="container">
+<!--    <div th:replace="~{/include/nav.html}"></div>-->
+    
+    <img src="data:image/png;base64," th:src="${pay}"/>
+</div>
+<div th:replace="~{/include/script.html}"></div>
+</body>
+
+</html>

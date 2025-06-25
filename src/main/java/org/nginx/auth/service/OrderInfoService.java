@@ -1,11 +1,11 @@
 package org.nginx.auth.service;
 
-import com.alipay.api.domain.AlipayInsSceneInsserviceprodLightserprogressSyncModel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import jakarta.annotation.Resource;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.OrderInfo;
@@ -14,7 +14,7 @@ import org.nginx.auth.model.OrderSkuInfo;
 import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
-import org.nginx.auth.repository.PaymentHistoryRepository;
+import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.PremiumPlanRepository;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.response.OrderCreateDTO;
@@ -29,7 +29,6 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Date;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class OrderInfoService {
     @Autowired
     private PremiumPlanRepository premiumPlanRepository;
     @Autowired
-    private PaymentHistoryRepository paymentHistoryRepository;
+    private OrderPaymentInfoRepository orderPaymentInfoRepository;
     @Autowired
     private OrderInfoRepository orderInfoRepository;
     @Autowired
@@ -181,4 +180,81 @@ public class OrderInfoService {
         return orderSkuInfoRepository.selectList(queryWrapper);
     }
 
+    public String pay(String orderId, String paymentChannel) {
+
+
+        boolean validEnum = EnumUtils.isValidEnum(PaymentChannelEnum.class, paymentChannel);
+        if (!validEnum) {
+            throw new IllegalArgumentException("支付渠道不合法");
+        }
+        PaymentChannelEnum paymentChannelEnum = EnumUtils.getEnum(PaymentChannelEnum.class, paymentChannel);
+
+        OrderInfo orderInfo = this.selectByOrderId(orderId);
+        if (orderInfo == null) {
+            throw new IllegalArgumentException("订单不存在");
+        }
+
+        boolean createNewPayment = true;
+        // 查看该订单其他支付记录
+        List<OrderPaymentInfo> orderPaymentInfoList = orderPaymentInfoRepository.selectListByOrderId(orderId);
+        for (OrderPaymentInfo orderPaymentInfo : orderPaymentInfoList) {
+            // 如果有订单已经支付过了,不允许修改了
+            if (orderPaymentInfo.getOrderPayAmount() > 0) {
+                throw new IllegalArgumentException("订单已经支付成功,不允许重复支付");
+            }
+            if (StringUtils.equals(orderPaymentInfo.getOrderPayChannel(), paymentChannelEnum.name())
+                    && orderPaymentInfo.getInUse()) {
+                // 如果是当前渠道并且没有关闭,则继续使用
+                createNewPayment = false;
+            } else {
+                // 其他支付记录,全部关闭
+                orderPaymentInfo.setInUse(false);
+                // TODO 关闭支付平台订单
+
+                LambdaUpdateWrapper<OrderPaymentInfo> updateWrapper = new LambdaUpdateWrapper<>();
+                updateWrapper.eq(OrderPaymentInfo::getId, orderPaymentInfo.getId());
+                updateWrapper.set(OrderPaymentInfo::getInUse, false);
+                orderPaymentInfoRepository.update(updateWrapper);
+            }
+        }
+
+        // 创建支付平台订单,获取支付二维码
+        OrderCreateDTO rsp = new OrderCreateDTO();
+        rsp.setOrderId(orderId);
+
+        String payNo = "";
+
+        switch (paymentChannelEnum) {
+            case ALIPAY: {
+                PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
+                OrderCreateDTO orderCreateDTO = paymentService.createOrder(orderInfo);
+                rsp.setImageData(orderCreateDTO.getImageData());
+
+                payNo = orderCreateDTO.getOrderId();
+
+                break;
+            }
+            case WECHAT_PAY: {
+
+                break;
+            }
+        }
+
+        if (createNewPayment) {
+
+            // 插入支付流水
+            OrderPaymentInfo orderPaymentInfoInsert = new OrderPaymentInfo();
+            orderPaymentInfoInsert.setOrderId(orderId);
+            orderPaymentInfoInsert.setOrderPayChannel(paymentChannelEnum.name());
+            orderPaymentInfoInsert.setPayNo(payNo);
+            orderPaymentInfoInsert.setOrderPayTime(new Date(0L));
+            orderPaymentInfoInsert.setOrderPayAmount(0L);
+            orderPaymentInfoInsert.setInUse(true);
+            orderPaymentInfoRepository.insert(orderPaymentInfoInsert);
+        }
+
+        return rsp.getImageData();
+
+
+    }
 }

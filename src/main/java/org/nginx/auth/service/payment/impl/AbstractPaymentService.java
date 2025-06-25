@@ -1,7 +1,7 @@
 package org.nginx.auth.service.payment.impl;
 
 import org.nginx.auth.model.OrderPaymentInfo;
-import org.nginx.auth.repository.PaymentHistoryRepository;
+import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.service.payment.PaymentService;
 
 import java.util.Date;
@@ -12,20 +12,20 @@ import java.util.Date;
  */
 public abstract class AbstractPaymentService implements PaymentService {
 
-    private PaymentHistoryRepository paymentHistoryRepository;
+    private OrderPaymentInfoRepository orderPaymentInfoRepository;
 
-    public void setPaymentInfoRepository(PaymentHistoryRepository paymentHistoryRepository) {
-        this.paymentHistoryRepository = paymentHistoryRepository;
+    public void setPaymentInfoRepository(OrderPaymentInfoRepository orderPaymentInfoRepository) {
+        this.orderPaymentInfoRepository = orderPaymentInfoRepository;
     }
 
     protected void updateOrderPayInfo(OrderPaymentInfo orderPaymentInfo) {
 
         OrderPaymentInfo orderPaymentInfoUpdate = new OrderPaymentInfo();
-        orderPaymentInfoUpdate.setTradeNo(orderPaymentInfo.getTradeNo());
+        orderPaymentInfoUpdate.setPayNo(orderPaymentInfo.getPayNo());
         orderPaymentInfoUpdate.setOrderPayTime(new Date());
         orderPaymentInfoUpdate.setOrderPayAmount(orderPaymentInfo.getOrderPayAmount());
 
-        paymentHistoryRepository.updateOrderPayInfo(orderPaymentInfoUpdate);
+        orderPaymentInfoRepository.updateOrderPayInfo(orderPaymentInfoUpdate);
 
     }
 

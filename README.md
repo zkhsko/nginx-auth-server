@@ -14,3 +14,8 @@ Idea -> Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gra
 - [ ] 查看订单(管理员/用户)
 - [ ] 添加测试用例
 - [ ] 优惠券
+- [ ] 支付页面美化
+- [ ] 支付页支付结果获取
+- [ ] 防止重复支付
+
+

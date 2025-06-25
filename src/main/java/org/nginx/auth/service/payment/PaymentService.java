@@ -1,5 +1,6 @@
 package org.nginx.auth.service.payment;
 
+import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.response.OrderCreateDTO;
 
@@ -9,7 +10,7 @@ import org.nginx.auth.response.OrderCreateDTO;
  */
 public interface PaymentService {
 
-    OrderCreateDTO createOrder(OrderPaymentInfo orderPaymentInfo);
+    OrderCreateDTO createOrder(OrderInfo orderInfo);
 
     void pay(OrderPaymentInfo orderPaymentInfo);
 

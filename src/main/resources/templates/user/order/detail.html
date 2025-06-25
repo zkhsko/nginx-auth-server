@@ -37,9 +37,9 @@
         <tr>
             <td th:if="${orderDetailVO.orderInfo.orderStatus=='INIT'}">
                 <a class="btn btn-primary"
-                   th:href="@{/user/order/pay}">支付宝支付</a>
+                   th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'ALIPAY'})}">支付宝支付</a>
                 <a class="btn btn-primary"
-                   th:href="@{/user/order/pay}">微信支付</a>
+                   th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'WECHAT_PAY'})}">微信支付</a>
             </td>
         </tr>
 <!--        <tr th:each="item : ${pagination.data}">-->

@@ -1,6 +1,9 @@
 package org.nginx.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.EnumUtils;
+import org.nginx.auth.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.nginx.auth.service.OrderInfoService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author dongpo.li
@@ -26,28 +30,16 @@ public class SystemController {
     @Autowired
     private OrderInfoService orderInfoService;
 
-//    @RequestMapping(value = "/order/alipay/notify")
-//    @ResponseBody
-//    public Flux<String> orderAlipayNotify(ServerWebExchange exchange) {
-//
-//        MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
-//
-//        Flux<DataBuffer> body = exchange.getRequest().getBody();
-//
-//        return body.map(buffer -> {
-//
-//            try {
-//                InputStream inputStream = buffer.asInputStream();
-//                String requestBody = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-//                logger.info("支付宝支付成功回调通知, queryParam={}, requestBody={}", JsonUtils.toJson(queryParams), requestBody);
-//                return "success";
-//            } catch (Exception e) {
-//                logger.error("支付宝支付成功回调异常, queryParam={}", JsonUtils.toJson(queryParams), e);
-//                return "fail";
-//            }
-//
-//        });
-//
-//    }
+    @RequestMapping(value = "/order/alipay/notify")
+    @ResponseBody
+    public String orderAlipayNotify(HttpServletRequest request, HttpServletResponse response,
+                                    @RequestBody String requestBody) {
+
+        Map<String, String[]> requestParam = request.getParameterMap();
+
+        logger.info("支付宝支付成功回调通知, queryParam={}, requestBody={}", JsonUtils.toJson(requestParam), requestBody);
+        return "success";
+
+    }
 
 }

@@ -11,9 +11,9 @@ import java.util.List;
  * @date 2023/12/15
  */
 @Mapper
-public interface PaymentHistoryRepository extends BaseMapper<OrderPaymentInfo> {
+public interface OrderPaymentInfoRepository extends BaseMapper<OrderPaymentInfo> {
 
-    List<OrderPaymentInfo> selectListByAccountId(Long accountId);
+    List<OrderPaymentInfo> selectListByOrderId(String orderId);
 
     int updateOrderPayInfo(OrderPaymentInfo orderPaymentInfo);
 

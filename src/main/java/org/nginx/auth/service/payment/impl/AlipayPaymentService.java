@@ -5,13 +5,19 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.nginx.auth.model.OrderInfo;
+import org.nginx.auth.model.OrderSkuInfo;
+import org.nginx.auth.repository.OrderSkuInfoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
@@ -25,10 +31,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author dongpo.li
@@ -46,8 +49,14 @@ public class AlipayPaymentService extends AbstractPaymentService {
     @Value(value = "${payment.alipay.notify-url:}")
     private String notifyUrl;
 
+    @Autowired
+    private OrderSkuInfoRepository orderSkuInfoRepository;
+
     @Override
-    public OrderCreateDTO createOrder(OrderPaymentInfo orderPaymentInfo) {
+    public OrderCreateDTO createOrder(OrderInfo orderInfo) {
+
+        String orderId = orderInfo.getOrderId();
+        Long orderAmount = orderInfo.getOrderAmount();
 
         String privateKey = readPrivateKey();
         String alipayPublicKey = readAlipayPublicKey();
@@ -56,12 +65,21 @@ public class AlipayPaymentService extends AbstractPaymentService {
         AlipayTradePrecreateRequest request = new AlipayTradePrecreateRequest();
         request.setNotifyUrl(buildNotifyUrl());
         Map<String, Object> bizContent = new HashMap<>();
-        bizContent.put("out_trade_no", orderPaymentInfo.getOrderId());
-        BigDecimal totalPayAmount = BigDecimal.valueOf(orderPaymentInfo.getPremiumPlanPrice())
+        bizContent.put("out_trade_no", orderId);
+        BigDecimal totalPayAmount = BigDecimal.valueOf(orderAmount)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
         bizContent.put("total_amount", totalPayAmount.doubleValue());
-        bizContent.put("subject", orderPaymentInfo.getPremiumPlanName());
 
+        LambdaQueryWrapper<OrderSkuInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderSkuInfo::getOrderId, orderId);
+        List<OrderSkuInfo> orderSkuInfoList = orderSkuInfoRepository.selectList(queryWrapper);
+        if (CollectionUtils.isEmpty(orderSkuInfoList)) {
+            bizContent.put("subject", orderInfo.getOrderId());
+        } else if (orderSkuInfoList.size() == 1) {
+            bizContent.put("subject", orderSkuInfoList.get(0).getPremiumPlanName());
+        } else {
+            bizContent.put("subject", orderSkuInfoList.get(0).getPremiumPlanName() + "等" + orderSkuInfoList.size() + "件商品");
+        }
 
         request.setBizContent(JsonUtils.toJson(bizContent));
         AlipayTradePrecreateResponse response = null;
@@ -83,7 +101,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
         String imageData = translateQRCodeStringToBase64Image(qrCode);
 
         OrderCreateDTO orderCreateDTO = new OrderCreateDTO();
-        orderCreateDTO.setOrderId(orderPaymentInfo.getOrderId());
+        orderCreateDTO.setOrderId(orderInfo.getOrderId());
         orderCreateDTO.setImageData(imageData);
 
 
@@ -141,7 +159,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
     @Override
     public void pay(OrderPaymentInfo orderPaymentInfo) {
         orderPaymentInfo.setOrderPayAmount(1000L);
-        orderPaymentInfo.setTradeNo(StringUtils.remove(UUID.randomUUID().toString(), '-'));
+        orderPaymentInfo.setPayNo(StringUtils.remove(UUID.randomUUID().toString(), '-'));
 
         updateOrderPayInfo(orderPaymentInfo);
     }
