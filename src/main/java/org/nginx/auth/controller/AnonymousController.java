@@ -1,5 +1,6 @@
 package org.nginx.auth.controller;
 
+import org.nginx.auth.dto.vo.PremiumPlanVO;
 import org.nginx.auth.model.PremiumPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class AnonymousController {
             size = 10;
         }
 
-        BasicPaginationVO<PremiumPlan> premiumPlanPageVO = premiumPlanService.premiumPlanListPage(page, size);
+        BasicPaginationVO<PremiumPlanVO> premiumPlanPageVO = premiumPlanService.premiumPlanListPage(page, size);
         model.addAttribute("pagination", premiumPlanPageVO);
 
 

@@ -26,20 +26,21 @@
             </thead>
             <tbody>
                 <tr th:each="item : ${pagination.data}">
-                    <td th:text="${item.id}">id</td>
-                    <td th:text="${item.premiumPlanName}">Mark</td>
-                    <td th:text="${item.premiumPlanDesc}">Otto</td>
-                    <td th:text="${item.premiumPlanTimeValue + '/' + item.premiumPlanTimeUnit}">@mdo</td>
-                    <td th:text="${item.premiumPlanStock}">@mdo</td>
+                    <td th:text="${item.premiumPlan.id}">id</td>
+                    <td th:text="${item.premiumPlan.premiumPlanName}">Mark</td>
+                    <td th:text="${item.premiumPlan.premiumPlanDesc}">Otto</td>
+<!--                    <td th:text="${item.premiumPlan.premiumPlanTimeValue + '/' + item.premiumPlan.premiumPlanTimeUnit}">@mdo</td>-->
+                    <td th:text="${(item.premiumPlanPriceYuan) + '/' + item.premiumPlan.premiumPlanTimeUnit}">@mdo</td>
+                    <td th:text="${item.premiumPlan.premiumPlanStock}">@mdo</td>
                     <td>
                         <form method="post" action="/user/order/create.html"
                             th:action="@{/user/order/create}">
-                            <input type="hidden" name="skuId" th:value="${item.id}" />
+                            <input type="hidden" name="skuId" th:value="${item.premiumPlan.id}" />
                             <input type="hidden" name="cnt" value="1" />
                             <button class="btn btn-link">下单</button>
                         </form>
                         <!-- <a href="/user/order/create.html"
-                            th:href="@{/user/order/create(skuId=${item.id}, cnt=${'1'})}">购买</a> -->
+                            th:href="@{/user/order/create(skuId=${item.premiumPlan.id}, cnt=${'1'})}">购买</a> -->
                     </td>
                 </tr>
             </tbody>
