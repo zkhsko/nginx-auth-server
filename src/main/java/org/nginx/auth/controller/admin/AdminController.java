@@ -7,9 +7,11 @@ import org.apache.commons.collections4.MapUtils;
 import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
+import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.model.User;
 import org.nginx.auth.service.AdminAccountService;
+import org.nginx.auth.service.AdminOrderInfoService;
 import org.nginx.auth.service.AdminPremiumPlanService;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
@@ -35,6 +37,8 @@ public class AdminController {
     private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
     private AdminAccountService adminAccountService;
+    @Autowired
+    private AdminOrderInfoService adminOrderInfoService;
 
     @RequestMapping(value = {"", "/"})
     public String index() {
@@ -200,8 +204,19 @@ public class AdminController {
 
     // -- order --
     @GetMapping("/order/index.html")
-    public String orderListPage() {
-        return "";
+    public String orderListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 10;
+        }
+
+        BasicPaginationVO<OrderInfo> orderPage = adminOrderInfoService.orderListPage(page, size);
+        model.addAttribute("pagination", orderPage);
+        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
+
+        return "/admin/order/index.html";
     }
 
     @PostMapping("/order/refund.html")
