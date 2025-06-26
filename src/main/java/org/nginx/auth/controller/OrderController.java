@@ -1,8 +1,15 @@
 package org.nginx.auth.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.nginx.auth.constant.BasicConstant;
+import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
+import org.nginx.auth.model.OrderInfo;
+import org.nginx.auth.model.User;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.service.OrderInfoService;
+import org.nginx.auth.util.RedirectPageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +31,25 @@ public class OrderController {
     private OrderInfoService orderInfoService;
 
     @GetMapping(value = {"/", "/index.html"})
-    public String index() {
+    public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
+        HttpSession session = request.getSession(false);
+
+        User user = (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
+        if (user == null) {
+            return "redirect:/login.html";
+        }
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 10;
+        }
+
+        BasicPaginationVO<OrderInfo> pagination = orderInfoService.orderListPage(user, page, size);
+
+        model.addAttribute("pagination", pagination);
+        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
+
         return "/user/order/index.html";
     }
 

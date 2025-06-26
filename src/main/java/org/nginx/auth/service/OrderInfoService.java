@@ -1,15 +1,15 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.enums.PaymentChannelEnum;
-import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.OrderPaymentInfo;
-import org.nginx.auth.model.OrderSkuInfo;
-import org.nginx.auth.model.PremiumPlan;
+import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
@@ -18,6 +18,7 @@ import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.service.payment.PaymentService;
 import org.nginx.auth.service.payment.PaymentServiceFactory;
+import org.nginx.auth.util.BasicPaginationUtils;
 import org.nginx.auth.util.OrderInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -222,5 +223,16 @@ public class OrderInfoService {
         return rsp.getImageData();
 
 
+    }
+
+    public BasicPaginationVO<OrderInfo> orderListPage(User user, Integer page, Integer size) {
+        PageHelper.startPage(page, size);
+        List<OrderInfo> orderInfoList = orderInfoRepository.selectList(
+                new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getUserId, user.getId())
+                        .orderByDesc(OrderInfo::getId)
+        );
+        PageInfo<OrderInfo> pageInfo = new PageInfo<>(orderInfoList);
+        return BasicPaginationUtils.create(pageInfo);
     }
 }

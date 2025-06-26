@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>我的订单列表</title>
+    <div th:replace="/include/css.html"></div>
+</head>
+
+<body>
+    <div class="container">
+        <div th:replace="/include/nav.html"></div>
+
+        <h1>我的订单列表</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">订单ID</th>
+                    <th scope="col">订单金额</th>
+                    <th scope="col">订单状态</th>
+                    <th scope="col">创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="order : ${pagination.data}">
+                    <td th:text="${order.orderId}">订单ID</td>
+                    <td th:text="${#numbers.formatDecimal(order.orderAmount / 100.0, 1, 'COMMA', 2, 'POINT')}">订单金额</td>
+                    <td th:text="${order.orderStatus}">订单状态</td>
+                    <td th:text="${#dates.format(order.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                    <td>
+                        <a href="#" th:href="@{/user/order/detail.html(orderId=${order.orderId})}">详情</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:replace="/include/pagination.html"></div>
+    </div>
+    <div th:replace="/include/script.html"></div>
+</body>
+
+</html>
