@@ -21,17 +21,17 @@ public class AuthApiService {
 
         SubscriptionInfo subscriptionInfo = subscriptionInfoService.selectByUserId(user.getId());
         if (subscriptionInfo == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return "403 Forbidden";
         }
 
         if (subscriptionInfo.getSubscribeExpireTime() == null) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return "403 Forbidden";
         }
 
         if (subscriptionInfo.getSubscribeExpireTime().before(new java.util.Date())) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return "403 Forbidden";
         }
 
