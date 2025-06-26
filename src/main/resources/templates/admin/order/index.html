@@ -26,9 +26,12 @@
                 <tr th:each="order : ${pagination.data}">
                     <td th:text="${order.orderId}">订单ID</td>
                     <td th:text="${order.userId}">用户ID</td>
-                    <td th:text="${#numbers.formatDecimal(order.orderAmount / 100, 1, 'COMMA', 2, 'POINT')}">订单金额</td>
+                    <td th:text="${#numbers.formatDecimal(order.orderAmount / 100.0, 1, 'COMMA', 2, 'POINT')}">订单金额</td>
                     <td th:text="${order.orderStatus}">订单状态</td>
                     <td th:text="${#dates.format(order.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                    <td>
+                        <a href="#" th:href="@{/admin/order/detail.html(orderId=${order.orderId})}">详情</a>
+                    </td>
                 </tr>
             </tbody>
         </table>

@@ -7,6 +7,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
+import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.model.User;
@@ -217,6 +218,18 @@ public class AdminController {
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
         return "/admin/order/index.html";
+    }
+
+    @GetMapping("/order/detail.html")
+    public String selectOrderDetail(String orderId, Model model) {
+
+        model.addAttribute("orderId", orderId);
+
+        OrderDetailVO detail = adminOrderInfoService.getOrderDetail(orderId);
+
+        model.addAttribute("orderDetailVO", detail);
+
+        return "/admin/order/detail.html";
     }
 
     @PostMapping("/order/refund.html")
