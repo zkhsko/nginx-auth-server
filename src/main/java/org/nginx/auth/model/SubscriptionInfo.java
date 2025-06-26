@@ -12,66 +12,27 @@ import java.util.Date;
 @TableName("subscription_info")
 public class SubscriptionInfo extends AutoIncrementBaseEntity {
 
-    @TableField("account_id")
-    private Long accountId;
+    @TableField("user_id")
+    private Long userId;
     /**
-     * 哪个商品的
+     * 订阅到期时间
      */
-    @TableField("plan_id")
-    private Long planId;
-    /**
-     * 订阅下单时间
-     */
-    @TableField("subscribe_order_time")
-    private Date subscribeOrderTime;
-    /**
-     * @see PlanInfo#planTimeUnit
-     */
-    @TableField("plan_time_unit")
-    private String planTimeUnit;
-    /**
-     * @see PlanInfo#planTimeValue
-     */
-    @TableField("plan_time_value")
-    private Long planTimeValue;
+    @TableField("subscribe_expire_time")
+    private Date subscribeExpireTime;
 
-    public Long getAccountId() {
-        return accountId;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public Long getPlanId() {
-        return planId;
+    public Date getSubscribeExpireTime() {
+        return subscribeExpireTime;
     }
 
-    public void setPlanId(Long planId) {
-        this.planId = planId;
-    }
-
-    public Date getSubscribeOrderTime() {
-        return subscribeOrderTime;
-    }
-
-    public void setSubscribeOrderTime(Date subscribeOrderTime) {
-        this.subscribeOrderTime = subscribeOrderTime;
-    }
-
-    public String getPlanTimeUnit() {
-        return planTimeUnit;
-    }
-
-    public void setPlanTimeUnit(String planTimeUnit) {
-        this.planTimeUnit = planTimeUnit;
-    }
-
-    public Long getPlanTimeValue() {
-        return planTimeValue;
-    }
-
-    public void setPlanTimeValue(Long planTimeValue) {
-        this.planTimeValue = planTimeValue;
+    public void setSubscribeExpireTime(Date subscribeExpireTime) {
+        this.subscribeExpireTime = subscribeExpireTime;
     }
 }

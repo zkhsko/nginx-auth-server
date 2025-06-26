@@ -13,8 +13,4 @@ import java.util.List;
 @Mapper
 public interface SubscriptionInfoRepository extends BaseMapper<SubscriptionInfo> {
 
-    List<SubscriptionInfo> selectAllSubscription(Long accountId);
-
-//    List<SubscriptionInfo> selectActiveSubscription(Long accountId);
-
 }

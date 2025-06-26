@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
  * @date 2024/12/23 15:27
  */
 @Service
-public class SubscriptionManageService {
-    private static final Logger logger = LoggerFactory.getLogger(SubscriptionManageService.class);
+public class SubscriptionInfoService {
+    private static final Logger logger = LoggerFactory.getLogger(SubscriptionInfoService.class);
 
     public void refreshExpireAt() {
 

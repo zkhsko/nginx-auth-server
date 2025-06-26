@@ -4,37 +4,14 @@
 
     <resultMap id="BaseResultMap" type="org.nginx.auth.model.SubscriptionInfo">
         <id column="id" property="id"/>
-        <result column="account_id" property="accountId"/>
-        <result column="plan_id" property="planId"/>
-        <result column="subscribe_order_time" property="subscribeOrderTime"/>
-        <result column="plan_time_unit" property="planTimeUnit"/>
-        <result column="plan_time_value" property="planTimeValue"/>
-        <result column="subscribe_order_time" property="subscribeOrderTime"/>
+        <result column="user_id" property="userId"/>
+        <result column="subscribe_expire_time" property="subscribeExpireTime"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`, `account_id`, `plan_id`, `subscribe_order_time`, `plan_time_unit`, `plan_time_value`,
-        `create_time`, `update_time`
+        `id`, `user_id`, `account_id`, `subscribe_expire_time`, `create_time`, `update_time`
     </sql>
-
-    <select id="selectAllSubscription" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM subscription_info
-        WHERE account_id = #{accountId}
-        ORDER BY id DESC
-    </select>
-
-    <!--    <select id="selectActiveSubscription" resultMap="BaseResultMap">-->
-    <!--        SELECT-->
-    <!--        <include refid="Base_Column_List"/>-->
-    <!--        FROM subscription_info-->
-    <!--        WHERE account_id = #{accountId}-->
-    <!--        AND subscribe_expire_time > NOW()-->
-    <!--        ORDER BY id DESC-->
-    <!--    </select>-->
-
 
 </mapper>
