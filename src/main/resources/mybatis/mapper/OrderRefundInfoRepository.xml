@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.nginx.auth.repository.OrderRefundInfoRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.OrderRefundInfo">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="order_pay_channel" property="orderPayChannel" />
+        <result column="trade_no" property="tradeNo" />
+        <result column="order_refund_time" property="orderRefundTime" />
+        <result column="order_refund_amount" property="orderRefundAmount" />
+        <result column="status" property="status" />
+        <result column="refund_reason" property="refundReason" />
+        <result column="return_purchase" property="returnPurchase" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `order_id`, `order_pay_channel`, `trade_no`, `order_refund_time`, `order_refund_amount`, `status`, `refund_reason`, `return_purchase`
+    </sql>
+
+</mapper>
