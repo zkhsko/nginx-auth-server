@@ -76,11 +76,6 @@ public class AlipayPaymentService extends AbstractPaymentService {
     @Autowired
     private SubscriptionInfoService subscriptionInfoService;
 
-    @PostConstruct
-    public void init() {
-        setPaymentInfoRepository(orderPaymentInfoRepository);
-    }
-
     @Override
     public OrderCreateDTO createOrder(OrderInfo orderInfo) {
 
@@ -259,7 +254,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
             case "TRADE_SUCCESS":
             case "TRADE_FINISHED":
                 // 支付成功
-                String payNo = requestParamMap.get("trade_no");
+                String tradeNo = requestParamMap.get("trade_no");
                 String totalAmountParam = requestParamMap.get("total_amount");
                 BigDecimal totalAmount = new BigDecimal(totalAmountParam);
                 Long orderPayAmount = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
@@ -282,7 +277,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 orderPaymentInfo.setOrderId(orderInfo.getOrderId());
                 orderPaymentInfo.setOrderPayChannel("ALIPAY");
                 orderPaymentInfo.setOrderPayAmount(orderPayAmount);
-                orderPaymentInfo.setPayNo(payNo);
+                orderPaymentInfo.setTradeNo(tradeNo);
                 orderPaymentInfo.setOrderPayTime(orderPayTime);
                 orderPaymentInfo.setStatus("TRADE_SUCCESS");
                 orderPaymentInfoRepository.insert(orderPaymentInfo);
@@ -292,7 +287,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
                 orderInfoUpdate.eq(OrderInfo::getOrderId, orderId)
                         .set(OrderInfo::getOrderStatus, "TRADE_PAY_SUCCESS")
-                        .set(OrderInfo::getPayNo, payNo);
+                        .set(OrderInfo::getTradeNo, tradeNo);
                 orderInfoRepository.update(orderInfoUpdate);
 
 

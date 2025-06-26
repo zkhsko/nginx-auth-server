@@ -20,7 +20,7 @@ public class OrderPaymentInfo extends AutoIncrementBaseEntity {
     /**
      * 支付流水号
      */
-    private String payNo;
+    private String tradeNo;
     /**
      * 支付时间
      */
@@ -54,12 +54,12 @@ public class OrderPaymentInfo extends AutoIncrementBaseEntity {
         this.orderPayChannel = orderPayChannel;
     }
 
-    public String getPayNo() {
-        return payNo;
+    public String getTradeNo() {
+        return tradeNo;
     }
 
-    public void setPayNo(String payNo) {
-        this.payNo = payNo;
+    public void setTradeNo(String tradeNo) {
+        this.tradeNo = tradeNo;
     }
 
     public Date getOrderPayTime() {

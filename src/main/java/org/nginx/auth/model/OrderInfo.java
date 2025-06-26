@@ -15,7 +15,7 @@ public class OrderInfo extends AutoIncrementBaseEntity {
     /**
      * 支付流水号
      */
-    private String payNo;
+    private String tradeNo;
 
     public String getOrderId() {
         return orderId;
@@ -57,11 +57,11 @@ public class OrderInfo extends AutoIncrementBaseEntity {
         this.orderStatus = orderStatus;
     }
 
-    public String getPayNo() {
-        return payNo;
+    public String getTradeNo() {
+        return tradeNo;
     }
 
-    public void setPayNo(String payNo) {
-        this.payNo = payNo;
+    public void setTradeNo(String tradeNo) {
+        this.tradeNo = tradeNo;
     }
 }
