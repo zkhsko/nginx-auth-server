@@ -6,6 +6,7 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -24,6 +25,7 @@ import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
 import org.nginx.auth.response.OrderCreateDTO;
+import org.nginx.auth.service.SubscriptionInfoService;
 import org.nginx.auth.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +73,8 @@ public class AlipayPaymentService extends AbstractPaymentService {
     private OrderInfoRepository orderInfoRepository;
     @Autowired
     private OrderPaymentInfoRepository orderPaymentInfoRepository;
+    @Autowired
+    private SubscriptionInfoService subscriptionInfoService;
 
     @PostConstruct
     public void init() {
@@ -284,12 +288,16 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 orderPaymentInfoRepository.insert(orderPaymentInfo);
 
 
-                // TODO 修改订单状态为已支付
+                // 修改订单状态为已支付
+                LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
+                orderInfoUpdate.eq(OrderInfo::getOrderId, orderId)
+                        .set(OrderInfo::getOrderStatus, "TRADE_PAY_SUCCESS")
+                        .set(OrderInfo::getPayNo, payNo);
+                orderInfoRepository.update(orderInfoUpdate);
 
-                // TODO 延长订阅时间
 
-                // TODO 标记为resolved
-
+                // 延长订阅时间
+                subscriptionInfoService.refreshExpireAt(orderPaymentInfo);
 
                 break;
             case "TRADE_CLOSED":
