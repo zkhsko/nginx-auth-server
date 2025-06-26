@@ -34,9 +34,6 @@ public class SubscriptionInfoService {
     @Autowired
     private SubscriptionInfoRepository subscriptionInfoRepository;
 
-    private static final String ORDER_STATUS_PAID_1 = "TRADE_SUCCESS";
-    private static final String ORDER_STATUS_PAID_2 = "TRADE_FINISHED";
-
     /**
      * 根据支付流水号刷新用户订阅到期时间
      *
