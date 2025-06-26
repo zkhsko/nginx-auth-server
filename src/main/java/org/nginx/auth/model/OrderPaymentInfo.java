@@ -33,6 +33,10 @@ public class OrderPaymentInfo extends AutoIncrementBaseEntity {
      * 0 已关闭
      */
     private Boolean inUse;
+    /**
+     * 订单状态
+     */
+    private String status;
 
     public String getOrderId() {
         return orderId;
@@ -80,5 +84,13 @@ public class OrderPaymentInfo extends AutoIncrementBaseEntity {
 
     public void setInUse(Boolean inUse) {
         this.inUse = inUse;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

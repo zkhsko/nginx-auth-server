@@ -1,5 +1,6 @@
 package org.nginx.auth.configuration;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
@@ -7,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @date 2021/5/27
  */
 @EnableScheduling
+@Configuration
 public class ScheduleConfiguration {
 
 }

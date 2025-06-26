@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.nginx.auth.enums.PaymentChannelEnum;
+import org.nginx.auth.model.PaymentNotifyHistory;
 import org.nginx.auth.service.payment.PaymentNotifyHistoryService;
 import org.nginx.auth.service.payment.impl.AlipayPaymentService;
 import org.nginx.auth.util.JsonUtils;
@@ -57,18 +58,21 @@ public class AlipayController {
         logger.info("支付宝支付成功回调通知, requestQueryString={}, requestBody={}", requestQueryString, requestBody);
 
 
+        String notifyId = "";
+
         String alipayPublicKey = alipayPaymentService.readAlipayPublicKey();
 
         boolean signVerified = false;
         try {
-            Map<String, String[]> requestParam = request.getParameterMap();
-            Map<String, String> singleValueMap = requestParam.entrySet().stream()
-                    .filter(entry -> entry.getValue() != null && entry.getValue().length > 0)
-                    .collect(Collectors.toMap(
-                            Map.Entry::getKey,
-                            entry -> entry.getValue()[0]
-                    ));
-            signVerified = AlipaySignature.rsaCheckV1(singleValueMap, alipayPublicKey, "UTF-8", "RSA2");
+            PaymentNotifyHistory paymentNotifyHistory = new PaymentNotifyHistory();
+            paymentNotifyHistory.setRequestParam(requestQueryString);
+            paymentNotifyHistory.setRequestBody(requestBody);
+            Map<String, String> requestParam = alipayPaymentService.resolveRequestParam(paymentNotifyHistory);
+
+            signVerified = AlipaySignature.rsaCheckV1(requestParam, alipayPublicKey, "UTF-8", "RSA2");
+
+            notifyId = requestParam.get("notify_id");
+
         } catch (AlipayApiException e) {
             throw new RuntimeException(e);
         }
@@ -78,8 +82,6 @@ public class AlipayController {
                     requestQueryString, requestBody);
             return "failure";
         }
-
-        String notifyId = request.getParameter("notify_id");
 
         paymentNotifyHistoryService.insert(notifyId, PaymentChannelEnum.ALIPAY.name(),
                 requestQueryString, requestBody);

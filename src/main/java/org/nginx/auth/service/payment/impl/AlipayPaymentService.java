@@ -11,15 +11,22 @@ import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.model.OrderSkuInfo;
+import org.nginx.auth.model.PaymentNotifyHistory;
+import org.nginx.auth.repository.OrderInfoRepository;
+import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.util.JsonUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +38,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -40,6 +50,7 @@ import java.util.*;
  */
 @Service
 public class AlipayPaymentService extends AbstractPaymentService {
+    private static final Logger logger = LoggerFactory.getLogger(AlipayPaymentService.class);
 
     @Value("${payment.alipay.app-id:}")
     private String appId;
@@ -56,6 +67,15 @@ public class AlipayPaymentService extends AbstractPaymentService {
     private ApplicationContext applicationContext;
     @Autowired
     private OrderSkuInfoRepository orderSkuInfoRepository;
+    @Autowired
+    private OrderInfoRepository orderInfoRepository;
+    @Autowired
+    private OrderPaymentInfoRepository orderPaymentInfoRepository;
+
+    @PostConstruct
+    public void init() {
+        setPaymentInfoRepository(orderPaymentInfoRepository);
+    }
 
     @Override
     public OrderCreateDTO createOrder(OrderInfo orderInfo) {
@@ -91,14 +111,14 @@ public class AlipayPaymentService extends AbstractPaymentService {
         try {
             response = alipayClient.execute(request);
 
-            System.out.println(JsonUtils.toJson(response));
         } catch (AlipayApiException e) {
+            logger.error("调用支付宝预下单接口失败, orderId={}", orderId, e);
             throw new RuntimeException(e);
         }
         if (response.isSuccess()) {
-            System.out.println("调用成功");
+            logger.info("调用成功");
         } else {
-            System.out.println("调用失败");
+            logger.error("调用失败");
         }
 
         String qrCode = response.getQrCode();
@@ -171,11 +191,119 @@ public class AlipayPaymentService extends AbstractPaymentService {
         }
     }
 
-    @Override
-    public void pay(OrderPaymentInfo orderPaymentInfo) {
-        orderPaymentInfo.setOrderPayAmount(1000L);
-        orderPaymentInfo.setPayNo(StringUtils.remove(UUID.randomUUID().toString(), '-'));
+    public void handleNotify(Map<String, String> requestParamMap) {
 
-        updateOrderPayInfo(orderPaymentInfo);
+        String method = MapUtils.getString(requestParamMap, "method");
+        if (StringUtils.equals("alipay.trade.refund", method)) {
+            // 退款通知
+            refund(requestParamMap);
+            return;
+        }
+
+        String notifyType = MapUtils.getString(requestParamMap, "notify_type");
+        if (StringUtils.equals("trade_status_sync", notifyType)) {
+            // 订单支付状态同步
+
+            pay(requestParamMap);
+            return;
+        }
+
     }
+
+    public Map<String, String> resolveRequestParam(PaymentNotifyHistory paymentNotifyHistory) {
+
+        String requestParam = paymentNotifyHistory.getRequestBody();
+
+        int l = 0;
+        int r = 0;
+
+        Map<String, String> paramMap = new HashMap<>();
+
+        while (r < requestParam.length()) {
+            char ch = requestParam.charAt(r);
+            if (ch == '=') {
+                String key = requestParam.substring(l, r);
+                l = r + 1;
+                r = l;
+                while (r < requestParam.length() && requestParam.charAt(r) != '&') {
+                    r++;
+                }
+                String value = requestParam.substring(l, r);
+                key = URLDecoder.decode(key, StandardCharsets.UTF_8);
+                value = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                paramMap.put(key, value);
+                l = r + 1;
+                r = l;
+            } else {
+                r++;
+            }
+        }
+
+        return paramMap;
+    }
+
+    private void pay(Map<String, String> requestParamMap) {
+        String orderId = requestParamMap.get("out_trade_no");
+
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getOrderId, orderId);
+        OrderInfo orderInfo = orderInfoRepository.selectOne(queryWrapper);
+
+        String tradeStatus = MapUtils.getString(requestParamMap, "trade_status");
+
+        switch (tradeStatus) {
+            case "TRADE_SUCCESS":
+            case "TRADE_FINISHED":
+                // 支付成功
+                String payNo = requestParamMap.get("trade_no");
+                String totalAmountParam = requestParamMap.get("total_amount");
+                BigDecimal totalAmount = new BigDecimal(totalAmountParam);
+                Long orderPayAmount = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
+
+                // gmt_payment
+                String orderPayTimeText = requestParamMap.get("gmt_payment");
+                Date orderPayTime = null;
+                if (StringUtils.isNotBlank(orderPayTimeText)) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    try {
+                        orderPayTime = sdf.parse(orderPayTimeText);
+                    } catch (Exception e) {
+                        logger.error("解析支付时间失败, orderId={}, gmt_payment={}", orderId, orderPayTimeText, e);
+                        orderPayTime = new Date(); // 如果解析失败，将处理时候的时间作为支付时间
+                    }
+                }
+
+                // 支付记录
+                OrderPaymentInfo orderPaymentInfo = new OrderPaymentInfo();
+                orderPaymentInfo.setOrderId(orderInfo.getOrderId());
+                orderPaymentInfo.setOrderPayChannel("ALIPAY");
+                orderPaymentInfo.setOrderPayAmount(orderPayAmount);
+                orderPaymentInfo.setPayNo(payNo);
+                orderPaymentInfo.setOrderPayTime(orderPayTime);
+                orderPaymentInfo.setStatus("TRADE_SUCCESS");
+                orderPaymentInfoRepository.insert(orderPaymentInfo);
+
+
+                // TODO 修改订单状态为已支付
+
+                // TODO 延长订阅时间
+
+                // TODO 标记为resolved
+
+
+                break;
+            case "TRADE_CLOSED":
+                // 交易关闭
+                throw new IllegalArgumentException("交易已关闭: " + orderId);
+            default:
+                throw new IllegalArgumentException("不支持的交易状态: " + tradeStatus);
+        }
+
+
+    }
+
+    private void refund(Map<String, String> requestParamMap) {
+
+    }
+
 }

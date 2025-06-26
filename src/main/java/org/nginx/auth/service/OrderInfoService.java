@@ -202,55 +202,23 @@ public class OrderInfoService {
             if (orderPaymentInfo.getOrderPayAmount() > 0) {
                 throw new IllegalArgumentException("订单已经支付成功,不允许重复支付");
             }
-            if (StringUtils.equals(orderPaymentInfo.getOrderPayChannel(), paymentChannelEnum.name())
-                    && orderPaymentInfo.getInUse()) {
-                // 如果是当前渠道并且没有关闭,则继续使用
-                createNewPayment = false;
-            } else {
-                // 其他支付记录,全部关闭
-                orderPaymentInfo.setInUse(false);
-                // TODO 关闭支付平台订单
-
-                LambdaUpdateWrapper<OrderPaymentInfo> updateWrapper = new LambdaUpdateWrapper<>();
-                updateWrapper.eq(OrderPaymentInfo::getId, orderPaymentInfo.getId());
-                updateWrapper.set(OrderPaymentInfo::getInUse, false);
-                orderPaymentInfoRepository.update(updateWrapper);
-            }
         }
 
         // 创建支付平台订单,获取支付二维码
         OrderCreateDTO rsp = new OrderCreateDTO();
         rsp.setOrderId(orderId);
 
-        String payNo = "";
-
         switch (paymentChannelEnum) {
             case ALIPAY: {
                 PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
                 OrderCreateDTO orderCreateDTO = paymentService.createOrder(orderInfo);
                 rsp.setImageData(orderCreateDTO.getImageData());
-
-                payNo = orderCreateDTO.getOrderId();
-
                 break;
             }
             case WECHAT_PAY: {
 
                 break;
             }
-        }
-
-        if (createNewPayment) {
-
-            // 插入支付流水
-            OrderPaymentInfo orderPaymentInfoInsert = new OrderPaymentInfo();
-            orderPaymentInfoInsert.setOrderId(orderId);
-            orderPaymentInfoInsert.setOrderPayChannel(paymentChannelEnum.name());
-            orderPaymentInfoInsert.setPayNo(payNo);
-            orderPaymentInfoInsert.setOrderPayTime(new Date(0L));
-            orderPaymentInfoInsert.setOrderPayAmount(0L);
-            orderPaymentInfoInsert.setInUse(true);
-            orderPaymentInfoRepository.insert(orderPaymentInfoInsert);
         }
 
         return rsp.getImageData();

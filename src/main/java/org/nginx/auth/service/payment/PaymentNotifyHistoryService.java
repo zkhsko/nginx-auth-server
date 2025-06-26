@@ -1,12 +1,19 @@
 package org.nginx.auth.service.payment;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.PaymentNotifyHistory;
 import org.nginx.auth.repository.PaymentNotifyHistoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author dongpo.li
@@ -39,6 +46,51 @@ public class PaymentNotifyHistoryService {
         paymentNotifyHistory.setResolved(false);
 
         paymentNotifyHistoryRepository.insert(paymentNotifyHistory);
+
+    }
+
+    /**
+     * 每一条作为单独的事务处理,失败不影响之前已经处理成功的记录
+     * @param id
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void resolvePaymentNotify(long id) {
+        logger.info("Resolving payment notify history id: {}", id);
+
+//        LambdaQueryWrapper<PaymentNotifyHistory> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(PaymentNotifyHistory::getId, id);
+//        queryWrapper.last("FOR UPDATE");
+//        PaymentNotifyHistory paymentNotifyHistory = paymentNotifyHistoryRepository.selectOne(queryWrapper);
+
+        resolve(id);
+    }
+
+    public void resolve(long id) {
+        LambdaQueryWrapper<PaymentNotifyHistory> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PaymentNotifyHistory::getId, id);
+        // 加锁,防止并发处理
+        queryWrapper.last("FOR UPDATE");
+        PaymentNotifyHistory paymentNotifyHistory = paymentNotifyHistoryRepository.selectOne(queryWrapper);
+
+        if (paymentNotifyHistory.getResolved() != null && paymentNotifyHistory.getResolved()) {
+            // 已经处理过了，直接返回
+            logger.info("Payment notify history id: {} has already been resolved, skipping.", id);
+            return;
+        }
+
+        String orderPayChannel = paymentNotifyHistory.getOrderPayChannel();
+        PaymentChannelEnum paymentChannelEnum = PaymentChannelEnum.valueOf(orderPayChannel);
+        PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
+
+        // 解析请求参数
+        Map<String, String> requestParamMap = paymentService.resolveRequestParam(paymentNotifyHistory);
+        // 处理请求
+        paymentService.handleNotify(requestParamMap);
+
+        LambdaUpdateWrapper<PaymentNotifyHistory> paymentNotifyHistoryUpdate = new LambdaUpdateWrapper<>();
+        paymentNotifyHistoryUpdate.set(PaymentNotifyHistory::getResolved, true);
+        paymentNotifyHistoryUpdate.eq(PaymentNotifyHistory::getId, id);
+        paymentNotifyHistoryRepository.update(paymentNotifyHistoryUpdate);
 
     }
 
