@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
 import org.nginx.auth.repository.UserRepository;
+import org.nginx.auth.service.AuthApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class AuthApiController {
     private String accessTokenKey;
 
     @Autowired
-    private UserRepository userRepository;
+    private AuthApiService authApiService;
 
     @RequestMapping("/access")
     public String access(HttpServletRequest request, HttpServletResponse response) {
@@ -32,7 +33,9 @@ public class AuthApiController {
             return "401 Authorization Required";
         }
 
-        return "success";
+        String rst = authApiService.access(user, response);
+
+        return rst;
     }
 
 }

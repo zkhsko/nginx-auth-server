@@ -34,6 +34,13 @@ public class SubscriptionInfoService {
     @Autowired
     private SubscriptionInfoRepository subscriptionInfoRepository;
 
+    public SubscriptionInfo selectByUserId(Long userId) {
+        return subscriptionInfoRepository.selectOne(
+                new LambdaQueryWrapper<SubscriptionInfo>()
+                        .eq(SubscriptionInfo::getUserId, userId)
+        );
+    }
+
     /**
      * 根据支付流水号刷新用户订阅到期时间
      *
@@ -90,10 +97,7 @@ public class SubscriptionInfoService {
         }
 
         // 查询当前用户订阅信息
-        SubscriptionInfo subscriptionInfo = subscriptionInfoRepository.selectOne(
-                new LambdaQueryWrapper<SubscriptionInfo>()
-                        .eq(SubscriptionInfo::getUserId, userId)
-        );
+        SubscriptionInfo subscriptionInfo = selectByUserId(userId);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime baseTime;
