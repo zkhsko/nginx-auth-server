@@ -13,9 +13,9 @@ public class OrderInfo extends AutoIncrementBaseEntity {
     private Long orderAmount;
     private String orderStatus;
     /**
-     * 支付流水号
+     * 支付流水的id
      */
-    private String tradeNo;
+    private Long orderPaymentInfoId;
 
     public String getOrderId() {
         return orderId;
@@ -57,11 +57,11 @@ public class OrderInfo extends AutoIncrementBaseEntity {
         this.orderStatus = orderStatus;
     }
 
-    public String getTradeNo() {
-        return tradeNo;
+    public Long getOrderPaymentInfoId() {
+        return orderPaymentInfoId;
     }
 
-    public void setTradeNo(String tradeNo) {
-        this.tradeNo = tradeNo;
+    public void setOrderPaymentInfoId(Long orderPaymentInfoId) {
+        this.orderPaymentInfoId = orderPaymentInfoId;
     }
 }

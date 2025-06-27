@@ -287,7 +287,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
                 orderInfoUpdate.eq(OrderInfo::getOrderId, orderId)
                         .set(OrderInfo::getOrderStatus, "TRADE_PAY_SUCCESS")
-                        .set(OrderInfo::getTradeNo, tradeNo);
+                        .set(OrderInfo::getOrderPaymentInfoId, orderPaymentInfo.getId());
                 orderInfoRepository.update(orderInfoUpdate);
 
 
