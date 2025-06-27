@@ -2,10 +2,7 @@ package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.OrderPaymentInfo;
-import org.nginx.auth.model.OrderSkuInfo;
-import org.nginx.auth.model.SubscriptionInfo;
+import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
 import org.nginx.auth.repository.SubscriptionInfoRepository;
@@ -143,4 +140,93 @@ public class SubscriptionInfoService {
             logger.info("Updated subscription for userId {} with new expire time {}", userId, newExpireDate);
         }
     }
+
+    public void refund(String orderId) {
+
+        // 查询订单信息，获取用户ID
+        OrderInfo orderInfo = orderInfoRepository.selectOne(
+                new LambdaQueryWrapper<OrderInfo>()
+                        .eq(OrderInfo::getOrderId, orderId)
+        );
+        if (orderInfo == null) {
+            logger.warn("OrderInfo not found for orderId: {}", orderId);
+            return;
+        }
+        Long userId = orderInfo.getUserId();
+
+        // 查询订单商品列表
+        List<OrderSkuInfo> skuList = orderSkuInfoRepository.selectList(
+                new LambdaQueryWrapper<OrderSkuInfo>()
+                        .eq(OrderSkuInfo::getOrderId, orderId)
+        );
+        if (skuList == null || skuList.isEmpty()) {
+            logger.warn("No order sku found for orderId: {}", orderId);
+            return;
+        }
+
+        // 查询当前用户订阅信息
+        SubscriptionInfo subscriptionInfo = selectByUserId(userId);
+        if (subscriptionInfo == null) {
+            logger.warn("SubscriptionInfo not found for userId: {}", userId);
+            return;
+        }
+
+        Date expireDate = subscriptionInfo.getSubscribeExpireTime();
+        if (expireDate == null) {
+            logger.warn("SubscribeExpireTime is null for userId: {}", userId);
+            return;
+        }
+        LocalDateTime baseTime = LocalDateTime.ofInstant(expireDate.toInstant(), ZoneId.systemDefault());
+
+        // 计算扣减时间
+        long totalDays = 0;
+        long totalMonths = 0;
+        long totalYears = 0;
+
+        for (OrderSkuInfo sku : skuList) {
+            long cnt = sku.getCnt() == null ? 1 : sku.getCnt();
+            String unit = sku.getPremiumPlanTimeUnit();
+            Long value = sku.getPremiumPlanTimeValue() == null ? 0 : sku.getPremiumPlanTimeValue();
+
+            if (unit == null || value == 0) {
+                continue;
+            }
+
+            switch (unit) {
+                case "DAY":
+                    totalDays += value * cnt;
+                    break;
+                case "MONTH":
+                    totalMonths += value * cnt;
+                    break;
+                case "YEAR":
+                    totalYears += value * cnt;
+                    break;
+                default:
+                    logger.warn("Unknown time unit {} for sku id {}", unit, sku.getId());
+            }
+        }
+
+        // 扣减时间
+        LocalDateTime newExpireTime =
+                baseTime
+                        .minusYears(totalYears)
+                        .minusMonths(totalMonths)
+                        .minusDays(totalDays);
+
+        Date newExpireDate = Date.from(newExpireTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        // 更新订阅信息
+        LambdaUpdateWrapper<SubscriptionInfo> subscriptionInfoUpdate = new LambdaUpdateWrapper<>();
+        subscriptionInfoUpdate.set(SubscriptionInfo::getSubscribeExpireTime, newExpireDate);
+        subscriptionInfoUpdate.eq(SubscriptionInfo::getId, subscriptionInfo.getId());
+        subscriptionInfoRepository.update(subscriptionInfoUpdate);
+
+        logger.info("Refund processed for userId {} with new expire time {}", userId, newExpireDate);
+
+
+
+
+    }
+
 }

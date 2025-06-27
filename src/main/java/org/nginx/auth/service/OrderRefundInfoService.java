@@ -8,6 +8,7 @@ import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderRefundInfoRepository;
+import org.nginx.auth.repository.SubscriptionInfoRepository;
 import org.nginx.auth.service.payment.PaymentService;
 import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.OrderInfoUtils;
@@ -27,6 +28,8 @@ public class OrderRefundInfoService {
     private OrderInfoRepository orderInfoRepository;
     @Autowired
     private OrderPaymentInfoRepository orderPaymentInfoRepository;
+    @Autowired
+    private SubscriptionInfoService subscriptionInfoService;
 
     public void refundByAdmin(String orderId, Long orderRefundAmount, String refundReason, Boolean returnPurchase) {
         // 查询订单信息
@@ -65,10 +68,6 @@ public class OrderRefundInfoService {
             throw new IllegalArgumentException("退款金额必须大于0");
         }
 
-        // 请求退款接口
-        PaymentChannelEnum paymentChannelEnum = PaymentChannelEnum.valueOf(orderPaymentInfo.getOrderPayChannel());
-        PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
-
         // 创建退款记录
         OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
         String refundOrderId = OrderInfoUtils.generateOrderId(orderInfo.getUserId());
@@ -85,6 +84,15 @@ public class OrderRefundInfoService {
         }
         orderRefundInfo.setReturnPurchase(returnPurchase);
 
+        if (returnPurchase) {
+            subscriptionInfoService.refund(orderId);
+            // TODO: 主订单状态改成退款退货完成
+        }
+
+
+        // 请求退款接口
+        PaymentChannelEnum paymentChannelEnum = PaymentChannelEnum.valueOf(orderPaymentInfo.getOrderPayChannel());
+        PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
         paymentService.createRefundOrder(orderRefundInfo);
 
         // 保存退款记录
