@@ -2,9 +2,13 @@ package org.nginx.auth.service.payment.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeRefundModel;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.google.zxing.BarcodeFormat;
@@ -17,10 +21,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.OrderPaymentInfo;
-import org.nginx.auth.model.OrderSkuInfo;
-import org.nginx.auth.model.PaymentNotifyHistory;
+import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
@@ -207,6 +208,96 @@ public class AlipayPaymentService extends AbstractPaymentService {
             return;
         }
 
+    }
+
+    @Override
+    public OrderRefundInfo createRefundOrder(OrderRefundInfo orderRefundInfo) {
+        // 初始化SDK
+        AlipayClient alipayClient = buildAlipayClient();
+
+        // 构造请求参数以调用接口
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+
+        // 设置商户订单号
+        model.setOutTradeNo(orderRefundInfo.getOrderId());
+
+        // 设置退款金额
+        String refundAmount = BigDecimal.valueOf(orderRefundInfo.getOrderRefundAmount())
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN)
+                .toPlainString();
+        model.setRefundAmount(refundAmount);
+
+        // 设置退款原因说明
+        model.setRefundReason("正常退款");
+
+        // 设置退款请求号
+        model.setOutRequestNo(orderRefundInfo.getRefundOrderId());
+
+//        // 设置退款包含的商品列表信息
+//        List<RefundGoodsDetail> refundGoodsDetail = new ArrayList<RefundGoodsDetail>();
+//        RefundGoodsDetail refundGoodsDetail0 = new RefundGoodsDetail();
+//        refundGoodsDetail0.setOutSkuId("outSku_01");
+//        refundGoodsDetail0.setOutItemId("outItem_01");
+//        refundGoodsDetail0.setGoodsId("apple-01");
+//        refundGoodsDetail0.setRefundAmount("19.50");
+//        List<String> outCertificateNoList = new ArrayList<String>();
+//        outCertificateNoList.add("202407013232143241231243243423");
+//        refundGoodsDetail0.setOutCertificateNoList(outCertificateNoList);
+//        refundGoodsDetail.add(refundGoodsDetail0);
+//        model.setRefundGoodsDetail(refundGoodsDetail);
+//
+//        // 设置退分账明细信息
+//        List<OpenApiRoyaltyDetailInfoPojo> refundRoyaltyParameters = new ArrayList<OpenApiRoyaltyDetailInfoPojo>();
+//        OpenApiRoyaltyDetailInfoPojo refundRoyaltyParameters0 = new OpenApiRoyaltyDetailInfoPojo();
+//        refundRoyaltyParameters0.setAmount("0.1");
+//        refundRoyaltyParameters0.setTransIn("2088101126708402");
+//        refundRoyaltyParameters0.setRoyaltyType("transfer");
+//        refundRoyaltyParameters0.setTransOut("2088101126765726");
+//        refundRoyaltyParameters0.setTransOutType("userId");
+//        refundRoyaltyParameters0.setRoyaltyScene("达人佣金");
+//        refundRoyaltyParameters0.setTransInType("userId");
+//        refundRoyaltyParameters0.setTransInName("张三");
+//        refundRoyaltyParameters0.setDesc("分账给2088101126708402");
+//        refundRoyaltyParameters.add(refundRoyaltyParameters0);
+//        model.setRefundRoyaltyParameters(refundRoyaltyParameters);
+//
+//        // 设置查询选项
+//        List<String> queryOptions = new ArrayList<String>();
+//        queryOptions.add("refund_detail_item_list");
+//        model.setQueryOptions(queryOptions);
+//
+//        // 设置针对账期交易
+//        model.setRelatedSettleConfirmNo("2024041122001495000530302869");
+
+        request.setBizModel(model);
+
+        AlipayTradeRefundResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(response.getBody());
+
+        if (response.isSuccess()) {
+            System.out.println("调用成功");
+            orderRefundInfo.setTradeNo(response.getTradeNo());
+        } else {
+            System.out.println("调用失败");
+            // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
+            // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
+            // System.out.println(diagnosisUrl);
+        }
+
+        return orderRefundInfo;
+    }
+
+    private AlipayClient buildAlipayClient() {
+        String privateKey = readPrivateKey();
+        String alipayPublicKey = readAlipayPublicKey();
+
+        return new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", appId, privateKey, "json", "UTF-8", alipayPublicKey, "RSA2");
     }
 
     public Map<String, String> resolveRequestParam(PaymentNotifyHistory paymentNotifyHistory) {

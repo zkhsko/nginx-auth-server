@@ -1,7 +1,7 @@
 package org.nginx.auth.service.payment;
 
 import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.OrderPaymentInfo;
+import org.nginx.auth.model.OrderRefundInfo;
 import org.nginx.auth.model.PaymentNotifyHistory;
 import org.nginx.auth.response.OrderCreateDTO;
 
@@ -25,6 +25,8 @@ public interface PaymentService {
     Map<String, String> resolveRequestParam(PaymentNotifyHistory paymentNotifyHistory);
 
     void handleNotify(Map<String, String> requestParamMap);
+
+    OrderRefundInfo createRefundOrder(OrderRefundInfo orderRefundInfo);
 
 
 }

@@ -9,6 +9,10 @@ import java.util.Date;
 public class OrderRefundInfo extends AutoIncrementBaseEntity {
 
     /**
+     * 退款单唯一编号
+     */
+    private String refundOrderId;
+    /**
      * 订单唯一编号
      */
     private String orderId;
@@ -38,6 +42,14 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
      * 是否退货
      */
     private boolean returnPurchase;
+
+    public String getRefundOrderId() {
+        return refundOrderId;
+    }
+
+    public void setRefundOrderId(String refundOrderId) {
+        this.refundOrderId = refundOrderId;
+    }
 
     public String getOrderId() {
         return orderId;

@@ -33,7 +33,7 @@ public class PaymentNotifyHistoryResolveSchedule {
     /**
      * 每秒执行一次
      */
-    @Scheduled(cron = "0/1 * * * * ?")
+//    @Scheduled(cron = "0/1 * * * * ?")
     public void resolve() {
         logger.info("PaymentNotifyHistoryResolveSchedule.resolve start");
 

@@ -14,6 +14,7 @@ import org.nginx.auth.model.User;
 import org.nginx.auth.service.AdminAccountService;
 import org.nginx.auth.service.AdminOrderInfoService;
 import org.nginx.auth.service.AdminPremiumPlanService;
+import org.nginx.auth.service.OrderRefundInfoService;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
 import org.nginx.auth.util.ValidatorUtil;
@@ -40,6 +41,8 @@ public class AdminController {
     private AdminAccountService adminAccountService;
     @Autowired
     private AdminOrderInfoService adminOrderInfoService;
+    @Autowired
+    private OrderRefundInfoService orderRefundInfoService;
 
     @RequestMapping(value = {"", "/"})
     public String index() {
@@ -233,8 +236,19 @@ public class AdminController {
     }
 
     @PostMapping("/order/refund.html")
-    public String orderRefundPage() {
-        return "";
+    public String orderRefundPage(@RequestParam String orderId,
+                                  @RequestParam Long refundAmount,
+                                  @RequestParam String refundReason,
+                                  @RequestParam Boolean refundPurchase,
+                                  Model model) {
+        try {
+            orderRefundInfoService.refundByAdmin(orderId, refundAmount, refundReason, refundPurchase);
+            model.addAttribute("message", "退款成功");
+        } catch (Exception e) {
+            model.addAttribute("error", "退款失败: " + e.getMessage());
+        }
+        // 退款后重定向回订单详情页
+        return "redirect:/admin/order/detail.html?orderId=" + orderId;
     }
 
 }
