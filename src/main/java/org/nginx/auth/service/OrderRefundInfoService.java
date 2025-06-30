@@ -98,7 +98,30 @@ public class OrderRefundInfoService {
         // 保存退款记录
         orderRefundInfoRepository.insert(orderRefundInfo);
 
-        // TODO: 要不要修改主订单状态
+        // 修改主订单状态
+        changeOrderStatusToRefunded(orderInfo, orderRefundInfo);
+    }
+
+    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo) {
+        if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
+            orderInfo.setOrderStatus("TRADE_CLOSED");
+            orderInfoRepository.updateById(orderInfo);
+            return;
+        }
+
+        LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
+        refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderInfo.getOrderId());
+        refundQueryWrapper.eq(OrderRefundInfo::getStatus, "REFUND_SUCCESS");
+        List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
+        long totalRefundedAmount = existingRefundList.stream()
+                .mapToLong(OrderRefundInfo::getOrderRefundAmount)
+                .sum();
+        if (totalRefundedAmount == orderInfo.getOrderAmount()) {
+            orderInfo.setOrderStatus("TRADE_CLOSED");
+        } else {
+            orderInfo.setOrderStatus("PART_REFUND_SUCCESS");
+        }
+        orderInfoRepository.updateById(orderInfo);
     }
 
 }
