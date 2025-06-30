@@ -16,6 +16,10 @@ public class OrderInfo extends AutoIncrementBaseEntity {
      * 支付流水的id
      */
     private Long orderPaymentInfoId;
+    /**
+     * 订阅产品已退回
+     */
+    private Boolean premiumPlanReturned;
 
     public String getOrderId() {
         return orderId;
@@ -63,5 +67,13 @@ public class OrderInfo extends AutoIncrementBaseEntity {
 
     public void setOrderPaymentInfoId(Long orderPaymentInfoId) {
         this.orderPaymentInfoId = orderPaymentInfoId;
+    }
+
+    public Boolean getPremiumPlanReturned() {
+        return premiumPlanReturned;
+    }
+
+    public void setPremiumPlanReturned(Boolean premiumPlanReturned) {
+        this.premiumPlanReturned = premiumPlanReturned;
     }
 }

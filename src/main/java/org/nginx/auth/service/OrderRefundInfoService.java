@@ -1,6 +1,7 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.model.OrderRefundInfo;
@@ -54,9 +55,9 @@ public class OrderRefundInfoService {
         }
 
         // 查看退款记录,计算历史退款金额
-        // TODO: 退款失败的不能算
         LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
         refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderId);
+        refundQueryWrapper.eq(OrderRefundInfo::getStatus, "REFUND_SUCCESS");
         List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
         long totalRefundedAmount = existingRefundList.stream()
                 .mapToLong(OrderRefundInfo::getOrderRefundAmount)
@@ -74,20 +75,26 @@ public class OrderRefundInfoService {
         orderRefundInfo.setRefundOrderId(refundOrderId);
         orderRefundInfo.setOrderId(orderId);
         orderRefundInfo.setOrderPayChannel(orderPaymentInfo.getOrderPayChannel());
-        orderRefundInfo.setTradeNo("");
         orderRefundInfo.setOrderRefundTime(new Date());
         orderRefundInfo.setOrderRefundAmount(orderRefundAmount);
         orderRefundInfo.setRefundReason(refundReason);
-        orderRefundInfo.setStatus("REFUND_PROCESSING");
+        orderRefundInfo.setStatus("REFUND_SUCCESS");
         if (returnPurchase == null) {
             returnPurchase = false;
         }
         orderRefundInfo.setReturnPurchase(returnPurchase);
 
-        if (returnPurchase) {
-            subscriptionInfoService.refund(orderId);
-            // TODO: 主订单状态改成退款退货完成
+        boolean premiumPlanReturned = false;
+
+        if (orderInfo.getPremiumPlanReturned() != null && !orderInfo.getPremiumPlanReturned()) {
+            // 没有退过货
+            if (returnPurchase) {
+                // 扣减订阅到期时间
+                subscriptionInfoService.refund(orderId);
+                premiumPlanReturned = true;
+            }
         }
+
 
 
         // 请求退款接口
@@ -99,13 +106,15 @@ public class OrderRefundInfoService {
         orderRefundInfoRepository.insert(orderRefundInfo);
 
         // 修改主订单状态
-        changeOrderStatusToRefunded(orderInfo, orderRefundInfo);
+        changeOrderStatusToRefunded(orderInfo, orderRefundInfo, premiumPlanReturned);
     }
 
-    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo) {
+    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo, Boolean premiumPlanReturned) {
+        LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
+
         if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
-            orderInfo.setOrderStatus("TRADE_CLOSED");
-            orderInfoRepository.updateById(orderInfo);
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, "TRADE_CLOSED");
+            orderInfoRepository.update(orderInfoUpdate);
             return;
         }
 
@@ -117,11 +126,17 @@ public class OrderRefundInfoService {
                 .mapToLong(OrderRefundInfo::getOrderRefundAmount)
                 .sum();
         if (totalRefundedAmount == orderInfo.getOrderAmount()) {
-            orderInfo.setOrderStatus("TRADE_CLOSED");
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, "TRADE_CLOSED");
         } else {
-            orderInfo.setOrderStatus("PART_REFUND_SUCCESS");
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, "REFUND_SUCCESS");
         }
-        orderInfoRepository.updateById(orderInfo);
+
+        if (premiumPlanReturned) {
+            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
+        }
+
+
+        orderInfoRepository.update(orderInfoUpdate);
     }
 
 }
