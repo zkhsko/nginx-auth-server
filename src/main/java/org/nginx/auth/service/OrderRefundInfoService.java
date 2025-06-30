@@ -2,14 +2,15 @@ package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
+import org.nginx.auth.enums.OrderRefundInfoStatusEnum;
 import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.model.OrderRefundInfo;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderRefundInfoRepository;
-import org.nginx.auth.repository.SubscriptionInfoRepository;
 import org.nginx.auth.service.payment.PaymentService;
 import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.OrderInfoUtils;
@@ -49,7 +50,9 @@ public class OrderRefundInfoService {
         if (orderPaymentInfo == null) {
             throw new IllegalArgumentException("订单支付记录不存在，无法退款");
         }
-        Set<String> availableRefundTradeStatus = Set.of("TRADE_SUCCESS");
+        Set<String> availableRefundTradeStatus = Set.of(
+                OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name()
+        );
         if (!availableRefundTradeStatus.contains(orderPaymentInfo.getStatus())) {
             throw new IllegalArgumentException("订单状态不正确，无法退款");
         }
@@ -57,7 +60,7 @@ public class OrderRefundInfoService {
         // 查看退款记录,计算历史退款金额
         LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
         refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderId);
-        refundQueryWrapper.eq(OrderRefundInfo::getStatus, "REFUND_SUCCESS");
+        refundQueryWrapper.eq(OrderRefundInfo::getStatus, OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
         List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
         long totalRefundedAmount = existingRefundList.stream()
                 .mapToLong(OrderRefundInfo::getOrderRefundAmount)
@@ -78,7 +81,7 @@ public class OrderRefundInfoService {
         orderRefundInfo.setOrderRefundTime(new Date());
         orderRefundInfo.setOrderRefundAmount(orderRefundAmount);
         orderRefundInfo.setRefundReason(refundReason);
-        orderRefundInfo.setStatus("REFUND_SUCCESS");
+        orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
         if (returnPurchase == null) {
             returnPurchase = false;
         }
@@ -94,7 +97,6 @@ public class OrderRefundInfoService {
                 premiumPlanReturned = true;
             }
         }
-
 
 
         // 请求退款接口
@@ -113,22 +115,22 @@ public class OrderRefundInfoService {
         LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
 
         if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, "TRADE_CLOSED");
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
             orderInfoRepository.update(orderInfoUpdate);
             return;
         }
 
         LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
         refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderInfo.getOrderId());
-        refundQueryWrapper.eq(OrderRefundInfo::getStatus, "REFUND_SUCCESS");
+        refundQueryWrapper.eq(OrderRefundInfo::getStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
         List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
         long totalRefundedAmount = existingRefundList.stream()
                 .mapToLong(OrderRefundInfo::getOrderRefundAmount)
                 .sum();
         if (totalRefundedAmount == orderInfo.getOrderAmount()) {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, "TRADE_CLOSED");
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
         } else {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, "REFUND_SUCCESS");
+            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
         }
 
         if (premiumPlanReturned) {

@@ -21,6 +21,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.nginx.auth.enums.OrderInfoStatusEnum;
+import org.nginx.auth.enums.OrderPaymentInfoStatusEnum;
 import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
@@ -370,14 +372,14 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 orderPaymentInfo.setOrderPayAmount(orderPayAmount);
                 orderPaymentInfo.setTradeNo(tradeNo);
                 orderPaymentInfo.setOrderPayTime(orderPayTime);
-                orderPaymentInfo.setStatus("TRADE_SUCCESS");
+                orderPaymentInfo.setStatus(OrderPaymentInfoStatusEnum.PAYMENT_SUCCESS.name());
                 orderPaymentInfoRepository.insert(orderPaymentInfo);
 
 
                 // 修改订单状态为已支付
                 LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
                 orderInfoUpdate.eq(OrderInfo::getOrderId, orderId)
-                        .set(OrderInfo::getOrderStatus, "TRADE_SUCCESS")
+                        .set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.PAYMENT_SUCCESS.name())
                         .set(OrderInfo::getOrderPaymentInfoId, orderPaymentInfo.getId());
                 orderInfoRepository.update(orderInfoUpdate);
 

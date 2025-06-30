@@ -8,6 +8,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
+import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
@@ -67,7 +68,7 @@ public class OrderInfoService {
         orderInfo.setOrderId(orderId);
         orderInfo.setUserId(userId);
         orderInfo.setOrderAmount(0L);
-        orderInfo.setOrderStatus("INIT");
+        orderInfo.setOrderStatus(OrderInfoStatusEnum.PENDING_PAYMENT.name());
         orderInfo.setOrderCreateTime(new Date());
 
         BigDecimal totalOrderAmount = BigDecimal.ZERO;
