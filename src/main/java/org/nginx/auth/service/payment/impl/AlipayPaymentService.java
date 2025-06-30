@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.OrderPaymentInfoStatusEnum;
+import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.*;
 import org.nginx.auth.repository.OrderInfoRepository;
 import org.nginx.auth.repository.OrderPaymentInfoRepository;
@@ -368,7 +369,7 @@ public class AlipayPaymentService extends AbstractPaymentService {
                 // 支付记录
                 OrderPaymentInfo orderPaymentInfo = new OrderPaymentInfo();
                 orderPaymentInfo.setOrderId(orderInfo.getOrderId());
-                orderPaymentInfo.setOrderPayChannel("ALIPAY");
+                orderPaymentInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
                 orderPaymentInfo.setOrderPayAmount(orderPayAmount);
                 orderPaymentInfo.setTradeNo(tradeNo);
                 orderPaymentInfo.setOrderPayTime(orderPayTime);
