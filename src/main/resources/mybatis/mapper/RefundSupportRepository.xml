@@ -1,0 +1,28 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.nginx.auth.repository.RefundSupportRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.RefundSupport">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="refund_support_id" property="refundSupportId"/>
+        <result column="user_id" property="userId"/>
+        <result column="order_id" property="orderId"/>
+        <result column="refund_amount" property="refundAmount"/>
+        <result column="refund_purchase" property="refundPurchase"/>
+        <result column="refund_reason" property="refundReason"/>
+        <result column="remark_text" property="remarkText"/>
+        <result column="refund_order_id" property="refundOrderId"/>
+        <result column="refund_support_status" property="refundSupportStatus"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, refund_support_id, user_id, order_id,
+        refund_amount, refund_purchase, refund_reason,
+        remark_text, refund_order_id, refund_support_status,
+        create_time, update_time
+    </sql>
+
+</mapper>
