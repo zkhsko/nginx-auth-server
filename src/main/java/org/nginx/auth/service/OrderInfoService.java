@@ -49,6 +49,17 @@ public class OrderInfoService {
     @Autowired
     private OrderSkuInfoRepository orderSkuInfoRepository;
 
+    public boolean orderExists(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            return false;
+        }
+
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getOrderId, orderId);
+
+        return orderInfoRepository.selectCount(queryWrapper) > 0;
+    }
+
     public String createOrder(List<OrderCreateParam> paramList) {
 
         if (CollectionUtils.isEmpty(paramList)) {

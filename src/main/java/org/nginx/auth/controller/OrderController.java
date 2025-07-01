@@ -9,6 +9,7 @@ import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.User;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.service.OrderInfoService;
+import org.nginx.auth.service.RefundSupportService;
 import org.nginx.auth.util.RedirectPageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class OrderController {
 
     @Autowired
     private OrderInfoService orderInfoService;
+    @Autowired
+    private RefundSupportService refundSupportService;
 
     @GetMapping(value = {"/", "/index.html"})
     public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
@@ -98,7 +101,13 @@ public class OrderController {
         return "/user/order/pay.html";
     }
 
+    @PostMapping("/refund.html")
+    public String createRefundSupport(String orderId, Long refundAmount, Boolean refundPurchase,
+                                      String refundReason, Model model) {
+        refundSupportService.createRefundSupport(orderId, refundAmount, refundPurchase, refundReason);
 
+        return "";
+    }
 
 
 }
