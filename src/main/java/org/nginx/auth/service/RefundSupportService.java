@@ -1,6 +1,7 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.RefundSupport;
 import org.nginx.auth.model.User;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class RefundSupportService {
@@ -37,6 +39,14 @@ public class RefundSupportService {
         }
         if (!Objects.equals(orderInfo.getUserId(), userId)) {
             throw new IllegalArgumentException("Order does not belong to the current user: " + orderId);
+        }
+        // 检查订单状态是否允许退款
+        Set<String> allowedRefundStatusSet = Set.of(
+                OrderInfoStatusEnum.PAYMENT_SUCCESS.name(),
+                OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name()
+        );
+        if (!allowedRefundStatusSet.contains(orderInfo.getOrderStatus())) {
+            throw new IllegalArgumentException("Order status does not allow refund: " + orderId);
         }
 
 

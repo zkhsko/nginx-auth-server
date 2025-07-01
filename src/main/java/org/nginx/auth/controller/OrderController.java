@@ -19,7 +19,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,12 +103,27 @@ public class OrderController {
         return "/user/order/pay.html";
     }
 
-    @PostMapping("/refund.html")
-    public String createRefundSupport(String orderId, Long refundAmount, Boolean refundPurchase,
-                                      String refundReason, Model model) {
-        refundSupportService.createRefundSupport(orderId, refundAmount, refundPurchase, refundReason);
+    @GetMapping("/refund.html")
+    public String showRefundPage(String orderId, Model model) {
+        OrderInfo orderInfo = orderInfoService.selectByOrderId(orderId);
+        model.addAttribute("order", orderInfo);
+        model.addAttribute("orderId", orderId);
+        return "/user/order/refund.html";
+    }
 
-        return "";
+    @PostMapping("/refund.html")
+    public String createRefundSupport(@RequestParam String orderId,
+                                      @RequestParam String refundAmount,
+                                      @RequestParam Boolean refundPurchase,
+                                      @RequestParam String refundReason) {
+
+        // 将退款金额转换为分
+        Long refundAmountInCents = new BigDecimal(refundAmount)
+                .multiply(BigDecimal.valueOf(100))
+                .longValue();
+        refundSupportService.createRefundSupport(orderId, refundAmountInCents, refundPurchase, refundReason);
+
+        return "redirect:/user/order/detail.html?orderId=" + orderId;
     }
 
 

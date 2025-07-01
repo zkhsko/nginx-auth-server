@@ -29,6 +29,7 @@
                     <td th:text="${#dates.format(order.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
                     <td>
                         <a href="#" th:href="@{/user/order/detail.html(orderId=${order.orderId})}">详情</a>
+                        <a href="#" th:if="${order.orderStatus == 'PAYMENT_SUCCESS' or order.orderStatus == 'TRADE_REFUND_SUCCESS'}" th:href="@{/user/order/refund.html(orderId=${order.orderId})}">申请退款</a>
                     </td>
                 </tr>
             </tbody>
