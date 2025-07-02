@@ -27,6 +27,12 @@ public class RefundSupportService {
     @Autowired
     private OrderInfoService orderInfoService;
 
+    public RefundSupport selectByRefundSupportId(String refundSupportId) {
+        LambdaQueryWrapper<RefundSupport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RefundSupport::getRefundSupportId, refundSupportId);
+        return refundSupportRepository.selectOne(queryWrapper);
+    }
+
     public BasicPaginationVO<RefundSupport> refundSupportListPage(Integer page, Integer size) {
         PageHelper.startPage(page, size, "id desc");
         List<RefundSupport> refundSupportList = refundSupportRepository.selectList(null);

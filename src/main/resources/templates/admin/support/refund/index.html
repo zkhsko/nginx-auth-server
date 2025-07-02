@@ -39,6 +39,9 @@
                     <td th:text="${refund.refundOrderId}">关联退款单</td>
                     <td th:text="${refund.refundSupportStatus}">退款状态</td>
                     <td th:text="${#dates.format(refund.createTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                    <td>
+                        <a th:href="@{/admin/support/refund/detail.html(id=${refund.refundSupportId})}">详情</a>
+                    </td>
                 </tr>
             </tbody>
         </table>

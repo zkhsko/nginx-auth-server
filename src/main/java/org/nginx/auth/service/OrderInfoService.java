@@ -44,7 +44,7 @@ public class OrderInfoService {
     @Autowired
     private PremiumPlanRepository premiumPlanRepository;
     @Autowired
-    private OrderPaymentInfoRepository orderPaymentInfoRepository;
+    private OrderPaymentInfoService orderPaymentInfoService;
     @Autowired
     private OrderInfoRepository orderInfoRepository;
     @Autowired
@@ -214,7 +214,7 @@ public class OrderInfoService {
 
         boolean createNewPayment = true;
         // 查看该订单其他支付记录
-        List<OrderPaymentInfo> orderPaymentInfoList = orderPaymentInfoRepository.selectListByOrderId(orderId);
+        List<OrderPaymentInfo> orderPaymentInfoList = orderPaymentInfoService.selectListByOrderId(orderId);
         for (OrderPaymentInfo orderPaymentInfo : orderPaymentInfoList) {
             // 如果有订单已经支付过了,不允许修改了
             if (orderPaymentInfo.getOrderPayAmount() > 0) {

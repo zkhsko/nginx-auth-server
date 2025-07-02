@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>退款详情</title>
+    <link rel="stylesheet" th:href="@{/res/lib/bootstrap-5.1.3/css/bootstrap.min.css}">
+</head>
+<body>
+<div class="container">
+    <h1>退款详情</h1>
+    <div class="card">
+        <div class="card-header">
+            退款申请信息
+        </div>
+        <div class="card-body">
+            <p><strong>退款申请ID:</strong> <span th:text="${refundSupport.id}"></span></p>
+            <p><strong>退款申请状态:</strong> <span th:text="${refundSupport.refundSupportStatus}"></span></p>
+            <p><strong>退款原因:</strong> <span th:text="${refundSupport.refundReason}"></span></p>
+            <p><strong>退款金额:</strong> <span th:text="${refundSupport.refundAmount / 100.0}"></span></p>
+            <p><strong>备注:</strong> <span th:text="${refundSupport.remarkText}"></span></p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            订单信息
+        </div>
+        <div class="card-body">
+            <p><strong>订单ID:</strong> <span th:text="${orderDetail.orderInfo.orderId}"></span></p>
+            <p><strong>订单状态:</strong> <span th:text="${orderDetail.orderInfo.orderStatus}"></span></p>
+            <p><strong>订单金额:</strong> <span th:text="${orderDetail.orderInfo.orderAmount / 100.0}"></span></p>
+            <p><strong>创建时间:</strong> <span th:text="${#dates.format(orderDetail.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            用户信息
+        </div>
+        <div class="card-body">
+<!--            <p><strong>用户ID:</strong> <span th:text="${user.id}"></span></p>-->
+            <p><strong>用户名:</strong> <span th:text="${user.email}"></span></p>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            支付信息
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>支付ID</th>
+                    <th>支付渠道</th>
+                    <th>支付状态</th>
+                    <th>支付金额</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="payment : ${paymentList}">
+                    <td th:text="${payment.id}"></td>
+                    <td th:text="${payment.orderPayChannel}"></td>
+                    <td th:text="${payment.status}"></td>
+                    <td th:text="${payment.orderPayAmount / 100.0}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -6,7 +6,7 @@
         <id column="id" property="id"/>
         <result column="order_id" property="orderId"/>
         <result column="order_pay_channel" property="orderPayChannel"/>
-        <result column="pay_no" property="payNo"/>
+        <result column="trade_no" property="tradeNo"/>
         <result column="order_pay_time" property="orderPayTime"/>
         <result column="order_pay_amount" property="orderPayAmount"/>
         <result column="in_use" property="inUse"/>
@@ -15,23 +15,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`, `order_id`, `order_pay_channel`, `pay_no`, `order_pay_time`, `order_pay_amount`, `in_use`,
+        `id`, `order_id`, `order_pay_channel`, `trade_no`, `order_pay_time`, `order_pay_amount`, `in_use`,
         `create_time`, `update_time`
     </sql>
-
-    <select id="selectListByOrderId" resultMap="BaseResultMap">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM order_payment_info
-        WHERE order_id = #{orderId}
-    </select>
-
-    <update id="updateOrderPayInfo" parameterType="org.nginx.auth.model.OrderPaymentInfo">
-        UPDATE order_payment_info
-        SET pay_no = #{payNo},
-        order_pay_time = #{orderPayTime},
-        order_pay_amount = #{orderPayAmount}
-        WHERE id = #{id}
-    </update>
 
 </mapper>
