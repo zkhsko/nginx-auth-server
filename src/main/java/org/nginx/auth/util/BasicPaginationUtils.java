@@ -26,4 +26,16 @@ public class BasicPaginationUtils {
         return basicPaginationVO;
     }
 
+    public static <T> BasicPaginationVO<T> createEmpty() {
+        BasicPaginationVO<T> basicPaginationVO = new BasicPaginationVO<>();
+        basicPaginationVO.setData(null);
+        basicPaginationVO.setPage(1);
+        basicPaginationVO.setSize(10);
+        basicPaginationVO.setPages(0);
+        basicPaginationVO.setTotal(0L);
+        basicPaginationVO.setPrev(0);
+        basicPaginationVO.setNext(0);
+        return basicPaginationVO;
+    }
+
 }

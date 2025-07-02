@@ -6,6 +6,7 @@ import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.model.OrderInfo;
+import org.nginx.auth.model.RefundSupport;
 import org.nginx.auth.model.User;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.service.OrderInfoService;
@@ -103,12 +104,28 @@ public class OrderController {
         return "/user/order/pay.html";
     }
 
+    @GetMapping("/refund/index.html")
+    public String selectRefundSupportPageList(HttpServletRequest request, Model model, Integer page, Integer size) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 10;
+        }
+
+        BasicPaginationVO<RefundSupport> refundPage = refundSupportService.refundSupportListPageByUserId(page, size);
+        model.addAttribute("pagination", refundPage);
+        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
+
+        return "/user/support/refund/index.html";
+    }
+
     @GetMapping("/refund.html")
     public String showRefundPage(String orderId, Model model) {
         OrderInfo orderInfo = orderInfoService.selectByOrderId(orderId);
         model.addAttribute("order", orderInfo);
         model.addAttribute("orderId", orderId);
-        return "/user/order/refund.html";
+        return "/user/support/refund/refund.html";
     }
 
     @PostMapping("/refund.html")
