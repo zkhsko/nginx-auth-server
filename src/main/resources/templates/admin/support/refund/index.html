@@ -40,7 +40,7 @@
                     <td th:text="${refund.refundSupportStatus}">退款状态</td>
                     <td th:text="${#dates.format(refund.createTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
                     <td>
-                        <a th:href="@{/admin/support/refund/detail.html(id=${refund.refundSupportId})}">详情</a>
+                        <a th:href="@{/admin/support/refund/detail.html(refundSupportId=${refund.refundSupportId})}">详情</a>
                     </td>
                 </tr>
             </tbody>

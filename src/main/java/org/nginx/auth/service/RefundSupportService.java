@@ -1,6 +1,7 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
@@ -26,6 +27,8 @@ public class RefundSupportService {
     private RefundSupportRepository refundSupportRepository;
     @Autowired
     private OrderInfoService orderInfoService;
+    @Autowired
+    private OrderRefundInfoService orderRefundInfoService;
 
     public RefundSupport selectByRefundSupportId(String refundSupportId) {
         LambdaQueryWrapper<RefundSupport> queryWrapper = new LambdaQueryWrapper<>();
@@ -99,4 +102,18 @@ public class RefundSupportService {
         refundSupportRepository.insert(refundSupport);
     }
 
+    public void refundByRefundSupport(RefundSupport refundSupport, Long refundAmount, Boolean returnPurchase, String remarkText) {
+
+        // 实际的退款逻辑
+        orderRefundInfoService.refundByAdmin(refundSupport.getOrderId(), refundAmount, remarkText, returnPurchase);
+
+        LambdaUpdateWrapper<RefundSupport> refundSupportUpdate = new LambdaUpdateWrapper<>();
+        refundSupportUpdate.eq(RefundSupport::getRefundSupportId, refundSupport.getRefundSupportId())
+                .set(RefundSupport::getRefundAmount, refundAmount)
+                .set(RefundSupport::getRemarkText, remarkText)
+                // TODO: 使用枚举类
+                .set(RefundSupport::getRefundSupportStatus, "DONE");
+
+        refundSupportRepository.update(refundSupportUpdate);
+    }
 }
