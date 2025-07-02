@@ -1,16 +1,16 @@
 package org.nginx.auth.controller.admin;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.model.OrderPaymentInfo;
 import org.nginx.auth.model.RefundSupport;
 import org.nginx.auth.model.User;
-import org.nginx.auth.repository.OrderPaymentInfoRepository;
-import org.nginx.auth.repository.RefundSupportRepository;
 import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.service.OrderInfoService;
 import org.nginx.auth.service.OrderPaymentInfoService;
 import org.nginx.auth.service.OrderRefundInfoService;
 import org.nginx.auth.service.RefundSupportService;
+import org.nginx.auth.util.RedirectPageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,8 +34,28 @@ public class AdminRefundSupportController {
     @Autowired
     private OrderRefundInfoService orderRefundInfoService;
 
+    /**
+     * 退款申请列表页
+     *
+     * @param request
+     * @param model
+     * @param page
+     * @param size
+     * @return
+     */
     @RequestMapping(value = {"/", "/index.html"})
-    public String index() {
+    public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 10;
+        }
+
+        BasicPaginationVO<RefundSupport> refundPage = refundSupportService.refundSupportListPage(page, size);
+        model.addAttribute("pagination", refundPage);
+        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
+
         return "/admin/support/refund/index.html";
     }
 

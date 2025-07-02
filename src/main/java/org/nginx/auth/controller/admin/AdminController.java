@@ -231,31 +231,17 @@ public class AdminController {
         return "/admin/order/detail.html";
     }
 
+
     /**
-     * 退款申请列表页
+     * 管理员主动退款
      *
-     * @param request
+     * @param orderId
+     * @param refundAmount
+     * @param refundReason
+     * @param refundPurchase
      * @param model
-     * @param page
-     * @param size
      * @return
      */
-    @GetMapping("/support/refund/index.html")
-    public String refundSupportListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
-        if (page == null || page < 1) {
-            page = 1;
-        }
-        if (size == null || size < 1) {
-            size = 10;
-        }
-
-        BasicPaginationVO<RefundSupport> refundPage = refundSupportService.refundSupportListPage(page, size);
-        model.addAttribute("pagination", refundPage);
-        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
-
-        return "/admin/support/refund/index.html";
-    }
-
     @PostMapping("/order/refund.html")
     public String orderRefundPage(@RequestParam String orderId,
                                   @RequestParam Long refundAmount,
