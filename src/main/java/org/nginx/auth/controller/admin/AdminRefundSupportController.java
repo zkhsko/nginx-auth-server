@@ -9,6 +9,7 @@ import org.nginx.auth.repository.RefundSupportRepository;
 import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.service.OrderInfoService;
 import org.nginx.auth.service.OrderPaymentInfoService;
+import org.nginx.auth.service.OrderRefundInfoService;
 import org.nginx.auth.service.RefundSupportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,8 @@ public class AdminRefundSupportController {
     private UserRepository userRepository;
     @Autowired
     private OrderPaymentInfoService orderPaymentInfoService;
+    @Autowired
+    private OrderRefundInfoService orderRefundInfoService;
 
     @RequestMapping(value = {"/", "/index.html"})
     public String index() {
@@ -49,6 +52,7 @@ public class AdminRefundSupportController {
         model.addAttribute("user", user);
         List<OrderPaymentInfo> paymentList = orderPaymentInfoService.selectListByOrderId(refundSupport.getOrderId());
         model.addAttribute("paymentList", paymentList);
+        model.addAttribute("refundHistory", orderRefundInfoService.selectListByOrderId(refundSupport.getOrderId()));
         return "/admin/support/refund/detail.html";
     }
 

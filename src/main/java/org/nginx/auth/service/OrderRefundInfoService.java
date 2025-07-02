@@ -33,6 +33,12 @@ public class OrderRefundInfoService {
     @Autowired
     private SubscriptionInfoService subscriptionInfoService;
 
+    public List<OrderRefundInfo> selectListByOrderId(String orderId) {
+        LambdaQueryWrapper<OrderRefundInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderRefundInfo::getOrderId, orderId);
+        return orderRefundInfoRepository.selectList(queryWrapper);
+    }
+
     public void refundByAdmin(String orderId, Long orderRefundAmount, String refundReason, Boolean returnPurchase) {
         // 查询订单信息
         LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();

@@ -68,6 +68,36 @@
             </table>
         </div>
     </div>
+
+    <div class="card mt-3">
+        <div class="card-header">
+            订单退款历史
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>退款ID</th>
+                    <th>退款渠道</th>
+                    <th>退款状态</th>
+                    <th>退款金额</th>
+                    <th>退款原因</th>
+                    <th>退款时间</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="refund : ${refundHistory}">
+                    <td th:text="${refund.id}"></td>
+                    <td th:text="${refund.orderPayChannel}"></td>
+                    <td th:text="${refund.status}"></td>
+                    <td th:text="${refund.orderRefundAmount / 100.0}"></td>
+                    <td th:text="${refund.refundReason}"></td>
+                    <td th:text="${#dates.format(refund.orderRefundTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 </body>
 </html>
