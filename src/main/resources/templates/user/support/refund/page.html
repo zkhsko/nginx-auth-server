@@ -12,7 +12,7 @@
         <div th:replace="~{/include/nav.html}"></div>
 
         <h1>申请退款</h1>
-        <form th:action="@{/user/order/refund.html}" method="post">
+        <form th:action="@{/user/support/refund/create.html}" method="post">
             <input type="hidden" name="orderId" th:value="${orderId}" />
             <div class="mb-3">
                 <label for="refundAmount" class="form-label">退款金额</label>

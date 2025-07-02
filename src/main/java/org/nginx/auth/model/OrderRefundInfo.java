@@ -22,10 +22,6 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
      */
     private String orderPayChannel;
     /**
-     * 支付流水号
-     */
-    private String tradeNo;
-    /**
      * 支付时间
      */
     private Date orderRefundTime;
@@ -65,14 +61,6 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
 
     public void setOrderPayChannel(String orderPayChannel) {
         this.orderPayChannel = orderPayChannel;
-    }
-
-    public String getTradeNo() {
-        return tradeNo;
-    }
-
-    public void setTradeNo(String tradeNo) {
-        this.tradeNo = tradeNo;
     }
 
     public Date getOrderRefundTime() {

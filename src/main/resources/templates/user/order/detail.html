@@ -35,7 +35,7 @@
             <td th:text="${item.premiumPlanName + ' * ' + item.cnt}"></td>
         </tr>
         <tr>
-            <td th:if="${orderDetailVO.orderInfo.orderStatus=='INIT'}">
+            <td th:if="${orderDetailVO.orderInfo.orderStatus=='PENDING_PAYMENT'}">
                 <a class="btn btn-primary"
                    th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'ALIPAY'})}">支付宝支付</a>
                 <a class="btn btn-primary"

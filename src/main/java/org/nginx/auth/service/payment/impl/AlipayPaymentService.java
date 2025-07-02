@@ -285,7 +285,6 @@ public class AlipayPaymentService extends AbstractPaymentService {
 
         if (response.isSuccess()) {
             System.out.println("调用成功");
-            orderRefundInfo.setTradeNo(response.getTradeNo());
         } else {
             System.out.println("调用失败");
             // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接

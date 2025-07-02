@@ -103,45 +103,4 @@ public class OrderController {
 
         return "/user/order/pay.html";
     }
-
-    @GetMapping("/refund/index.html")
-    public String selectRefundSupportPageList(HttpServletRequest request, Model model, Integer page, Integer size) {
-        if (page == null || page < 1) {
-            page = 1;
-        }
-        if (size == null || size < 1) {
-            size = 10;
-        }
-
-        BasicPaginationVO<RefundSupport> refundPage = refundSupportService.refundSupportListPageByUserId(page, size);
-        model.addAttribute("pagination", refundPage);
-        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
-
-        return "/user/support/refund/index.html";
-    }
-
-    @GetMapping("/refund.html")
-    public String showRefundPage(String orderId, Model model) {
-        OrderInfo orderInfo = orderInfoService.selectByOrderId(orderId);
-        model.addAttribute("order", orderInfo);
-        model.addAttribute("orderId", orderId);
-        return "/user/support/refund/refund.html";
-    }
-
-    @PostMapping("/refund.html")
-    public String createRefundSupport(@RequestParam String orderId,
-                                      @RequestParam String refundAmount,
-                                      @RequestParam Boolean refundPurchase,
-                                      @RequestParam String refundReason) {
-
-        // 将退款金额转换为分
-        Long refundAmountInCents = new BigDecimal(refundAmount)
-                .multiply(BigDecimal.valueOf(100))
-                .longValue();
-        refundSupportService.createRefundSupport(orderId, refundAmountInCents, refundPurchase, refundReason);
-
-        return "redirect:/user/order/detail.html?orderId=" + orderId;
-    }
-
-
 }

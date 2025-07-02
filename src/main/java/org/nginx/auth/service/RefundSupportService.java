@@ -107,12 +107,13 @@ public class RefundSupportService {
     public void refundByRefundSupport(RefundSupport refundSupport, Long refundAmount, Boolean returnPurchase, String remarkText) {
 
         // 实际的退款逻辑
-        orderRefundInfoService.refundByAdmin(refundSupport.getOrderId(), refundAmount, remarkText, returnPurchase);
+        String refundOrderId =  orderRefundInfoService.refundByAdmin(refundSupport.getOrderId(), refundAmount, remarkText, returnPurchase);
 
         LambdaUpdateWrapper<RefundSupport> refundSupportUpdate = new LambdaUpdateWrapper<>();
         refundSupportUpdate.eq(RefundSupport::getRefundSupportId, refundSupport.getRefundSupportId())
                 .set(RefundSupport::getRefundAmount, refundAmount)
                 .set(RefundSupport::getRemarkText, remarkText)
+                .set(RefundSupport::getRefundOrderId, refundOrderId)
                 .set(RefundSupport::getRefundSupportStatus, RefundSupportStatusEnum.DONE.name());
 
         refundSupportRepository.update(refundSupportUpdate);

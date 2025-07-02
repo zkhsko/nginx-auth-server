@@ -15,7 +15,7 @@
                 退款申请信息
             </div>
             <div class="card-body">
-                <p><strong>退款申请ID:</strong> <span th:text="${refundSupport.id}"></span></p>
+                <p><strong>退款申请单号:</strong> <span th:text="${refundSupport.id}"></span></p>
                 <p><strong>退款申请状态:</strong> <span th:text="${refundSupport.refundSupportStatus}"></span></p>
                 <p><strong>退款原因:</strong> <span th:text="${refundSupport.refundReason}"></span></p>
                 <p><strong>退款金额:</strong> <span th:text="${refundSupport.refundAmount / 100.0}"></span></p>
@@ -28,7 +28,7 @@
                 订单信息
             </div>
             <div class="card-body">
-                <p><strong>订单ID:</strong> <span th:text="${orderDetail.orderInfo.orderId}"></span></p>
+                <p><strong>订单号:</strong> <span th:text="${orderDetail.orderInfo.orderId}"></span></p>
                 <p><strong>订单状态:</strong> <span th:text="${orderDetail.orderInfo.orderStatus}"></span></p>
                 <p><strong>订单金额:</strong> <span th:text="${orderDetail.orderInfo.orderAmount / 100.0}"></span></p>
                 <p><strong>创建时间:</strong> <span

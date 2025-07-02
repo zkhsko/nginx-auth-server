@@ -39,7 +39,7 @@ public class OrderRefundInfoService {
         return orderRefundInfoRepository.selectList(queryWrapper);
     }
 
-    public void refundByAdmin(String orderId, Long orderRefundAmount, String refundReason, Boolean returnPurchase) {
+    public String refundByAdmin(String orderId, Long orderRefundAmount, String refundReason, Boolean returnPurchase) {
         // 查询订单信息
         LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(OrderInfo::getOrderId, orderId);
@@ -57,7 +57,8 @@ public class OrderRefundInfoService {
             throw new IllegalArgumentException("订单支付记录不存在，无法退款");
         }
         Set<String> availableRefundTradeStatus = Set.of(
-                OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name()
+                OrderInfoStatusEnum.PAYMENT_SUCCESS.name(),
+                OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name()
         );
         if (!availableRefundTradeStatus.contains(orderPaymentInfo.getStatus())) {
             throw new IllegalArgumentException("订单状态不正确，无法退款");
@@ -115,6 +116,8 @@ public class OrderRefundInfoService {
 
         // 修改主订单状态
         changeOrderStatusToRefunded(orderInfo, orderRefundInfo, premiumPlanReturned);
+
+        return refundOrderId;
     }
 
     private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo, Boolean premiumPlanReturned) {
