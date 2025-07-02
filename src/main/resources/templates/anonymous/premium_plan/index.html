@@ -6,12 +6,12 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
     <title></title>
-    <div th:replace="/include/css.html"></div>
+    <div th:replace="~{/include/css.html}"></div>
 </head>
 
 <body>
     <div class="container">
-        <div th:replace="/include/nav.html"></div>
+        <div th:replace="~{/include/nav.html}"></div>
 
         <table class="table">
             <thead>
@@ -46,12 +46,12 @@
             </tbody>
         </table>
 
-        <div th:replace="/include/pagination.html"></div>
+        <div th:replace="~{/include/pagination.html}"></div>
 
     </div>
     <!-- Delete Modal -->
     <th:block th:replace="/include/delete.html::deleteConfirmModalHtml" />
-    <div th:replace="/include/script.html"></div>
+    <div th:replace="~{/include/script.html}"></div>
     <!-- Delete Modal -->
     <th:block th:replace="/include/delete.html::deleteConfirmModalScript" />
 </body>

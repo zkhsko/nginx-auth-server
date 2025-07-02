@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <title>订单列表</title>
-    <div th:replace="/include/css.html"></div>
+    <div th:replace="~{/include/css.html}"></div>
 </head>
 
 <body>
     <div class="container">
-        <div th:replace="/include/nav.html"></div>
+        <div th:replace="~{/include/nav.html}"></div>
 
         <h1>订单列表</h1>
         <table class="table">
@@ -36,9 +36,9 @@
             </tbody>
         </table>
 
-        <div th:replace="/include/pagination.html"></div>
+        <div th:replace="~{/include/pagination.html}"></div>
     </div>
-    <div th:replace="/include/script.html"></div>
+    <div th:replace="~{/include/script.html}"></div>
 </body>
 
 </html>
