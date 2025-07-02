@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
+import org.nginx.auth.enums.RefundSupportStatusEnum;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.RefundSupport;
 import org.nginx.auth.model.User;
@@ -97,6 +98,7 @@ public class RefundSupportService {
         refundSupport.setRefundPurchase(refundPurchase);
         refundSupport.setRefundReason(refundReason);
         refundSupport.setRemarkText("");
+        refundSupport.setRefundSupportStatus(RefundSupportStatusEnum.PENDING.name());
 
         // 保存退款申请
         refundSupportRepository.insert(refundSupport);
@@ -111,8 +113,7 @@ public class RefundSupportService {
         refundSupportUpdate.eq(RefundSupport::getRefundSupportId, refundSupport.getRefundSupportId())
                 .set(RefundSupport::getRefundAmount, refundAmount)
                 .set(RefundSupport::getRemarkText, remarkText)
-                // TODO: 使用枚举类
-                .set(RefundSupport::getRefundSupportStatus, "DONE");
+                .set(RefundSupport::getRefundSupportStatus, RefundSupportStatusEnum.DONE.name());
 
         refundSupportRepository.update(refundSupportUpdate);
     }

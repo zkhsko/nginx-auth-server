@@ -1,103 +1,162 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>退款详情</title>
-    <link rel="stylesheet" th:href="@{/res/lib/bootstrap-5.1.3/css/bootstrap.min.css}">
+    <div th:replace="~{/include/css.html}"></div>
 </head>
+
 <body>
-<div class="container">
-    <h1>退款详情</h1>
-    <div class="card">
-        <div class="card-header">
-            退款申请信息
+    <div class="container">
+        <h1>退款详情</h1>
+        <div class="card">
+            <div class="card-header">
+                退款申请信息
+            </div>
+            <div class="card-body">
+                <p><strong>退款申请ID:</strong> <span th:text="${refundSupport.id}"></span></p>
+                <p><strong>退款申请状态:</strong> <span th:text="${refundSupport.refundSupportStatus}"></span></p>
+                <p><strong>退款原因:</strong> <span th:text="${refundSupport.refundReason}"></span></p>
+                <p><strong>退款金额:</strong> <span th:text="${refundSupport.refundAmount / 100.0}"></span></p>
+                <p><strong>备注:</strong> <span th:text="${refundSupport.remarkText}"></span></p>
+            </div>
         </div>
-        <div class="card-body">
-            <p><strong>退款申请ID:</strong> <span th:text="${refundSupport.id}"></span></p>
-            <p><strong>退款申请状态:</strong> <span th:text="${refundSupport.refundSupportStatus}"></span></p>
-            <p><strong>退款原因:</strong> <span th:text="${refundSupport.refundReason}"></span></p>
-            <p><strong>退款金额:</strong> <span th:text="${refundSupport.refundAmount / 100.0}"></span></p>
-            <p><strong>备注:</strong> <span th:text="${refundSupport.remarkText}"></span></p>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                订单信息
+            </div>
+            <div class="card-body">
+                <p><strong>订单ID:</strong> <span th:text="${orderDetail.orderInfo.orderId}"></span></p>
+                <p><strong>订单状态:</strong> <span th:text="${orderDetail.orderInfo.orderStatus}"></span></p>
+                <p><strong>订单金额:</strong> <span th:text="${orderDetail.orderInfo.orderAmount / 100.0}"></span></p>
+                <p><strong>创建时间:</strong> <span
+                        th:text="${#dates.format(orderDetail.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                用户信息
+            </div>
+            <div class="card-body">
+                <!--            <p><strong>用户ID:</strong> <span th:text="${user.id}"></span></p>-->
+                <p><strong>用户名:</strong> <span th:text="${user.email}"></span></p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                支付信息
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>支付ID</th>
+                            <th>支付渠道</th>
+                            <th>支付状态</th>
+                            <th>支付金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${paymentList}">
+                            <td th:text="${payment.id}"></td>
+                            <td th:text="${payment.orderPayChannel}"></td>
+                            <td th:text="${payment.status}"></td>
+                            <td th:text="${payment.orderPayAmount / 100.0}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                订单退款历史
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>退款ID</th>
+                            <th>退款渠道</th>
+                            <th>退款状态</th>
+                            <th>退款金额</th>
+                            <th>退款原因</th>
+                            <th>退款时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="refund : ${refundHistory}">
+                            <td th:text="${refund.id}"></td>
+                            <td th:text="${refund.orderPayChannel}"></td>
+                            <td th:text="${refund.status}"></td>
+                            <td th:text="${refund.orderRefundAmount / 100.0}"></td>
+                            <td th:text="${refund.refundReason}"></td>
+                            <td th:text="${#dates.format(refund.orderRefundTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                操作
+            </div>
+            <div class="card-body">
+                <div th:if="${refundSupport.refundSupportStatus == 'PENDING'}">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#confirmRefundModal">
+                        确认退款
+                    </button>
+                </div>
+                <div th:if="${refundSupport.refundSupportStatus != 'PENDING'}">
+                    <p>该退款申请已处理</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card mt-3">
-        <div class="card-header">
-            订单信息
-        </div>
-        <div class="card-body">
-            <p><strong>订单ID:</strong> <span th:text="${orderDetail.orderInfo.orderId}"></span></p>
-            <p><strong>订单状态:</strong> <span th:text="${orderDetail.orderInfo.orderStatus}"></span></p>
-            <p><strong>订单金额:</strong> <span th:text="${orderDetail.orderInfo.orderAmount / 100.0}"></span></p>
-            <p><strong>创建时间:</strong> <span th:text="${#dates.format(orderDetail.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span></p>
-        </div>
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-header">
-            用户信息
-        </div>
-        <div class="card-body">
-<!--            <p><strong>用户ID:</strong> <span th:text="${user.id}"></span></p>-->
-            <p><strong>用户名:</strong> <span th:text="${user.email}"></span></p>
-        </div>
-    </div>
-
-    <div class="card mt-3">
-        <div class="card-header">
-            支付信息
-        </div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>支付ID</th>
-                    <th>支付渠道</th>
-                    <th>支付状态</th>
-                    <th>支付金额</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="payment : ${paymentList}">
-                    <td th:text="${payment.id}"></td>
-                    <td th:text="${payment.orderPayChannel}"></td>
-                    <td th:text="${payment.status}"></td>
-                    <td th:text="${payment.orderPayAmount / 100.0}"></td>
-                </tr>
-                </tbody>
-            </table>
+    <!-- Modal -->
+    <div class="modal fade" id="confirmRefundModal" tabindex="-1" aria-labelledby="confirmRefundModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmRefundModalLabel">确认退款</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/admin/support/refund/confirm.html}" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="refundSupportId" th:value="${refundSupport.refundSupportId}" />
+                        <div class="mb-3">
+                            <label for="refundAmount" class="form-label">退款金额</label>
+                            <input type="number" step="0.01" class="form-control" id="refundAmount" name="refundAmount"
+                                th:value="${refundSupport.refundAmount / 100.0}" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="returnPurchase" name="returnPurchase"
+                                value="true">
+                            <label class="form-check-label" for="returnPurchase">是否回收已购商品</label>
+                        </div>
+                        <div class="mb-3">
+                            <label for="remarkText" class="form-label">备注</label>
+                            <textarea class="form-control" id="remarkText" name="remarkText" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                        <button type="submit" class="btn btn-primary">提交</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-
-    <div class="card mt-3">
-        <div class="card-header">
-            订单退款历史
-        </div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>退款ID</th>
-                    <th>退款渠道</th>
-                    <th>退款状态</th>
-                    <th>退款金额</th>
-                    <th>退款原因</th>
-                    <th>退款时间</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="refund : ${refundHistory}">
-                    <td th:text="${refund.id}"></td>
-                    <td th:text="${refund.orderPayChannel}"></td>
-                    <td th:text="${refund.status}"></td>
-                    <td th:text="${refund.orderRefundAmount / 100.0}"></td>
-                    <td th:text="${refund.refundReason}"></td>
-                    <td th:text="${#dates.format(refund.orderRefundTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+    <div th:replace="~{/include/script.html}"></div>
 </body>
+
 </html>

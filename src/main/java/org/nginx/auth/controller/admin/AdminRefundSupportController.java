@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -81,20 +82,19 @@ public class AdminRefundSupportController {
      */
     @RequestMapping("/confirm.html")
     public String confirm(@RequestParam("refundSupportId") String refundSupportId,
-                          @RequestParam("refundAmount") Long refundAmount,
+                          @RequestParam("refundAmount") String refundAmount,
                           @RequestParam(name = "returnPurchase", required = false) Boolean returnPurchase,
                           @RequestParam("remarkText") String remarkText) {
 
-        if (refundAmount <= 0) {
-            throw new IllegalArgumentException("退款金额必须大于0");
-        }
+        BigDecimal refundAmountDecimal = new BigDecimal(refundAmount)
+                .multiply(BigDecimal.valueOf(100));
 
         RefundSupport refundSupport = refundSupportService.selectByRefundSupportId(refundSupportId);
         if (refundSupport == null) {
             return "redirect:/admin/support/refund/index.html";
         }
 
-        refundSupportService.refundByRefundSupport(refundSupport, refundAmount, returnPurchase, remarkText);
+        refundSupportService.refundByRefundSupport(refundSupport, refundAmountDecimal.longValue(), returnPurchase, remarkText);
 
         return "redirect:/admin/support/refund/detail.html?refundSupportId=" + refundSupportId;
     }
