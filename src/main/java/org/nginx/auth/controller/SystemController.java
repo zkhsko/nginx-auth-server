@@ -14,4 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SystemController {
     private static final Logger logger = LoggerFactory.getLogger(SystemController.class);
 
+    @RequestMapping(value = {"/", "/index.html"})
+    public String index() {
+        return "redirect:/user/order/index.html";
+    }
+
 }
