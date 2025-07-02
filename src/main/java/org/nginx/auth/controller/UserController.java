@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @date 2023/12/19
  */
 @Controller
-@RequestMapping("/account")
+@RequestMapping("/user")
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -35,9 +35,8 @@ public class UserController {
     private UserRepository userRepository;
 
     @RequestMapping("/")
-    @ResponseBody
     public String index() {
-        return "index";
+        return "redirect:/user/order/index.html";
     }
 
     @GetMapping("/login.html")
@@ -62,11 +61,7 @@ public class UserController {
 
         String browserUserAgent = request.getHeaders("User-Agent").nextElement();
 
-        response.setStatus(HttpStatus.FOUND.value());
-        response.setHeader("Location", request.getContextPath() + "/account/login/success.html");
-
-        return "login.html";
-
+        return "redirect:/";
     }
 
     @RequestMapping("/login/success.html")
