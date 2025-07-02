@@ -22,7 +22,6 @@ public class RefundSupport extends AutoIncrementBaseEntity {
      * 退款金额，单位分
      */
     private Long refundAmount;
-    // 是否退货  refundPurchase
     /**
      * 是否退货
      */
