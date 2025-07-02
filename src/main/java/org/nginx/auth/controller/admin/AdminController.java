@@ -8,13 +8,8 @@ import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
-import org.nginx.auth.model.OrderInfo;
-import org.nginx.auth.model.PremiumPlan;
-import org.nginx.auth.model.User;
-import org.nginx.auth.service.AdminAccountService;
-import org.nginx.auth.service.AdminOrderInfoService;
-import org.nginx.auth.service.AdminPremiumPlanService;
-import org.nginx.auth.service.OrderRefundInfoService;
+import org.nginx.auth.model.*;
+import org.nginx.auth.service.*;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
 import org.nginx.auth.util.ValidatorUtil;
@@ -43,6 +38,8 @@ public class AdminController {
     private AdminOrderInfoService adminOrderInfoService;
     @Autowired
     private OrderRefundInfoService orderRefundInfoService;
+    @Autowired
+    private RefundSupportService refundSupportService;
 
     @RequestMapping(value = {"", "/"})
     public String index() {
@@ -205,7 +202,6 @@ public class AdminController {
     }
 
 
-
     // -- order --
     @GetMapping("/order/index.html")
     public String orderListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
@@ -233,6 +229,31 @@ public class AdminController {
         model.addAttribute("orderDetailVO", detail);
 
         return "/admin/order/detail.html";
+    }
+
+    /**
+     * 退款申请列表页
+     *
+     * @param request
+     * @param model
+     * @param page
+     * @param size
+     * @return
+     */
+    @GetMapping("/support/refund/index.html")
+    public String refundSupportListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (size == null || size < 1) {
+            size = 10;
+        }
+
+        BasicPaginationVO<RefundSupport> refundPage = refundSupportService.refundSupportListPage(page, size);
+        model.addAttribute("pagination", refundPage);
+        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
+
+        return "/admin/support/refund/index.html";
     }
 
     @PostMapping("/order/refund.html")

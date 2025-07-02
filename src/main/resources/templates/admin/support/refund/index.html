@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>退款列表</title>
+    <div th:replace="/include/css.html"></div>
+</head>
+
+<body>
+    <div class="container">
+        <div th:replace="/include/nav.html"></div>
+
+        <h1>退款列表</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">退款申请单号</th>
+                    <th scope="col">订单号</th>
+                    <th scope="col">用户ID</th>
+                    <th scope="col">退款金额</th>
+                    <th scope="col">是否退货</th>
+                    <th scope="col">退款原因</th>
+                    <th scope="col">备注</th>
+                    <th scope="col">关联退款单</th>
+                    <th scope="col">退款状态</th>
+                    <th scope="col">创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="refund : ${pagination.data}">
+                    <td th:text="${refund.refundSupportId}">退款ID</td>
+                    <td th:text="${refund.orderId}">订单ID</td>
+                    <td th:text="${refund.userId}">用户ID</td>
+                    <td th:text="${#numbers.formatDecimal(refund.refundAmount / 100.0, 1, 'COMMA', 2, 'POINT')}">退款金额</td>
+                    <td th:text="${refund.refundPurchase}">是否退货</td>
+                    <td th:text="${refund.refundReason}">退款原因</td>
+                    <td th:text="${refund.remarkText}">备注</td>
+                    <td th:text="${refund.refundOrderId}">关联退款单</td>
+                    <td th:text="${refund.refundSupportStatus}">退款状态</td>
+                    <td th:text="${#dates.format(refund.createTime, 'yyyy-MM-dd HH:mm:ss')}">创建时间</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div th:replace="/include/pagination.html"></div>
+    </div>
+    <div th:replace="/include/script.html"></div>
+</body>
+
+</html>

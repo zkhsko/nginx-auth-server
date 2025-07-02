@@ -1,16 +1,21 @@
 package org.nginx.auth.service;
 
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.model.OrderInfo;
 import org.nginx.auth.model.RefundSupport;
 import org.nginx.auth.model.User;
 import org.nginx.auth.repository.RefundSupportRepository;
+import org.nginx.auth.util.BasicPaginationUtils;
 import org.nginx.auth.util.OrderInfoUtils;
 import org.nginx.auth.util.SessionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +26,31 @@ public class RefundSupportService {
     private RefundSupportRepository refundSupportRepository;
     @Autowired
     private OrderInfoService orderInfoService;
+
+    public BasicPaginationVO<RefundSupport> refundSupportListPage(Integer page, Integer size) {
+        PageHelper.startPage(page, size, "id desc");
+        List<RefundSupport> refundSupportList = refundSupportRepository.selectList(null);
+
+        PageInfo<RefundSupport> pageInfo = new PageInfo<>(refundSupportList);
+
+        return BasicPaginationUtils.create(pageInfo);
+    }
+
+    public BasicPaginationVO<RefundSupport> refundSupportListPageByUserId(Integer page, Integer size) {
+        User user = SessionUtil.getCurrentUser();
+        if (user == null) {
+            return BasicPaginationUtils.createEmpty();
+        }
+
+        LambdaQueryWrapper<RefundSupport> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RefundSupport::getUserId, user.getId());
+        PageHelper.startPage(page, size, "id desc");
+        List<RefundSupport> refundSupportList = refundSupportRepository.selectList(queryWrapper);
+
+        PageInfo<RefundSupport> pageInfo = new PageInfo<>(refundSupportList);
+
+        return BasicPaginationUtils.create(pageInfo);
+    }
 
     public void createRefundSupport(String orderId, Long refundAmount, Boolean refundPurchase, String refundReason) {
 
