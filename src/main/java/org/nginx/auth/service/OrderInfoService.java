@@ -21,6 +21,7 @@ import org.nginx.auth.service.payment.PaymentService;
 import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.BasicPaginationUtils;
 import org.nginx.auth.util.OrderInfoUtils;
+import org.nginx.auth.util.SessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +72,13 @@ public class OrderInfoService {
         // TODO 校验是否合法商品 存在 上架 库存 等信息
 
         // 假的,记得替换
-        Long userId = 3L;
+        User user = SessionUtil.getCurrentUser();
+        if (user == null) {
+            throw new IllegalArgumentException("用户未登录");
+        }
+
+        Long userId = user.getId();
+
         String orderId = OrderInfoUtils.generateOrderId(userId);
 
         OrderInfo orderInfo = new OrderInfo();
