@@ -1,23 +1,23 @@
 package org.nginx.auth.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
-import org.nginx.auth.repository.UserRepository;
+import org.nginx.auth.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.IOException;
 
 /**
  * @author dongpo.li
@@ -32,7 +32,7 @@ public class UserController {
     private String accessTokenKey;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @RequestMapping("/")
     public String index() {
@@ -47,9 +47,7 @@ public class UserController {
     @PostMapping("/login.html")
     public String loginAction(String username, HttpServletRequest request, HttpServletResponse response, Model model) {
 
-        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<User>()
-                .eq(User::getLicense, username);
-        User user = userRepository.selectOne(queryWrapper);
+        User user = userService.selectByLicense(username);
         if (user == null) {
             model.addAttribute("licenseText", username);
             model.addAttribute("licenseNotFountError", "License invalid");
@@ -83,6 +81,34 @@ public class UserController {
         session.removeAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
 
         return "logout.html";
+    }
+
+    @RequestMapping("/register")
+    @ResponseBody
+    public String register(String email, String code, HttpServletResponse response) {
+        String result = userService.register(email, code, response);
+
+        if (!"success".equals(result)) {
+            // 如果注册失败，设置响应状态码
+            if (response.getStatus() == HttpServletResponse.SC_OK) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+        } else {
+            // 注册成功，设置响应状态码为 201 Created
+            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+            // 跳转登录页面
+            try {
+                response.sendRedirect("/user/login.html");
+            } catch (IOException e) {
+                logger.error("Redirect to login page failed", e);
+                // 如果重定向失败，设置响应状态码为 500 Internal Server Error
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                return result;
+            }
+        }
+
+
+        return result;
     }
 
 }

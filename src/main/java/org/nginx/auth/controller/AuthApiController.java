@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
-import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.service.AuthApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
