@@ -13,47 +13,34 @@
     <div class="container">
         <div th:replace="~{/include/nav.html}"></div>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">商品名称</th>
-                    <th scope="col">商品详情</th>
-                    <th scope="col">价格</th>
-                    <th scope="col">库存</th>
-                    <th scope="col"></th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="item : ${pagination.data}">
-                    <td th:text="${item.premiumPlan.id}">id</td>
-                    <td th:text="${item.premiumPlan.premiumPlanName}">Mark</td>
-                    <td th:text="${item.premiumPlan.premiumPlanDesc}">Otto</td>
-<!--                    <td th:text="${item.premiumPlan.premiumPlanTimeValue + '/' + item.premiumPlan.premiumPlanTimeUnit}">@mdo</td>-->
-                    <td th:text="${(item.premiumPlanPriceYuan) + '/' + item.premiumPlan.premiumPlanTimeUnit}">@mdo</td>
-                    <td th:text="${item.premiumPlan.premiumPlanStock}">@mdo</td>
-                    <td>
-                        <form method="post" action="/user/order/create.html"
-                            th:action="@{/user/order/create}">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            <div class="col" th:each="item : ${pagination.data}">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${item.premiumPlan.premiumPlanName}">商品名称</h5>
+                        <p class="card-text flex-grow-1" th:text="${item.premiumPlan.premiumPlanDesc}">商品详情</p>
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item">
+                                价格: <span th:text="${item.premiumPlanPriceYuan + '/' + item.premiumPlan.premiumPlanTimeUnit}">价格</span>
+                            </li>
+                            <li class="list-group-item">
+                                库存: <span th:text="${item.premiumPlan.premiumPlanStock}">库存</span>
+                            </li>
+                        </ul>
+                        <form method="post" th:action="@{/user/order/create}" class="mt-auto">
                             <input type="hidden" name="skuId" th:value="${item.premiumPlan.id}" />
                             <input type="hidden" name="cnt" value="1" />
-                            <button class="btn btn-link">下单</button>
+                            <button type="submit" class="btn btn-primary w-100">下单</button>
                         </form>
-                        <!-- <a href="/user/order/create.html"
-                            th:href="@{/user/order/create(skuId=${item.premiumPlan.id}, cnt=${'1'})}">购买</a> -->
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div th:replace="~{/include/pagination.html}"></div>
 
     </div>
-    <!-- Delete Modal -->
-    <th:block th:replace="/include/delete.html::deleteConfirmModalHtml" />
     <div th:replace="~{/include/script.html}"></div>
-    <!-- Delete Modal -->
-    <th:block th:replace="/include/delete.html::deleteConfirmModalScript" />
 </body>
 
 </html>

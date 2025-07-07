@@ -29,7 +29,7 @@ public class AnonymousController {
             page = 1;
         }
         if (size == null || size < 1) {
-            size = 10;
+            size = 12;
         }
 
         BasicPaginationVO<PremiumPlanVO> premiumPlanPageVO = premiumPlanService.premiumPlanListPage(page, size);
