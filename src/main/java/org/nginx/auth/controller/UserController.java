@@ -83,32 +83,22 @@ public class UserController {
         return "logout.html";
     }
 
-    @RequestMapping("/register")
-    @ResponseBody
+    @GetMapping("/register.html")
+    public String registerPage() {
+        return "register.html";
+    }
+
+    @PostMapping("/register.html")
     public String register(String email, String code, HttpServletResponse response) {
         String result = userService.register(email, code, response);
 
         if (!"success".equals(result)) {
-            // 如果注册失败，设置响应状态码
-            if (response.getStatus() == HttpServletResponse.SC_OK) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
+            return "register.html";
         } else {
-            // 注册成功，设置响应状态码为 201 Created
-            response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
-            // 跳转登录页面
-            try {
-                response.sendRedirect("/user/login.html");
-            } catch (IOException e) {
-                logger.error("Redirect to login page failed", e);
-                // 如果重定向失败，设置响应状态码为 500 Internal Server Error
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                return result;
-            }
+            return "redirect:/user/login.html";
         }
 
 
-        return result;
     }
 
 }
