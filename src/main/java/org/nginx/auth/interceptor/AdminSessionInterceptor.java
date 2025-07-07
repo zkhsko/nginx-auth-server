@@ -19,7 +19,7 @@ public class AdminSessionInterceptor implements HandlerInterceptor {
     @Value("${admin.list}")
     private String adminListVal;
 
-    private Set<String> adminSet;
+    private static Set<String> adminSet;
 
     @PostConstruct
     public void init() {
@@ -48,5 +48,10 @@ public class AdminSessionInterceptor implements HandlerInterceptor {
 
         return true;
     }
+
+    public static Set<String> getAdminSet() {
+        return adminSet;
+    }
+
 }
 

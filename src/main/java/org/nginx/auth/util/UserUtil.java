@@ -1,5 +1,9 @@
 package org.nginx.auth.util;
 
+import org.nginx.auth.interceptor.AdminSessionInterceptor;
+
+import java.util.Set;
+
 public class UserUtil {
 
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -12,6 +16,15 @@ public class UserUtil {
             license.append(characters.charAt(index));
         }
         return license.toString();
+    }
+
+    public static boolean isAdmin(String email) {
+        Set<String> adminSet = AdminSessionInterceptor.getAdminSet();
+        if (adminSet == null || adminSet.isEmpty()) {
+            return false;
+        }
+
+        return adminSet.contains(email);
     }
 
 }

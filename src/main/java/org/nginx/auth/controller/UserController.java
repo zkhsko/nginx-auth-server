@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
 import org.nginx.auth.service.UserService;
+import org.nginx.auth.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.io.IOException;
 
 /**
  * @author dongpo.li
@@ -59,7 +58,14 @@ public class UserController {
 
         String browserUserAgent = request.getHeaders("User-Agent").nextElement();
 
-        return "redirect:/";
+        boolean admin = UserUtil.isAdmin(user.getEmail());
+        if (admin) {
+            return "redirect:/admin/premium-plan/index.html";
+        } else {
+            return "redirect:/anonymous/premium-plan/index.html";
+        }
+
+
     }
 
     @RequestMapping("/login/success.html")
