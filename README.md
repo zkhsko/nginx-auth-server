@@ -6,6 +6,13 @@
 Idea -> Settings -> Build, Execution, Deployment -> Build Tools -> Gradle -> Gradle JVM 
 ```
 
+
+# 功能列表
+- [ ] 注册 TODO: 注册缺少验证码&注册成功之后还没有发邮件
+- [x] 登录
+- [ ] 下单 TODO: 商品页面美化&下单时订单信息确认页面信息完善和美化
+
+
 - [x] 路由管理
 - [x] 商品管理
 - [ ] 支付
