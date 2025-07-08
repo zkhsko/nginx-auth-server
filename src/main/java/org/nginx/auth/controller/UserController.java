@@ -65,11 +65,6 @@ public class UserController {
 
     }
 
-    @RequestMapping("/login/success.html")
-    public String loginSuccess() {
-        return "login-success.html";
-    }
-
     @RequestMapping("/403.html")
     public String access403() {
         return "403.html";

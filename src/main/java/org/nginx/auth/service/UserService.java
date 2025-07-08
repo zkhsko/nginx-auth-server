@@ -1,18 +1,22 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.nginx.auth.model.User;
 import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private MessageSenderService messageSenderService;
 
     public User selectByLicense(String license) {
         if (license == null || license.isEmpty()) {
@@ -36,6 +40,7 @@ public class UserService {
         return userRepository.selectOne(queryWrapper);
     }
 
+    @Transactional
     public String register(String email, String code, HttpServletResponse response) {
         // TODO: 验证码校验逻辑，暂时模拟校验通过
         if (email == null || email.isEmpty()) {
@@ -77,7 +82,14 @@ public class UserService {
             return "Failed to register user";
         }
 
-        // TODO: 发送注册成功邮件通知用户
+        try {
+            String subject = "Welcome to Our Service";
+            String content = "Thank you for registering! Your license is: " + license;
+            messageSenderService.sendHtml(email, subject, content);
+        } catch (MessagingException e) {
+            throw new RuntimeException(e);
+        }
+
 
         return "success";
     }
