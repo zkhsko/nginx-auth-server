@@ -50,6 +50,12 @@ public class UserController {
             return "login.html";
         }
 
+        if (user.getBlocked() != null && user.getBlocked()) {
+            model.addAttribute("licenseText", username);
+            model.addAttribute("licenseNotFountError", "user is blocked");
+            return "login.html";
+        }
+
         HttpSession session = request.getSession();
         session.setAttribute(BasicConstant.CURRENT_USER_SESSION_KEY, user);
 
