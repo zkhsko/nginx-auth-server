@@ -12,6 +12,7 @@ import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.service.OrderInfoService;
 import org.nginx.auth.service.RefundSupportService;
 import org.nginx.auth.util.RedirectPageUtil;
+import org.nginx.auth.util.SessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,12 +39,7 @@ public class OrderController {
 
     @GetMapping(value = {"/", "/index.html"})
     public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
-        HttpSession session = request.getSession(false);
-
-        User user = (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
-        if (user == null) {
-            return "redirect:/login.html";
-        }
+        User user = SessionUtil.getCurrentUser();
         if (page == null || page < 1) {
             page = 1;
         }

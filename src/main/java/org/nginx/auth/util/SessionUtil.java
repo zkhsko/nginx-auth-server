@@ -15,7 +15,14 @@ public class SessionUtil {
             return null; // No request context available
         }
         HttpServletRequest request = attrs.getRequest();
+        return getCurrentUser(request);
+    }
+
+    public static User getCurrentUser(HttpServletRequest request) {
         HttpSession session = request.getSession();
+        if (session == null) {
+            return null; // No session available
+        }
         return (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
     }
 
