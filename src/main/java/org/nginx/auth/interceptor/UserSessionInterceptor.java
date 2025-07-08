@@ -27,6 +27,8 @@ public class UserSessionInterceptor implements HandlerInterceptor {
 
         String loginPage = "/user/login.html";
 
+        // 这个列表实际上在配置好nginx之后是没有什么用的
+        // 甚至整个拦截器都是没有什么用的
         List<String> excludeUrlList = new ArrayList<>();
         excludeUrlList.add(contextPath + "/res/");
         excludeUrlList.add(contextPath + loginPage);

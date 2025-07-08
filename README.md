@@ -54,6 +54,23 @@ server {
         proxy_read_timeout      3600;
     }
 
+    location = /xxx/user/login.html {
+        proxy_pass   http://127.0.0.1:8081/xxx/user/login.html;
+        proxy_redirect  http://127.0.0.1:8081/ /;
+    }
+    location = /xxx/user/register.html {
+        proxy_pass   http://127.0.0.1:8081/xxx/user/register.html;
+        proxy_redirect  http://127.0.0.1:8081/ /;
+    }
+    location /xxx/anonymous/ {
+        proxy_pass      http://127.0.0.1:8081/xxx/anonymous/;
+        proxy_redirect  http://127.0.0.1:8081/ /;
+    }
+    location /xxx/res/ {
+        proxy_pass      http://127.0.0.1:8081/xxx/res/;
+        proxy_redirect  http://127.0.0.1:8081/ /;
+    }
+
     location /xxx/ {
         auth_request    /xxx/api/v1.0/auth/access;
         proxy_pass      http://127.0.0.1:8081/xxx/;
