@@ -16,9 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthApiController {
 
-    @Value("${access.token.key}")
-    private String accessTokenKey;
-
     @Autowired
     private AuthApiService authApiService;
 

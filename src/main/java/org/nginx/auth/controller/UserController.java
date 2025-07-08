@@ -27,9 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-    @Value("${access.token.key}")
-    private String accessTokenKey;
-
     @Autowired
     private UserService userService;
 
