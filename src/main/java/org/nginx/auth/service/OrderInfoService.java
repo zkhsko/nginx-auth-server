@@ -246,11 +246,10 @@ public class OrderInfoService {
 
     public BasicPaginationVO<OrderInfo> orderListPage(User user, Integer page, Integer size) {
         PageHelper.startPage(page, size);
-        List<OrderInfo> orderInfoList = orderInfoRepository.selectList(
-                new LambdaQueryWrapper<OrderInfo>()
-                        .eq(OrderInfo::getUserId, user.getId())
-                        .orderByDesc(OrderInfo::getId)
-        );
+        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderInfo::getUserId, user.getId());
+        queryWrapper.orderByDesc(OrderInfo::getId);
+        List<OrderInfo> orderInfoList = orderInfoRepository.selectList(queryWrapper);
         PageInfo<OrderInfo> pageInfo = new PageInfo<>(orderInfoList);
         return BasicPaginationUtils.create(pageInfo);
     }
