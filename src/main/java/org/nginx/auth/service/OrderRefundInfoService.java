@@ -16,6 +16,7 @@ import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.OrderInfoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -39,6 +40,7 @@ public class OrderRefundInfoService {
         return orderRefundInfoRepository.selectList(queryWrapper);
     }
 
+    @Transactional
     public String refundByAdmin(String orderId, Long orderRefundAmount, String refundReason, Boolean returnPurchase) {
         // 查询订单信息
         LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -60,7 +62,7 @@ public class OrderRefundInfoService {
                 OrderInfoStatusEnum.PAYMENT_SUCCESS.name(),
                 OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name()
         );
-        if (!availableRefundTradeStatus.contains(orderPaymentInfo.getStatus())) {
+        if (!availableRefundTradeStatus.contains(orderInfo.getOrderStatus())) {
             throw new IllegalArgumentException("订单状态不正确，无法退款");
         }
 

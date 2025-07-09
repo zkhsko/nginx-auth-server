@@ -36,14 +36,6 @@ public class AdminController {
     private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
     private AdminUserService adminUserService;
-    @Autowired
-    private AdminOrderInfoService adminOrderInfoService;
-    @Autowired
-    private OrderPaymentInfoService orderPaymentInfoService;
-    @Autowired
-    private OrderRefundInfoService orderRefundInfoService;
-    @Autowired
-    private RefundSupportService refundSupportService;
 
     @RequestMapping(value = {"", "/"})
     public String index() {
@@ -203,79 +195,6 @@ public class AdminController {
     public String unblockAccountAction(@RequestParam Long id, @RequestParam String redirect) {
         adminUserService.changeUserBlock(id, false);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
-    }
-
-
-    // -- order --
-    @GetMapping("/order/index.html")
-    public String orderListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
-        if (page == null || page < 1) {
-            page = 1;
-        }
-        if (size == null || size < 1) {
-            size = 10;
-        }
-
-        BasicPaginationVO<OrderInfo> orderPage = adminOrderInfoService.orderListPage(page, size);
-        model.addAttribute("pagination", orderPage);
-        model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
-
-        return "/admin/order/index.html";
-    }
-
-    @GetMapping("/order/detail.html")
-    public String selectOrderDetail(String orderId, Model model) {
-
-        model.addAttribute("orderId", orderId);
-
-        OrderDetailVO detail = adminOrderInfoService.getOrderDetail(orderId);
-        model.addAttribute("orderDetailVO", detail);
-
-        // 查询用户信息
-        User user = adminUserService.selectById(detail.getOrderInfo().getUserId());
-        model.addAttribute("user", user);
-
-        // 查询支付信息
-        List<OrderPaymentInfo> paymentList = orderPaymentInfoService.selectListByOrderId(orderId);
-        model.addAttribute("paymentList", paymentList);
-
-        // 查询退款历史
-        List<OrderRefundInfo> refundHistory = orderRefundInfoService.selectListByOrderId(orderId);
-        model.addAttribute("refundHistory", refundHistory);
-
-        // 是否展示退款按钮
-        boolean refundBtn = OrderInfoConstant.AVAILABLE_REFUND_TRADE_STATUS
-                .contains(detail.getOrderInfo().getOrderStatus());
-        model.addAttribute("refundBtn", refundBtn);
-
-        return "/admin/order/detail.html";
-    }
-
-
-    /**
-     * 管理员主动退款
-     *
-     * @param orderId
-     * @param refundAmount
-     * @param refundReason
-     * @param refundPurchase
-     * @param model
-     * @return
-     */
-    @PostMapping("/order/refund.html")
-    public String orderRefundPage(@RequestParam String orderId,
-                                  @RequestParam Long refundAmount,
-                                  @RequestParam String refundReason,
-                                  @RequestParam Boolean refundPurchase,
-                                  Model model) {
-        try {
-            orderRefundInfoService.refundByAdmin(orderId, refundAmount, refundReason, refundPurchase);
-            model.addAttribute("message", "退款成功");
-        } catch (Exception e) {
-            model.addAttribute("error", "退款失败: " + e.getMessage());
-        }
-        // 退款后重定向回订单详情页
-        return "redirect:/admin/order/detail.html?orderId=" + orderId;
     }
 
 }
