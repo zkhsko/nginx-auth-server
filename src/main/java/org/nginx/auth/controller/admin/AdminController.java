@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,9 +34,11 @@ public class AdminController {
     @Autowired
     private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
-    private AdminAccountService adminAccountService;
+    private AdminUserService adminUserService;
     @Autowired
     private AdminOrderInfoService adminOrderInfoService;
+    @Autowired
+    private OrderPaymentInfoService orderPaymentInfoService;
     @Autowired
     private OrderRefundInfoService orderRefundInfoService;
     @Autowired
@@ -181,7 +184,7 @@ public class AdminController {
             size = 10;
         }
 
-        BasicPaginationVO<User> userInfoPageVO = adminAccountService.userListPage(page, size);
+        BasicPaginationVO<User> userInfoPageVO = adminUserService.userListPage(page, size);
         model.addAttribute("pagination", userInfoPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
@@ -191,13 +194,13 @@ public class AdminController {
     // block
     @PostMapping("/user/block.html")
     public String blockAccountAction(@RequestParam Long id, @RequestParam String redirect) {
-        adminAccountService.changeUserBlock(id, true);
+        adminUserService.changeUserBlock(id, true);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
     @PostMapping("/user/unblock.html")
     public String unblockAccountAction(@RequestParam Long id, @RequestParam String redirect) {
-        adminAccountService.changeUserBlock(id, false);
+        adminUserService.changeUserBlock(id, false);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
@@ -225,8 +228,19 @@ public class AdminController {
         model.addAttribute("orderId", orderId);
 
         OrderDetailVO detail = adminOrderInfoService.getOrderDetail(orderId);
-
         model.addAttribute("orderDetailVO", detail);
+
+        // 查询用户信息
+        User user = adminUserService.selectById(detail.getOrderInfo().getUserId());
+        model.addAttribute("user", user);
+
+        // 查询支付信息
+        List<OrderPaymentInfo> paymentList = orderPaymentInfoService.selectListByOrderId(orderId);
+        model.addAttribute("paymentList", paymentList);
+
+        // 查询退款历史
+        List<OrderRefundInfo> refundHistory = orderRefundInfoService.selectListByOrderId(orderId);
+        model.addAttribute("refundHistory", refundHistory);
 
         return "/admin/order/detail.html";
     }

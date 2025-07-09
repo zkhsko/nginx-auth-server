@@ -17,7 +17,7 @@ import java.util.List;
  * @date 2025/1/10 16:22
  */
 @Service
-public class AdminAccountService {
+public class AdminUserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -34,6 +34,13 @@ public class AdminAccountService {
         lambdaUpdateWrapper.eq(User::getId, id);
         lambdaUpdateWrapper.set(User::getBlocked, block);
         userRepository.update(null, lambdaUpdateWrapper);
+    }
+
+    public User selectById(Long id) {
+        if (id == null || id < 1) {
+            return null;
+        }
+        return userRepository.selectById(id);
     }
 
 }
