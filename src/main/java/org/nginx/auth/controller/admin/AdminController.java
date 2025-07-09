@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageParam;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.MapUtils;
+import org.nginx.auth.constant.OrderInfoConstant;
 import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
@@ -241,6 +242,11 @@ public class AdminController {
         // 查询退款历史
         List<OrderRefundInfo> refundHistory = orderRefundInfoService.selectListByOrderId(orderId);
         model.addAttribute("refundHistory", refundHistory);
+
+        // 是否展示退款按钮
+        boolean refundBtn = OrderInfoConstant.AVAILABLE_REFUND_TRADE_STATUS
+                .contains(detail.getOrderInfo().getOrderStatus());
+        model.addAttribute("refundBtn", refundBtn);
 
         return "/admin/order/detail.html";
     }
