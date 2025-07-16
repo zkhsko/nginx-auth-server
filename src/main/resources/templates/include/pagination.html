@@ -4,7 +4,7 @@
     <!-- 上一页 -->
     <li class="page-item">
         <a class="page-link"
-            th:href="@{${requestPathWithoutContextPath + '?page=' + pagination.prev + '&size=' + pagination.size}}"
+            th:href="@{${'?page=' + pagination.prev + '&size=' + pagination.size}}"
             href="#" aria-label="Previous">
             <span aria-hidden="true">&laquo;</span>
         </a>
@@ -21,7 +21,7 @@
     <th:block th:each="i:${#numbers.sequence(pagination.pageNumStart(), pagination.pageNumEnd())}">
         <li class="page-item" th:classappend="${i == pagination.page} ? 'active' : ''">
             <a class="page-link" href="#" th:text="${i}"
-                th:href="@{${requestPathWithoutContextPath + '?page=' + i + '&size=' + pagination.size}}">i</a>
+                th:href="@{${'?page=' + i + '&size=' + pagination.size}}">i</a>
         </li>
     </th:block>
 
@@ -35,7 +35,7 @@
     <!-- 下一页 -->
     <li class="page-item">
         <a class="page-link"
-            th:href="@{${requestPathWithoutContextPath + '?page=' + pagination.next + '&size=' + pagination.size}}"
+            th:href="@{${'?page=' + pagination.next + '&size=' + pagination.size}}"
             href="#" aria-label="Next">
             <span aria-hidden="true">&raquo;</span>
         </a>
