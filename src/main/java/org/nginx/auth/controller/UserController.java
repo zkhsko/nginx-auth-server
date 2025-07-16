@@ -78,13 +78,12 @@ public class UserController {
 
 
     @RequestMapping("/logout.html")
-    @ResponseBody
     public String logout(HttpServletRequest request) {
 
         HttpSession session = request.getSession();
         session.removeAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
 
-        return "logout.html";
+        return "redirect:/user/login.html";
     }
 
     @GetMapping("/register.html")

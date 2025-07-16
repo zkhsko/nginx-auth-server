@@ -17,12 +17,24 @@
     </div>
     <div class="col-md-2 mb-2 mb-md-0">
         <ul class="nav col-12 col-md-auto mb-2 justify-content-end mb-md-0">
-            <li class="nav-item">
-                <a class="nav-link px-2" href="#" th:href="@{/user/login.html}">登录</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link px-2" href="#" th:href="@{/user/register.html}">注册</a>
-            </li>
+            <th:block th:with="currentUser=${session.get(T(org.nginx.auth.constant.BasicConstant).CURRENT_USER_SESSION_KEY)}">
+                <th:block th:if="${currentUser == null}">
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="#" th:href="@{/user/login.html}">登录</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="#" th:href="@{/user/register.html}">注册</a>
+                    </li>
+                </th:block>
+                <th:block th:unless="${currentUser == null}">
+                    <li class="nav-item">
+                        <span class="nav-link px-2" th:text="${currentUser.email}">x@x.x</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-2" href="#" th:href="@{/user/logout.html}">退出</a>
+                    </li>
+                </th:block>
+            </th:block>
         </ul>
     </div>
 </header>
