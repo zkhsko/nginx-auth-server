@@ -34,7 +34,7 @@ public class UserSessionInterceptor implements HandlerInterceptor {
         excludeUrlList.add(contextPath + loginPage);
         excludeUrlList.add(contextPath + "/user/register.html");
         excludeUrlList.add(contextPath + "/api/v1.0/auth/access");
-        excludeUrlList.add(contextPath + "/anonymous/premium-plan/index.html");
+        excludeUrlList.add(contextPath + "/anonymous/");
 
         for (String url : excludeUrlList) {
             if (requestURI.startsWith(url)) {
