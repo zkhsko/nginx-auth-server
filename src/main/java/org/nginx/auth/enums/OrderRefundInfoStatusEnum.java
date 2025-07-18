@@ -6,6 +6,10 @@ package org.nginx.auth.enums;
 public enum OrderRefundInfoStatusEnum {
 
     /**
+     * 退款中
+     */
+    TRADE_REFUND_PENDING,
+    /**
      * 退款完成
      */
     TRADE_REFUND_SUCCESS,

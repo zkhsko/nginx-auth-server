@@ -2,38 +2,32 @@ package org.nginx.auth.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
-import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.io.IOUtils;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.PaymentNotifyHistory;
 import org.nginx.auth.service.payment.PaymentNotifyHistoryService;
 import org.nginx.auth.service.payment.impl.AlipayPaymentService;
-import org.nginx.auth.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author dongpo.li
  * @date 2024/12/27 20:17
  */
 @Controller
-@RequestMapping("/alipay")
-public class AlipayController {
-    private static final Logger logger = LoggerFactory.getLogger(AlipayController.class);
+@RequestMapping("/anonymous/alipay")
+public class AlipayNotifyController {
+    private static final Logger logger = LoggerFactory.getLogger(AlipayNotifyController.class);
 
     @Autowired
     private AlipayPaymentService alipayPaymentService;

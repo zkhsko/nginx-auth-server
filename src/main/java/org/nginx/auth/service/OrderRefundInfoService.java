@@ -1,7 +1,6 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.OrderRefundInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
@@ -31,8 +30,12 @@ public class OrderRefundInfoService {
     private OrderInfoRepository orderInfoRepository;
     @Autowired
     private OrderPaymentInfoRepository orderPaymentInfoRepository;
-    @Autowired
-    private SubscriptionInfoService subscriptionInfoService;
+
+    public OrderRefundInfo selectByRefundOrderId(String refundOrderId) {
+        LambdaQueryWrapper<OrderRefundInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(OrderRefundInfo::getRefundOrderId, refundOrderId);
+        return orderRefundInfoRepository.selectOne(queryWrapper);
+    }
 
     public List<OrderRefundInfo> selectListByOrderId(String orderId) {
         LambdaQueryWrapper<OrderRefundInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -85,27 +88,17 @@ public class OrderRefundInfoService {
         OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
         String refundOrderId = OrderInfoUtils.generateOrderId(orderInfo.getUserId());
         orderRefundInfo.setRefundOrderId(refundOrderId);
+        orderRefundInfo.setOutBizNo(refundOrderId);
         orderRefundInfo.setOrderId(orderId);
         orderRefundInfo.setOrderPayChannel(orderPaymentInfo.getOrderPayChannel());
         orderRefundInfo.setOrderRefundTime(new Date());
         orderRefundInfo.setOrderRefundAmount(orderRefundAmount);
         orderRefundInfo.setRefundReason(refundReason);
-        orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+        orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_PENDING.name());
         if (returnPurchase == null) {
             returnPurchase = false;
         }
         orderRefundInfo.setReturnPurchase(returnPurchase);
-
-        boolean premiumPlanReturned = false;
-
-        if (orderInfo.getPremiumPlanReturned() != null && !orderInfo.getPremiumPlanReturned()) {
-            // 没有退过货
-            if (returnPurchase) {
-                // 扣减订阅到期时间
-                subscriptionInfoService.refund(orderId);
-                premiumPlanReturned = true;
-            }
-        }
 
 
         // 请求退款接口
@@ -116,40 +109,37 @@ public class OrderRefundInfoService {
         // 保存退款记录
         orderRefundInfoRepository.insert(orderRefundInfo);
 
-        // 修改主订单状态
-        changeOrderStatusToRefunded(orderInfo, orderRefundInfo, premiumPlanReturned);
-
         return refundOrderId;
     }
 
-    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo, Boolean premiumPlanReturned) {
-        LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
-
-        if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
-            orderInfoRepository.update(orderInfoUpdate);
-            return;
-        }
-
-        LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
-        refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderInfo.getOrderId());
-        refundQueryWrapper.eq(OrderRefundInfo::getStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
-        List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
-        long totalRefundedAmount = existingRefundList.stream()
-                .mapToLong(OrderRefundInfo::getOrderRefundAmount)
-                .sum();
-        if (totalRefundedAmount == orderInfo.getOrderAmount()) {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
-        } else {
-            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
-        }
-
-        if (premiumPlanReturned) {
-            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
-        }
-
-
-        orderInfoRepository.update(orderInfoUpdate);
-    }
+//    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo, Boolean premiumPlanReturned) {
+//        LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
+//
+//        if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
+//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
+//            orderInfoRepository.update(orderInfoUpdate);
+//            return;
+//        }
+//
+//        LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
+//        refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderInfo.getOrderId());
+//        refundQueryWrapper.eq(OrderRefundInfo::getStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+//        List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
+//        long totalRefundedAmount = existingRefundList.stream()
+//                .mapToLong(OrderRefundInfo::getOrderRefundAmount)
+//                .sum();
+//        if (totalRefundedAmount == orderInfo.getOrderAmount()) {
+//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
+//        } else {
+//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+//        }
+//
+//        if (premiumPlanReturned) {
+//            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
+//        }
+//
+//
+//        orderInfoRepository.update(orderInfoUpdate);
+//    }
 
 }

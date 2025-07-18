@@ -2,35 +2,34 @@ package org.nginx.auth.service.payment.impl;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.domain.AlipayTradeFastpayRefundQueryModel;
 import com.alipay.api.domain.AlipayTradeRefundModel;
+import com.alipay.api.request.AlipayTradeFastpayRefundQueryRequest;
 import com.alipay.api.request.AlipayTradePrecreateRequest;
 import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradePrecreateResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import jakarta.annotation.PostConstruct;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.OrderPaymentInfoStatusEnum;
+import org.nginx.auth.enums.OrderRefundInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.*;
-import org.nginx.auth.repository.OrderInfoRepository;
-import org.nginx.auth.repository.OrderPaymentInfoRepository;
 import org.nginx.auth.repository.OrderSkuInfoRepository;
 import org.nginx.auth.response.OrderCreateDTO;
-import org.nginx.auth.service.SubscriptionInfoService;
+import org.nginx.auth.service.OrderRefundInfoService;
 import org.nginx.auth.util.JsonUtils;
+import org.nginx.auth.util.OrderInfoUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -73,12 +71,6 @@ public class AlipayPaymentService extends AbstractPaymentService {
     private ApplicationContext applicationContext;
     @Autowired
     private OrderSkuInfoRepository orderSkuInfoRepository;
-    @Autowired
-    private OrderInfoRepository orderInfoRepository;
-    @Autowired
-    private OrderPaymentInfoRepository orderPaymentInfoRepository;
-    @Autowired
-    private SubscriptionInfoService subscriptionInfoService;
 
     @Override
     public OrderCreateDTO createOrder(OrderInfo orderInfo) {
@@ -146,9 +138,8 @@ public class AlipayPaymentService extends AbstractPaymentService {
             builder.append("/");
         }
         builder.append(contextPath);
-        builder.append("/alipay/notify");
+        builder.append("/anonymous/alipay/notify");
         return builder.toString();
-//        return notifyUrl + "/" + contextPath + "/alipay/notify";
     }
 
     private String readPrivateKey() {
@@ -192,25 +183,6 @@ public class AlipayPaymentService extends AbstractPaymentService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void handleNotify(Map<String, String> requestParamMap) {
-
-        String method = MapUtils.getString(requestParamMap, "method");
-        if (StringUtils.equals("alipay.trade.refund", method)) {
-            // 退款通知
-            refund(requestParamMap);
-            return;
-        }
-
-        String notifyType = MapUtils.getString(requestParamMap, "notify_type");
-        if (StringUtils.equals("trade_status_sync", notifyType)) {
-            // 订单支付状态同步
-
-            pay(requestParamMap);
-            return;
-        }
-
     }
 
     @Override
@@ -334,68 +306,144 @@ public class AlipayPaymentService extends AbstractPaymentService {
         return paramMap;
     }
 
-    private void pay(Map<String, String> requestParamMap) {
-        String orderId = requestParamMap.get("out_trade_no");
-
-        LambdaQueryWrapper<OrderInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(OrderInfo::getOrderId, orderId);
-        OrderInfo orderInfo = orderInfoRepository.selectOne(queryWrapper);
-
-        String tradeStatus = MapUtils.getString(requestParamMap, "trade_status");
-
-        switch (tradeStatus) {
-            case "TRADE_SUCCESS":
-            case "TRADE_FINISHED":
-                // 支付成功
-                String tradeNo = requestParamMap.get("trade_no");
-                String totalAmountParam = requestParamMap.get("total_amount");
-                BigDecimal totalAmount = new BigDecimal(totalAmountParam);
-                Long orderPayAmount = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
-
-                // gmt_payment
-                String orderPayTimeText = requestParamMap.get("gmt_payment");
-                Date orderPayTime = null;
-                if (StringUtils.isNotBlank(orderPayTimeText)) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    try {
-                        orderPayTime = sdf.parse(orderPayTimeText);
-                    } catch (Exception e) {
-                        logger.error("解析支付时间失败, orderId={}, gmt_payment={}", orderId, orderPayTimeText, e);
-                        orderPayTime = new Date(); // 如果解析失败，将处理时候的时间作为支付时间
-                    }
-                }
-
-                // 支付记录
-                OrderPaymentInfo orderPaymentInfo = new OrderPaymentInfo();
-                orderPaymentInfo.setOrderId(orderInfo.getOrderId());
-                orderPaymentInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
-                orderPaymentInfo.setOrderPayAmount(orderPayAmount);
-                orderPaymentInfo.setTradeNo(tradeNo);
-                orderPaymentInfo.setOrderPayTime(orderPayTime);
-                orderPaymentInfo.setStatus(OrderPaymentInfoStatusEnum.PAYMENT_SUCCESS.name());
-                orderPaymentInfoRepository.insert(orderPaymentInfo);
-
-
-                // 修改订单状态为已支付
-                LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
-                orderInfoUpdate.eq(OrderInfo::getOrderId, orderId)
-                        .set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.PAYMENT_SUCCESS.name())
-                        .set(OrderInfo::getOrderPaymentInfoId, orderPaymentInfo.getId());
-                orderInfoRepository.update(orderInfoUpdate);
-
-
-                // 延长订阅时间
-                subscriptionInfoService.refreshExpireAt(orderPaymentInfo);
-
-                break;
-            case "TRADE_CLOSED":
-                // 交易关闭
-                throw new IllegalArgumentException("交易已关闭: " + orderId);
-            default:
-                throw new IllegalArgumentException("不支持的交易状态: " + tradeStatus);
+    public void handleNotifyAction(Map<String, String> requestParamMap) {
+        String method = MapUtils.getString(requestParamMap, "method");
+        if (StringUtils.equals("alipay.trade.refund", method)) {
+            // 退款通知(暂时没有实现)
+            refund(requestParamMap);
+            return;
         }
 
+        String notifyType = MapUtils.getString(requestParamMap, "notify_type");
+        // 订单支付状态同步
+        if (StringUtils.equals("trade_status_sync", notifyType)) {
 
+            String orderId = requestParamMap.get("out_trade_no");
+            String tradeStatus = MapUtils.getString(requestParamMap, "trade_status");
+
+            switch (tradeStatus) {
+                case "TRADE_SUCCESS":
+                case "TRADE_FINISHED":{
+
+                    // 支付成功
+                    String tradeNo = requestParamMap.get("trade_no");
+
+
+
+
+                    // 如果有退款金额,这个请求是退款请求通知,否则是支付请求通知
+                    // 参见 https://opendocs.alipay.com/open/194/105205?pathHash=ce02c5b9
+                    // Q：如何区分支付和退款触发的通知？
+                    // A：相较支付触发的异步通知，退款触发异步通知中有refund_fee（总退款金额）、gmt_refund（交易退款时间）等参数。
+                    String refundFeeVal = requestParamMap.get("refund_fee");
+                    if (StringUtils.isNotBlank(refundFeeVal)) {
+
+                        String outBizNo = requestParamMap.get("out_biz_no");
+
+                        OrderRefundInfo orderRefundInfo = queryRefundInfo(orderId, outBizNo);
+
+
+                        orderRefundInfo.setRefundOrderId(outBizNo);
+                        orderRefundInfo.setOutBizNo(outBizNo);
+                        orderRefundInfo.setOrderId(orderId);
+                        orderRefundInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
+                        orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+
+                        onRefundSuccess(orderRefundInfo);
+                    } else {
+                        String totalAmountParam = requestParamMap.get("total_amount");
+                        BigDecimal totalAmount = new BigDecimal(totalAmountParam);
+                        Long orderPayAmount = totalAmount.multiply(BigDecimal.valueOf(100)).longValue();
+
+                        // 支付时间
+                        String orderPayTimeText = requestParamMap.get("gmt_payment");
+                        Date orderPayTime = null;
+                        if (StringUtils.isNotBlank(orderPayTimeText)) {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            try {
+                                orderPayTime = sdf.parse(orderPayTimeText);
+                            } catch (Exception e) {
+                                logger.error("解析支付时间失败, orderId={}, gmt_payment={}", orderId, orderPayTimeText, e);
+                                orderPayTime = new Date(); // 如果解析失败，将处理时候的时间作为支付时间
+                            }
+                        }
+
+                        OrderPaymentInfo orderPaymentInfo = new OrderPaymentInfo();
+                        orderPaymentInfo.setOrderId(orderId);
+                        orderPaymentInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
+                        orderPaymentInfo.setOrderPayAmount(orderPayAmount);
+                        orderPaymentInfo.setTradeNo(tradeNo);
+                        orderPaymentInfo.setOrderPayTime(orderPayTime);
+                        orderPaymentInfo.setStatus(OrderPaymentInfoStatusEnum.PAYMENT_SUCCESS.name());
+                        onPaymentSuccess(orderPaymentInfo);
+                    }
+
+
+                    break;
+                }
+
+            }
+
+            return;
+        }
+    }
+
+    private OrderRefundInfo queryRefundInfo(String orderId, String outBizNo) {
+
+        AlipayClient alipayClient = buildAlipayClient();
+
+
+        // 构造请求参数以调用接口
+        AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
+        AlipayTradeFastpayRefundQueryModel model = new AlipayTradeFastpayRefundQueryModel();
+
+        // 设置商户订单号
+        model.setOutTradeNo(orderId);
+
+        // 设置退款请求号
+        model.setOutRequestNo(outBizNo);
+
+//        // 设置查询选项
+        List<String> queryOptions = new ArrayList<String>();
+        // gmt_refund_pay 默认不返回,需要指定
+        queryOptions.add("gmt_refund_pay");
+        model.setQueryOptions(queryOptions);
+
+        request.setBizModel(model);
+        // 第三方代调用模式下请设置app_auth_token
+        // request.putOtherTextParam("app_auth_token", "<-- 请填写应用授权令牌 -->");
+
+        AlipayTradeFastpayRefundQueryResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(response.getBody());
+
+        long refundAmount = new BigDecimal(response.getRefundAmount())
+                .multiply(BigDecimal.valueOf(100))
+                .longValue();
+
+        OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
+        orderRefundInfo.setRefundOrderId(outBizNo);
+        orderRefundInfo.setOutBizNo(outBizNo);
+        orderRefundInfo.setOrderId(orderId);
+        orderRefundInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
+        orderRefundInfo.setOrderRefundTime(response.getGmtRefundPay());
+        orderRefundInfo.setOrderRefundAmount(refundAmount);
+
+
+        if (response.isSuccess()) {
+            System.out.println("调用成功");
+        } else {
+            System.out.println("调用失败");
+            // sdk版本是"4.38.0.ALL"及以上,可以参考下面的示例获取诊断链接
+            // String diagnosisUrl = DiagnosisUtils.getDiagnosisUrl(response);
+            // System.out.println(diagnosisUrl);
+        }
+
+        return orderRefundInfo;
     }
 
     private void refund(Map<String, String> requestParamMap) {

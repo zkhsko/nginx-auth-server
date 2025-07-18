@@ -85,7 +85,7 @@ public class PaymentNotifyHistoryService {
         // 解析请求参数
         Map<String, String> requestParamMap = paymentService.resolveRequestParam(paymentNotifyHistory);
         // 处理请求
-        paymentService.handleNotify(requestParamMap);
+        paymentService.handleNotifyAction(requestParamMap);
 
         LambdaUpdateWrapper<PaymentNotifyHistory> paymentNotifyHistoryUpdate = new LambdaUpdateWrapper<>();
         paymentNotifyHistoryUpdate.set(PaymentNotifyHistory::getResolved, true);
