@@ -26,6 +26,15 @@ public class RefundSupportController {
     @Autowired
     private OrderInfoService orderInfoService;
 
+    /**
+     * 退款申请列表页
+     *
+     * @param request
+     * @param model
+     * @param page
+     * @param size
+     * @return
+     */
     @RequestMapping(value = {"/", "/index.html"})
     public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
         if (page == null || page < 1) {
@@ -43,7 +52,7 @@ public class RefundSupportController {
     }
 
     /**
-     * 申请退款页面
+     * 申请退款表单页面
      *
      * @param orderId
      * @param model
@@ -69,7 +78,8 @@ public class RefundSupportController {
                 .longValue();
         refundSupportService.createRefundSupport(orderId, refundAmountInCents, refundPurchase, refundReason);
 
-        return "redirect:/user/order/detail.html?orderId=" + orderId;
+        // 跳转到退款申请列表页面
+        return "redirect:/user/support/refund/index.html";
     }
 
 }
