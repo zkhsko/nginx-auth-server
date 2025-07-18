@@ -55,7 +55,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="payment : ${paymentList}">
+                        <tr th:each="payment : ${orderDetailVO.paymentList}">
                             <td th:text="${payment.id}"></td>
                             <td th:text="${payment.orderPayChannel}"></td>
                             <td th:text="${payment.status}"></td>
@@ -83,13 +83,43 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="refund : ${refundHistory}">
+                        <tr th:each="refund : ${orderDetailVO.refundHistory}">
                             <td th:text="${refund.id}"></td>
                             <td th:text="${refund.orderPayChannel}"></td>
                             <td th:text="${refund.status}"></td>
                             <td th:text="${refund.orderRefundAmount / 100.0}"></td>
                             <td th:text="${refund.refundReason}"></td>
                             <td th:text="${#dates.format(refund.orderRefundTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                退款申请历史
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>退款原因</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="refundSupport : ${orderDetailVO.refundSupportList}">
+                            <td th:text="${refundSupport.id}"></td>
+                            <td th:text="${refundSupport.refundReason}"></td>
+                            <td th:text="${refundSupport.refundSupportStatus}"></td>
+                            <td th:text="${#dates.format(refundSupport.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td>
+                                <a th:href="@{/admin/support/refund/detail.html(id=${refundSupport.id})}">详情</a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

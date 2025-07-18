@@ -4,60 +4,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-    <title></title>
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>订单详情</title>
     <div th:replace="~{/include/css.html}"></div>
 </head>
 
 <body>
-<div class="container">
-<!--    <div th:replace="~{/include/user/nav.html}"></div>-->
+    <div class="container">
+        <div th:replace="~{/include/user/nav.html}"></div>
+        <h1>订单详情</h1>
 
-    <table class="table">
-        <!--<thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">商品名称</th>
-            <th scope="col">商品详情</th>
-            <th scope="col">价格</th>
-            <th scope="col">库存</th>
-            <th scope="col"></th>
-        </tr>
-        </thead>-->
-        <tbody>
-        <tr>
-            <td th:text="${'订单号: ' + orderId}"></td>
-        </tr>
-        <tr>
-            <td th:text="${'下单时间: ' + #dates.format(orderDetailVO.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-        </tr>
-        <tr th:each="item : ${orderDetailVO.orderSkuInfoList}">
-            <td th:text="${item.premiumPlanName + ' * ' + item.cnt}"></td>
-        </tr>
-        <tr>
-            <td th:if="${orderDetailVO.orderInfo.orderStatus=='PENDING_PAYMENT'}">
-                <a class="btn btn-primary"
-                   th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'ALIPAY'})}">支付宝支付</a>
-                <a class="btn btn-primary"
-                   th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'WECHAT_PAY'})}">微信支付</a>
-            </td>
-        </tr>
-<!--        <tr th:each="item : ${pagination.data}">-->
-<!--            <td th:text="${item.id}">id</td>-->
-<!--            <td th:text="${item.premiumPlanName}">Mark</td>-->
-<!--            <td th:text="${item.premiumPlanDesc}">Otto</td>-->
-<!--            <td th:text="${item.premiumPlanTimeValue + '/' + item.premiumPlanTimeUnit}">@mdo</td>-->
-<!--            <td th:text="${item.premiumPlanStock}">@mdo</td>-->
-<!--            <td>-->
-<!--                <a href="/admin/route/update.html"-->
-<!--                   th:href="@{/admin/route/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">购买</a>-->
-<!--            </td>-->
-<!--        </tr>-->
-        </tbody>
-    </table>
+        <div class="card">
+            <div class="card-header">
+                订单基本信息
+            </div>
+            <div class="card-body">
+                <p><strong>订单号:</strong> <span th:text="${orderId}"></span></p>
+                <p><strong>订单状态:</strong> <span th:text="${orderDetailVO.orderInfo.orderStatus}"></span></p>
+                <p><strong>订单金额:</strong> <span th:text="${orderDetailVO.orderInfo.orderAmount / 100.0}"></span></p>
+                <p><strong>创建时间:</strong> <span
+                        th:text="${#dates.format(orderDetailVO.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                </p>
+            </div>
+        </div>
 
-</div>
-<div th:replace="~{/include/script.html}"></div>
+        <div class="card mt-3">
+            <div class="card-header">
+                商品明细
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li th:each="item : ${orderDetailVO.orderSkuInfoList}"
+                        th:text="${item.premiumPlanName + ' * ' + item.cnt}"></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Payment buttons -->
+        <div class="mt-3" th:if="${orderDetailVO.orderInfo.orderStatus=='PENDING_PAYMENT'}">
+            <a class="btn btn-primary"
+                th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'ALIPAY'})}">支付宝支付</a>
+            <a class="btn btn-primary"
+                th:href="@{/user/order/pay.html(orderId=${orderId}, paymentChannel=${'WECHAT_PAY'})}">微信支付</a>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                支付信息
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>支付渠道</th>
+                            <th>支付状态</th>
+                            <th>支付金额</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${orderDetailVO.paymentList}">
+                            <td th:text="${payment.orderPayChannel}"></td>
+                            <td th:text="${payment.status}"></td>
+                            <td th:text="${payment.orderPayAmount / 100.0}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                订单退款历史
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>退款渠道</th>
+                            <th>退款状态</th>
+                            <th>退款金额</th>
+                            <th>退款原因</th>
+                            <th>退款时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="refund : ${orderDetailVO.refundHistory}">
+                            <td th:text="${refund.orderPayChannel}"></td>
+                            <td th:text="${refund.status}"></td>
+                            <td th:text="${refund.orderRefundAmount / 100.0}"></td>
+                            <td th:text="${refund.refundReason}"></td>
+                            <td th:text="${#dates.format(refund.orderRefundTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                退款申请历史
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>退款原因</th>
+                            <th>状态</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="refundSupport : ${orderDetailVO.refundSupportList}">
+                            <td th:text="${refundSupport.refundReason}"></td>
+                            <td th:text="${refundSupport.refundSupportStatus}"></td>
+                            <td th:text="${#dates.format(refundSupport.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td>
+                                <a th:href="@{/user/support/refund/detail.html(id=${refundSupport.id})}">详情</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a th:href="@{/user/support/refund/create.html(orderId=${orderId})}" class="btn btn-warning">申请退款</a>
+        </div>
+
+    </div>
+    <div th:replace="~{/include/script.html}"></div>
 </body>
 
 </html>

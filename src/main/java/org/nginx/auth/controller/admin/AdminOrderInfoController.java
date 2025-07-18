@@ -30,6 +30,8 @@ public class AdminOrderInfoController {
     @Autowired
     private AdminOrderInfoService adminOrderInfoService;
     @Autowired
+    private OrderInfoService orderInfoService;
+    @Autowired
     private OrderPaymentInfoService orderPaymentInfoService;
     @Autowired
     private OrderRefundInfoService orderRefundInfoService;
@@ -57,20 +59,12 @@ public class AdminOrderInfoController {
 
         model.addAttribute("orderId", orderId);
 
-        OrderDetailVO detail = adminOrderInfoService.getOrderDetail(orderId);
+        OrderDetailVO detail = orderInfoService.getOrderDetail(orderId);
         model.addAttribute("orderDetailVO", detail);
 
         // 查询用户信息
         User user = adminUserService.selectById(detail.getOrderInfo().getUserId());
         model.addAttribute("user", user);
-
-        // 查询支付信息
-        List<OrderPaymentInfo> paymentList = orderPaymentInfoService.selectListByOrderId(orderId);
-        model.addAttribute("paymentList", paymentList);
-
-        // 查询退款历史
-        List<OrderRefundInfo> refundHistory = orderRefundInfoService.selectListByOrderId(orderId);
-        model.addAttribute("refundHistory", refundHistory);
 
         // 是否展示退款按钮
         boolean refundBtn = OrderInfoConstant.AVAILABLE_REFUND_TRADE_STATUS

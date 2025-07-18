@@ -11,10 +11,7 @@ import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
 import org.nginx.auth.model.*;
-import org.nginx.auth.repository.OrderInfoRepository;
-import org.nginx.auth.repository.OrderPaymentInfoRepository;
-import org.nginx.auth.repository.OrderSkuInfoRepository;
-import org.nginx.auth.repository.PremiumPlanRepository;
+import org.nginx.auth.repository.*;
 import org.nginx.auth.request.OrderCreateParam;
 import org.nginx.auth.response.OrderCreateDTO;
 import org.nginx.auth.service.payment.PaymentService;
@@ -49,6 +46,12 @@ public class OrderInfoService {
     private OrderInfoRepository orderInfoRepository;
     @Autowired
     private OrderSkuInfoRepository orderSkuInfoRepository;
+    @Autowired
+    private OrderPaymentInfoRepository orderPaymentInfoRepository;
+    @Autowired
+    private OrderRefundInfoRepository orderRefundInfoRepository;
+    @Autowired
+    private RefundSupportRepository refundSupportRepository;
 
     public boolean orderExists(String orderId) {
         if (StringUtils.isBlank(orderId)) {
@@ -171,6 +174,24 @@ public class OrderInfoService {
         OrderDetailVO orderDetailVO = new OrderDetailVO();
         orderDetailVO.setOrderInfo(orderInfo);
         orderDetailVO.setOrderSkuInfoList(orderSkuInfoList);
+
+        // payment list
+        LambdaQueryWrapper<OrderPaymentInfo> paymentQuery = new LambdaQueryWrapper<>();
+        paymentQuery.eq(OrderPaymentInfo::getOrderId, orderId);
+        List<OrderPaymentInfo> paymentList = orderPaymentInfoRepository.selectList(paymentQuery);
+        orderDetailVO.setPaymentList(paymentList);
+
+        // refund history
+        LambdaQueryWrapper<OrderRefundInfo> refundQuery = new LambdaQueryWrapper<>();
+        refundQuery.eq(OrderRefundInfo::getOrderId, orderId);
+        List<OrderRefundInfo> refundHistory = orderRefundInfoRepository.selectList(refundQuery);
+        orderDetailVO.setRefundHistory(refundHistory);
+
+        // refund support list
+        LambdaQueryWrapper<RefundSupport> refundSupportQuery = new LambdaQueryWrapper<>();
+        refundSupportQuery.eq(RefundSupport::getOrderId, orderId);
+        List<RefundSupport> refundSupportList = refundSupportRepository.selectList(refundSupportQuery);
+        orderDetailVO.setRefundSupportList(refundSupportList);
 
         return orderDetailVO;
     }
