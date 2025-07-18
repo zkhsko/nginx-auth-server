@@ -13,6 +13,15 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
      */
     private String refundOrderId;
     /**
+     * 退款请求号。
+     * 标识一次退款请求，需要保证在交易号下唯一，如需部分退款，则此参数必传。
+     * 注：针对同一次退款请求，如果调用接口失败或异常了，重试时需要保证退款请求号不能变更，防止该笔交易重复退款。
+     * 支付宝会保证同样的退款请求号多次请求只会退一次。
+     * 管理员发起的退款申请,是可以指定的,所以这个值等于refundOrderId
+     * 但是如果是支付宝后台发起的退款,这个值就不等于refundOrderId了
+     */
+    private String outBizNo;
+    /**
      * 订单唯一编号
      */
     private String orderId;
@@ -37,7 +46,7 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
     /**
      * 是否退货
      */
-    private boolean returnPurchase;
+    private Boolean returnPurchase;
 
     public String getRefundOrderId() {
         return refundOrderId;
@@ -45,6 +54,14 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
 
     public void setRefundOrderId(String refundOrderId) {
         this.refundOrderId = refundOrderId;
+    }
+
+    public String getOutBizNo() {
+        return outBizNo;
+    }
+
+    public void setOutBizNo(String outBizNo) {
+        this.outBizNo = outBizNo;
     }
 
     public String getOrderId() {
@@ -95,11 +112,11 @@ public class OrderRefundInfo extends AutoIncrementBaseEntity {
         this.refundReason = refundReason;
     }
 
-    public boolean isReturnPurchase() {
+    public Boolean getReturnPurchase() {
         return returnPurchase;
     }
 
-    public void setReturnPurchase(boolean returnPurchase) {
+    public void setReturnPurchase(Boolean returnPurchase) {
         this.returnPurchase = returnPurchase;
     }
 }
