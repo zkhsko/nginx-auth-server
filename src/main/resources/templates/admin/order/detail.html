@@ -108,7 +108,6 @@
                             <th>退款原因</th>
                             <th>状态</th>
                             <th>创建时间</th>
-                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,9 +116,6 @@
                             <td th:text="${refundSupport.refundReason}"></td>
                             <td th:text="${refundSupport.refundSupportStatus}"></td>
                             <td th:text="${#dates.format(refundSupport.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                            <td>
-                                <a th:href="@{/admin/support/refund/detail.html(id=${refundSupport.id})}">详情</a>
-                            </td>
                         </tr>
                     </tbody>
                 </table>
