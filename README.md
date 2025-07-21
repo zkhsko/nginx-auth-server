@@ -54,27 +54,14 @@ server {
         proxy_read_timeout      3600;
     }
 
-    location = /xxx/user/login.html {
-        proxy_pass   http://127.0.0.1:8081/xxx/user/login.html;
-        proxy_redirect  http://127.0.0.1:8081/ /;
-    }
-    location = /xxx/user/register.html {
-        proxy_pass   http://127.0.0.1:8081/xxx/user/register.html;
-        proxy_redirect  http://127.0.0.1:8081/ /;
-    }
-    location /xxx/anonymous/ {
-        proxy_pass      http://127.0.0.1:8081/xxx/anonymous/;
-        proxy_redirect  http://127.0.0.1:8081/ /;
-    }
-    location /xxx/res/ {
-        proxy_pass      http://127.0.0.1:8081/xxx/res/;
+    location /xxx/ {
+        proxy_pass      http://127.0.0.1:8081/xxx/;
         proxy_redirect  http://127.0.0.1:8081/ /;
     }
 
-    location /xxx/ {
+    location /another_xxx/ {
         auth_request    /xxx/api/v1.0/auth/access;
-        proxy_pass      http://127.0.0.1:8081/xxx/;
-        proxy_redirect  http://127.0.0.1:8081/ /;
+        proxy_pass      http://127.0.0.1:8000/another_xxx/;
     }
 
     error_page  401  =302  http://localhost:8080/xxx/user/login.html;
