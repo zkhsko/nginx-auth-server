@@ -1,6 +1,7 @@
 package org.nginx.auth.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.enums.OrderInfoStatusEnum;
 import org.nginx.auth.enums.OrderRefundInfoStatusEnum;
 import org.nginx.auth.enums.PaymentChannelEnum;
@@ -15,6 +16,7 @@ import org.nginx.auth.service.payment.PaymentServiceFactory;
 import org.nginx.auth.util.OrderInfoUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
@@ -112,34 +114,32 @@ public class OrderRefundInfoService {
         return refundOrderId;
     }
 
-//    private void changeOrderStatusToRefunded(OrderInfo orderInfo, OrderRefundInfo orderRefundInfo, Boolean premiumPlanReturned) {
-//        LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
-//
-//        if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
-//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
-//            orderInfoRepository.update(orderInfoUpdate);
-//            return;
-//        }
-//
-//        LambdaQueryWrapper<OrderRefundInfo> refundQueryWrapper = new LambdaQueryWrapper<>();
-//        refundQueryWrapper.eq(OrderRefundInfo::getOrderId, orderInfo.getOrderId());
-//        refundQueryWrapper.eq(OrderRefundInfo::getStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
-//        List<OrderRefundInfo> existingRefundList = orderRefundInfoRepository.selectList(refundQueryWrapper);
-//        long totalRefundedAmount = existingRefundList.stream()
-//                .mapToLong(OrderRefundInfo::getOrderRefundAmount)
-//                .sum();
-//        if (totalRefundedAmount == orderInfo.getOrderAmount()) {
-//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
-//        } else {
-//            orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
-//        }
-//
-//        if (premiumPlanReturned) {
-//            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
-//        }
-//
-//
-//        orderInfoRepository.update(orderInfoUpdate);
-//    }
+    /**
+     * @param orderRefundInfo
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void resolveOrderRefundInfoRefundPending(OrderRefundInfo orderRefundInfo) {
 
+        PaymentChannelEnum paymentChannelEnum = PaymentChannelEnum.valueOf(orderRefundInfo.getOrderPayChannel());
+        PaymentService paymentService = PaymentServiceFactory.getPaymentService(paymentChannelEnum);
+
+
+        String orderId = orderRefundInfo.getOrderId();
+        String refundOrderId = orderRefundInfo.getRefundOrderId();
+        String outBizNo = orderRefundInfo.getOutBizNo();
+
+        OrderRefundInfo orderRefundInfoQuery = paymentService.queryRefundInfo(orderId, outBizNo);
+
+
+        if (StringUtils.equals(orderRefundInfoQuery.getStatus(), OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name())) {
+
+            orderRefundInfo.setOrderRefundAmount(orderRefundInfoQuery.getOrderRefundAmount());
+            orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+            orderRefundInfo.setOrderRefundTime(orderRefundInfoQuery.getOrderRefundTime());
+
+            paymentService.onRefundSuccess(orderRefundInfo);
+        }
+
+
+    }
 }

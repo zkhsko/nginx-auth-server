@@ -388,7 +388,8 @@ public class AlipayPaymentService extends AbstractPaymentService {
         }
     }
 
-    private OrderRefundInfo queryRefundInfo(String orderId, String outBizNo) {
+    @Override
+    public OrderRefundInfo queryRefundInfo(String orderId, String outBizNo) {
 
         AlipayClient alipayClient = buildAlipayClient();
 
@@ -417,9 +418,19 @@ public class AlipayPaymentService extends AbstractPaymentService {
         try {
             response = alipayClient.execute(request);
         } catch (AlipayApiException e) {
+            logger.error("调用支付宝查询退款接口异常, orderId={}, outBizNo={}", orderId, outBizNo, e);
             throw new RuntimeException(e);
         }
-        System.out.println(response.getBody());
+
+        if (!StringUtils.equals(response.getCode(), "10000")) {
+            logger.error("调用支付宝查询退款接口失败, orderId={}, outBizNo={}, response={}", orderId, outBizNo, response.getBody());
+            // 如果查询失败,可以返回一个空的退款信息
+            OrderRefundInfo orderRefundInfo = new OrderRefundInfo();
+            orderRefundInfo.setOrderId(orderId);
+            orderRefundInfo.setOutBizNo(outBizNo);
+            orderRefundInfo.setStatus(OrderRefundInfoStatusEnum.TRADE_REFUND_EXCEPTION.name());
+            return orderRefundInfo;
+        }
 
         long refundAmount = new BigDecimal(response.getRefundAmount())
                 .multiply(BigDecimal.valueOf(100))
@@ -432,6 +443,11 @@ public class AlipayPaymentService extends AbstractPaymentService {
         orderRefundInfo.setOrderPayChannel(PaymentChannelEnum.ALIPAY.name());
         orderRefundInfo.setOrderRefundTime(response.getGmtRefundPay());
         orderRefundInfo.setOrderRefundAmount(refundAmount);
+
+        Map<String, String> refundStatusMapping = new HashMap<>();
+        refundStatusMapping.put("REFUND_SUCCESS", OrderRefundInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
+        // 转为系统的状态枚举
+        orderRefundInfo.setStatus(refundStatusMapping.getOrDefault(response.getRefundStatus(), ""));
 
 
         if (response.isSuccess()) {

@@ -139,6 +139,10 @@ public abstract class AbstractPaymentService implements PaymentService {
         LambdaUpdateWrapper<OrderInfo> orderInfoUpdate = new LambdaUpdateWrapper<>();
         orderInfoUpdate.eq(OrderInfo::getOrderId, orderInfo.getOrderId());
 
+        if (premiumPlanReturned) {
+            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
+        }
+
         if (orderRefundInfo.getOrderRefundAmount().equals(orderInfo.getOrderAmount())) {
             orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
             orderInfoRepository.update(orderInfoUpdate);
@@ -156,10 +160,6 @@ public abstract class AbstractPaymentService implements PaymentService {
             orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_CLOSED.name());
         } else {
             orderInfoUpdate.set(OrderInfo::getOrderStatus, OrderInfoStatusEnum.TRADE_REFUND_SUCCESS.name());
-        }
-
-        if (premiumPlanReturned) {
-            orderInfoUpdate.set(OrderInfo::getPremiumPlanReturned, true);
         }
 
 

@@ -13,6 +13,10 @@ public enum OrderRefundInfoStatusEnum {
      * 退款完成
      */
     TRADE_REFUND_SUCCESS,
+    /**
+     * 退款异常
+     */
+    TRADE_REFUND_EXCEPTION,
 
     ;
 

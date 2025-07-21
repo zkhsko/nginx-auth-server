@@ -33,5 +33,6 @@ public interface PaymentService {
 
     void onRefundSuccess(OrderRefundInfo orderRefundInfo);
 
+    OrderRefundInfo queryRefundInfo(String orderId, String outBizNo);
 
 }
