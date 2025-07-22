@@ -6,7 +6,7 @@
         <id column="id" property="id"/>
         <result column="premium_plan_name" property="premiumPlanName"/>
         <result column="premium_plan_desc" property="premiumPlanDesc"/>
-        <result column="route_list_text" property="routeListText"/>
+        <result column="predicate_list_text" property="predicateListText"/>
         <result column="premium_plan_price" property="premiumPlanPrice"/>
         <result column="premium_plan_time_unit" property="premiumPlanTimeUnit"/>
         <result column="premium_plan_time_value" property="premiumPlanTimeValue"/>
@@ -17,7 +17,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        `id`, `premium_plan_name`, `premium_plan_desc`, `route_list_text`, `premium_plan_price`,
+        `id`, `premium_plan_name`, `premium_plan_desc`, `predicate_list_text`, `premium_plan_price`,
         `premium_plan_time_unit`, `premium_plan_time_value`,
         `premium_plan_stock`, `in_use`, `create_time`, `update_time`
     </sql>

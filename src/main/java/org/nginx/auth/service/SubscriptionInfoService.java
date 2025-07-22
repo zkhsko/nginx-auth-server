@@ -31,11 +31,18 @@ public class SubscriptionInfoService {
     @Autowired
     private SubscriptionInfoRepository subscriptionInfoRepository;
 
-    public SubscriptionInfo selectByUserId(Long userId) {
-        return subscriptionInfoRepository.selectOne(
-                new LambdaQueryWrapper<SubscriptionInfo>()
-                        .eq(SubscriptionInfo::getUserId, userId)
-        );
+    public List<SubscriptionInfo> selectByUserId(Long userId) {
+        LambdaQueryWrapper<SubscriptionInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SubscriptionInfo::getUserId, userId);
+        queryWrapper.orderByDesc(true, SubscriptionInfo::getId);
+        return subscriptionInfoRepository.selectList(queryWrapper);
+    }
+
+    public SubscriptionInfo selectByUserIdAndPremiumPlanId(Long userId, Long premiumPlanId) {
+        LambdaQueryWrapper<SubscriptionInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SubscriptionInfo::getUserId, userId);
+        queryWrapper.eq(SubscriptionInfo::getPremiumPlanId, premiumPlanId);
+        return subscriptionInfoRepository.selectOne(queryWrapper);
     }
 
     /**
@@ -45,10 +52,9 @@ public class SubscriptionInfoService {
      */
     public void refreshExpireAt(OrderPaymentInfo orderPaymentInfo) {
 
-        OrderInfo orderInfo = orderInfoRepository.selectOne(
-                new LambdaQueryWrapper<OrderInfo>()
-                        .eq(OrderInfo::getOrderId, orderPaymentInfo.getOrderId())
-        );
+        LambdaQueryWrapper<OrderInfo> orderInfoQuery = new LambdaQueryWrapper<>();
+        orderInfoQuery.eq(OrderInfo::getOrderId, orderPaymentInfo.getOrderId());
+        OrderInfo orderInfo = orderInfoRepository.selectOne(orderInfoQuery);
 
         String orderId = orderInfo.getOrderId();
         Long userId = orderInfo.getUserId();
@@ -63,6 +69,9 @@ public class SubscriptionInfoService {
             logger.warn("No order sku found for orderId: {}", orderId);
             return;
         }
+
+        // TODO: 暂时每次只能买一个产品
+        Long premiumPlanId = skuList.get(0).getPremiumPlanId();
 
         // 计算总订阅时间（单位和时间值乘以数量）
         long totalDays = 0;
@@ -94,7 +103,7 @@ public class SubscriptionInfoService {
         }
 
         // 查询当前用户订阅信息
-        SubscriptionInfo subscriptionInfo = selectByUserId(userId);
+        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanId(userId, premiumPlanId);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime baseTime;
@@ -164,8 +173,11 @@ public class SubscriptionInfoService {
             return;
         }
 
+        // TODO: 暂时每次只能买一个产品
+        Long premiumPlanId = skuList.get(0).getPremiumPlanId();
+
         // 查询当前用户订阅信息
-        SubscriptionInfo subscriptionInfo = selectByUserId(userId);
+        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanId(userId, premiumPlanId);
         if (subscriptionInfo == null) {
             logger.warn("SubscriptionInfo not found for userId: {}", userId);
             return;

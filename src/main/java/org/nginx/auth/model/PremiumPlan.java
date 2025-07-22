@@ -21,10 +21,10 @@ public class PremiumPlan extends AutoIncrementBaseEntity {
     @TableField("premium_plan_desc")
     private String premiumPlanDesc;
     /**
-     * 路由列表（JSON文本）
+     * TODO 要加注释
      */
-    @TableField("route_list_text")
-    private String routeListText;
+    @TableField("predicate_list_text")
+    private String predicateListText;
     /**
      * 商品价格，单位分
      */
@@ -67,12 +67,12 @@ public class PremiumPlan extends AutoIncrementBaseEntity {
         this.premiumPlanDesc = premiumPlanDesc;
     }
 
-    public String getRouteListText() {
-        return routeListText;
+    public String getPredicateListText() {
+        return predicateListText;
     }
 
-    public void setRouteListText(String routeListText) {
-        this.routeListText = routeListText;
+    public void setPredicateListText(String predicateListText) {
+        this.predicateListText = predicateListText;
     }
 
     public Long getPremiumPlanPrice() {
