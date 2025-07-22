@@ -29,7 +29,7 @@ public class AuthApiController {
             return "401 Authorization Required";
         }
 
-        String rst = authApiService.access(user, response);
+        String rst = authApiService.access(request, response, user);
 
         return rst;
     }
