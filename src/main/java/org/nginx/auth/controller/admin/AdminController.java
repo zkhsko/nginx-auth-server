@@ -4,12 +4,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageParam;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.constant.OrderInfoConstant;
 import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.model.*;
+import org.nginx.auth.repository.PremiumPlanPredicateRepository;
 import org.nginx.auth.service.*;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +39,8 @@ public class AdminController {
     private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
     private AdminUserService adminUserService;
+    @Autowired
+    private PremiumPlanPredicateRepository premiumPlanPredicateRepository;
 
     @RequestMapping(value = {"", "/"})
     public String index() {
@@ -65,6 +70,8 @@ public class AdminController {
 
         PageParam pageParam = new PageParam(null, null, "id desc");
         PageHelper.startPage(pageParam);
+        List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
+        model.addAttribute("predicateList", predicateInfoList);
 
         AdminPremiumPlanCreateForm premiumPlanCreateForm = new AdminPremiumPlanCreateForm();
         premiumPlanCreateForm.setPremiumPlanTimeUnit("DAY");
@@ -115,25 +122,25 @@ public class AdminController {
 
         PageParam pageParam = new PageParam(null, null, "id desc");
         PageHelper.startPage(pageParam);
-//        List<RouteInfo> routeInfoList = routeInfoRepository.selectList(null);
-//        model.addAttribute("routeList", routeInfoList);
+        List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
+        model.addAttribute("predicateList", predicateInfoList);
 
         AdminPremiumPlanUpdateForm premiumPlanUpdateForm = new AdminPremiumPlanUpdateForm();
         BeanCopyUtil.copy(premiumPlan, premiumPlanUpdateForm);
         BigDecimal premiumPlanPrice = new BigDecimal(premiumPlan.getPremiumPlanPrice())
                 .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
         premiumPlanUpdateForm.setPremiumPlanPrice(premiumPlanPrice);
-//        String routeListText = premiumPlan.getRouteListText();
-//        if (routeListText != null) {
-//            String[] routeList = routeListText.split(",");
-//            LinkedHashSet<Long> routeListSet = new LinkedHashSet<>();
-//            for (String routeId : routeList) {
-//                routeListSet.add(Long.valueOf(routeId));
-//            }
-//            premiumPlanUpdateForm.setRouteList(routeListSet);
-//        } else {
-//            premiumPlanUpdateForm.setRouteList(new LinkedHashSet<>());
-//        }
+        String predicateListText = premiumPlan.getPredicateListText();
+        if (StringUtils.isNotBlank(predicateListText)) {
+            String[] predicateList = predicateListText.split(",");
+            LinkedHashSet<Long> predicateListSet = new LinkedHashSet<>();
+            for (String predicateId : predicateList) {
+                predicateListSet.add(Long.valueOf(predicateId));
+            }
+            premiumPlanUpdateForm.setPredicateList(predicateListSet);
+        } else {
+            premiumPlanUpdateForm.setPredicateList(new LinkedHashSet<>());
+        }
         premiumPlanUpdateForm.setPremiumPlanStock(premiumPlan.getPremiumPlanStock());
         premiumPlanUpdateForm.setPremiumPlanTimeValue(premiumPlan.getPremiumPlanTimeValue());
         model.addAttribute("form", premiumPlanUpdateForm);
@@ -152,8 +159,8 @@ public class AdminController {
 
         PageParam pageParam = new PageParam(null, null, "id desc");
         PageHelper.startPage(pageParam);
-//        List<RouteInfo> routeInfoList = routeInfoRepository.selectList(null);
-//        model.addAttribute("routeList", routeInfoList);
+        List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
+        model.addAttribute("predicateList", predicateInfoList);
 
         Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanUpdateForm);
         if (MapUtils.isNotEmpty(validateRtn)) {

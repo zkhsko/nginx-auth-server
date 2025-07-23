@@ -17,7 +17,7 @@ public class AdminPremiumPlanUpdateForm {
     private String premiumPlanDesc;
 //    @NotNull(message = "请至少选择关联一个路由规则")
 //    @NotEmpty(message = "请至少选择关联一个路由规则")
-    private LinkedHashSet<Long> routeList = new LinkedHashSet<>();
+    private LinkedHashSet<Long> predicateList = new LinkedHashSet<>();
     @NotNull(message = "商品价格不能为空")
     @Digits(integer = 9, fraction = 2, message = "商品价格不合法")
     @Positive(message = "商品价格必须为正数")
@@ -69,12 +69,12 @@ public class AdminPremiumPlanUpdateForm {
         this.premiumPlanDesc = premiumPlanDesc;
     }
 
-    public LinkedHashSet<Long> getRouteList() {
-        return routeList;
+    public LinkedHashSet<Long> getPredicateList() {
+        return predicateList;
     }
 
-    public void setRouteList(LinkedHashSet<Long> routeList) {
-        this.routeList = routeList;
+    public void setPredicateList(LinkedHashSet<Long> predicateList) {
+        this.predicateList = predicateList;
     }
 
     public BigDecimal getPremiumPlanPrice() {

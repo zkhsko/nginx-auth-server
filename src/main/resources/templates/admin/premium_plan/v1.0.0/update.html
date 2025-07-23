@@ -29,28 +29,28 @@
                 <div class="invalid-feedback" th:text="${premiumPlanDescFormError}"></div>
                 <!-- <div class="form-text">The license has been sent to your email address.</div> -->
             </div>
-<!--            <div class="mb-3">-->
-<!--                <label for="premium-plan-name-input" class="form-label">关联路由</label>-->
-<!--                <div class="form-text" style="display: block;"-->
-<!--                    th:class="${#strings.isEmpty(#strings.trim(routeListFormError)) ? 'form-text' : 'invalid-feedback'}">-->
-<!--                    需要至少关联一个路由规则-->
-<!--                </div>-->
-<!--                <div style="max-height: 200px; overflow: scroll; padding: 12px;">-->
-<!--                    <th:block th:each="routeItem : ${routeList}">-->
-<!--                        <div class="form-check">-->
-<!--                            &lt;!&ndash; th:checked="${routeItem.checked}" &ndash;&gt;-->
-<!--                            <input class="form-check-input" type="checkbox" name="routeList" id="routeItemCheck_1"-->
-<!--                                th:classappend="${#strings.isEmpty(#strings.trim(routeListFormError)) ? '' : 'is-invalid'}"-->
-<!--                                th:checked="${#lists.contains(form?.routeList, routeItem.id)}"-->
-<!--                                th:id="${'routeItemCheck_' + routeItem.id}" value="1" th:value="${routeItem.id}">-->
-<!--                            <label class="form-check-label" for="routeItemCheck_1"-->
-<!--                                th:for="${'routeItemCheck_' + routeItem.id}" th:text="${routeItem.routePredicate}">-->
-<!--                                &#45;&#45; routeItem.routePredicate &#45;&#45;-->
-<!--                            </label>-->
-<!--                        </div>-->
-<!--                    </th:block>-->
-<!--                </div>-->
-<!--            </div>-->
+            <div class="mb-3">
+                <label for="premium-plan-name-input" class="form-label">关联路由</label>
+                <div class="form-text" style="display: block;"
+                    th:class="${#strings.isEmpty(#strings.trim(predicateListFormError)) ? 'form-text' : 'invalid-feedback'}">
+                    需要至少关联一个路由规则
+                </div>
+                <div style="max-height: 200px; overflow: scroll; padding: 12px;">
+                    <th:block th:each="predicateItem : ${predicateList}">
+                        <div class="form-check">
+                            <!-- th:checked="${predicateItem.checked}" -->
+                            <input class="form-check-input" type="checkbox" name="predicateList" id="predicateItemCheck_1"
+                                th:classappend="${#strings.isEmpty(#strings.trim(predicateListFormError)) ? '' : 'is-invalid'}"
+                                th:checked="${#lists.contains(form?.predicateList, predicateItem.id)}"
+                                th:id="${'predicateItemCheck_' + predicateItem.id}" value="1" th:value="${predicateItem.id}">
+                            <label class="form-check-label" for="predicateItemCheck_1"
+                                th:for="${'predicateItemCheck_' + predicateItem.id}" th:text="${predicateItem.predicateText}">
+                                -- predicateItem.predicateText --
+                            </label>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
             <div class="mb-3">
                 <label for="premium-plan-price-input" class="form-label">商品价格</label>
                 <input type="text" class="form-control" id="premium-plan-price-input" name="premiumPlanPrice"

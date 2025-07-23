@@ -40,7 +40,7 @@ public class AdminPremiumPlanService {
         BeanCopyUtil.copy(premiumPlanCreateForm, premiumPlan);
         BigDecimal premiumPlanPrice = premiumPlanCreateForm.getPremiumPlanPrice();
         parsePremiumPlanPrice(premiumPlan, premiumPlanPrice);
-        parseRouteListText(premiumPlan, premiumPlanCreateForm.getRouteList());
+        parsePredicateListText(premiumPlan, premiumPlanCreateForm.getPredicateList());
         premiumPlan.setPremiumPlanStock(premiumPlanCreateForm.getPremiumPlanStock());
         premiumPlan.setPremiumPlanTimeValue(premiumPlanCreateForm.getPremiumPlanTimeValue());
 
@@ -54,9 +54,10 @@ public class AdminPremiumPlanService {
         premiumPlan.setPremiumPlanPrice(priceLong);
     }
 
-    private void parseRouteListText(PremiumPlan premiumPlan, LinkedHashSet<Long> routeList) {
-        String routeListText = StringUtils.join(routeList, ",");
-        premiumPlan.setRouteListText(routeListText);
+    // TODO 方法名
+    private void parsePredicateListText(PremiumPlan premiumPlan, LinkedHashSet<Long> predicateList) {
+        String predicateListText = StringUtils.join(predicateList, ",");
+        premiumPlan.setPredicateListText(predicateListText);
     }
 
     public void updatePremiumPlan(AdminPremiumPlanUpdateForm premiumPlanUpdateForm) {
@@ -65,7 +66,7 @@ public class AdminPremiumPlanService {
         BeanCopyUtil.copy(premiumPlanUpdateForm, premiumPlan);
         BigDecimal premiumPlanPrice = premiumPlanUpdateForm.getPremiumPlanPrice();
         parsePremiumPlanPrice(premiumPlan, premiumPlanPrice);
-        parseRouteListText(premiumPlan, premiumPlanUpdateForm.getRouteList());
+        parsePredicateListText(premiumPlan, premiumPlanUpdateForm.getPredicateList());
         premiumPlan.setPremiumPlanStock(premiumPlanUpdateForm.getPremiumPlanStock());
         premiumPlan.setPremiumPlanTimeValue(premiumPlanUpdateForm.getPremiumPlanTimeValue());
 

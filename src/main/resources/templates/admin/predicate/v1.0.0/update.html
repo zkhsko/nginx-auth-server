@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="~{/include/css.html}"></div>
+</head>
+
+<body>
+    <div class="container">
+
+        <form action="#" th:action="@{/admin/predicate/v1.0.0/update.html(id=${form.id}, redirect=${redirect})}" method="post">
+            <div class="mb-3">
+                <label for="predicate-input" class="form-label">Predicate</label>
+                <input type="text" class="form-control" name="predicate" th:value="${form?.predicate}"
+                    th:classappend="${#strings.isEmpty(#strings.trim(predicateFormError)) ? '' : 'is-invalid'}"
+                    id="predicate-input" aria-describedby="predicate-input-help" />
+                <div class="invalid-feedback" th:text="${predicateFormError}"></div>
+                <div id="predicate-input-help" class="form-text">eg. /s/**</div>
+            </div>
+            <div class="mb-3">
+                <label for="filter-input" class="form-label">Filter</label>
+                <input type="text" class="form-control" name="filter" th:value="${form?.filter}"
+                    th:classappend="${#strings.isEmpty(#strings.trim(filterFormError)) ? '' : 'is-invalid'}"
+                    id="filter-input" aria-describedby="filter-input-help" />
+                <div class="invalid-feedback" th:text="${filterFormError}"></div>
+                <div id="filter-input-help" class="form-text">eg. RewritePath=(<segment>.*), {segment}</div>
+            </div>
+            <div class="mb-3">
+                <label for="uri-input" class="form-label">Uri</label>
+                <input type="text" class="form-control" name="uri" th:value="${form?.uri}"
+                    th:classappend="${#strings.isEmpty(#strings.trim(uriFormError)) ? '' : 'is-invalid'}"
+                    id="uri-input" aria-describedby="uri-input-help" />
+                <div class="invalid-feedback" th:text="${uriFormError}"></div>
+                <div id="uri-input-help" class="form-text">eg. https://www.baidu.com</div>
+            </div>
+            <input type="hidden" id="" name="predicateResolveVersion" value="v1.0.0">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </div>
+    <div th:replace="~{/include/script.html}"></div>
+    <script>
+    </script>
+</body>
+
+</html>

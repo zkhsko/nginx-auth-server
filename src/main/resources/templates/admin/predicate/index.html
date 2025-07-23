@@ -21,24 +21,24 @@
                     <th scope="col">Filter</th>
                     <th scope="col">Uri</th>
                     <th scope="col">
-                        <a href="/admin/route/create.html" th:href="@{/admin/route/v1.0.0/create.html}">新建</a>
+                        <a href="/admin/predicate/create.html" th:href="@{/admin/predicate/v1.0.0/create.html}">新建</a>
                     </th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="item : ${pagination.data}">
                     <th scope="row" th:text="${item.id}">1</th>
-                    <td th:text="${item.routePredicate}">Mark</td>
-                    <td th:text="${item.routeFilter}">Otto</td>
-                    <td th:text="${item.routeUri}">@mdo</td>
+                    <td th:text="${item.predicate}">Mark</td>
+                    <td th:text="${item.filter}">Otto</td>
+                    <td th:text="${item.uri}">@mdo</td>
                     <td>
-                        <a href="/admin/route/update.html"
-                            th:href="@{/admin/route/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">修改</a>
-                        <!-- <a href="/admin/route/delete.html"
-                            th:href="@{/admin/route/delete.html(id=${item.id})}">Delete</a> -->
+                        <a href="/admin/predicate/update.html"
+                            th:href="@{/admin/predicate/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">修改</a>
+                        <!-- <a href="/admin/predicate/delete.html"
+                            th:href="@{/admin/predicate/delete.html(id=${item.id})}">Delete</a> -->
                         <a type="button" href="#" data-bs-toggle="modal"
-                            data-bs-href="/admin/route/delete.html?id=1"
-                            th:data-bs-href="@{/admin/route/delete.html(id=${item.id}, redirect=${redirect})}"
+                            data-bs-href="/admin/predicate/delete.html?id=1"
+                            th:data-bs-href="@{/admin/predicate/delete.html(id=${item.id}, redirect=${redirect})}"
                             data-bs-id="1"
                             th:data-bs-id="${item.id}"
                             data-bs-target="#deleteConfirmModal">删除</a>
