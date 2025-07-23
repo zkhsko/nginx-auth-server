@@ -37,7 +37,7 @@ public class OrderRefundPendingResolveSchedule {
 
     private static final int BATCH_SIZE = 100;
 
-    @Scheduled(cron = "0/1 * * * * ?")
+//    @Scheduled(cron = "0/1 * * * * ?")
     public void resolve() {
 
         // 从startId之后所有处理的退款记录都已退款成功,

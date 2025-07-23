@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
-    <title></title>
+    <title>Predicate Management</title>
     <div th:replace="~{/include/css.html}"></div>
 </head>
 
@@ -13,44 +11,46 @@
     <div class="container">
         <div th:replace="~{/include/nav.html}"></div>
 
-        <table class="table">
+        <div class="mt-4">
+            <a th:href="@{/admin/premium-plan-predicate/v1.0.0/create.html}" class="btn btn-primary">新建</a>
+        </div>
+
+        <table class="table table-striped mt-4">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Predicate</th>
-                    <th scope="col">Filter</th>
-                    <th scope="col">Uri</th>
-                    <th scope="col">
-                        <a href="/admin/predicate/create.html" th:href="@{/admin/predicate/v1.0.0/create.html}">新建</a>
-                    </th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Predicate Text</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr th:each="item : ${pagination.data}">
-                    <th scope="row" th:text="${item.id}">1</th>
-                    <td th:text="${item.predicate}">Mark</td>
-                    <td th:text="${item.filter}">Otto</td>
-                    <td th:text="${item.uri}">@mdo</td>
+                    <td th:text="${item.id}"></td>
+                    <td th:text="${item.predicateName}"></td>
+                    <td th:text="${item.predicateText}"></td>
                     <td>
-                        <a href="/admin/predicate/update.html"
-                            th:href="@{/admin/predicate/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">修改</a>
-                        <!-- <a href="/admin/predicate/delete.html"
-                            th:href="@{/admin/predicate/delete.html(id=${item.id})}">Delete</a> -->
+                        <a
+                            th:href="@{/admin/premium-plan-predicate/v1.0.0/update.html(id=${item.id}, redirect=${redirect})}">修改</a>
+                        <!--<form th:action="@{/admin/premium-plan-predicate/delete.html}" method="post" style="display: inline-block;">
+                    <input type="hidden" name="id" th:value="${predicate.id}">
+                    <input type="hidden" name="redirect" th:value="${redirect}">
+                    <button type="submit" class="btn btn-sm btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this predicate?');">Delete
+                    </button>
+                </form>-->
                         <a type="button" href="#" data-bs-toggle="modal"
-                            data-bs-href="/admin/predicate/delete.html?id=1"
-                            th:data-bs-href="@{/admin/predicate/delete.html(id=${item.id}, redirect=${redirect})}"
-                            data-bs-id="1"
-                            th:data-bs-id="${item.id}"
-                            data-bs-target="#deleteConfirmModal">删除</a>
-
+                            data-bs-href="/admin/premium-plan-predicate/delete.html?id=1"
+                            th:data-bs-href="@{/admin/premium-plan-predicate/delete.html(id=${item.id}, redirect=${redirect})}"
+                            data-bs-id="1" th:data-bs-id="${item.id}" data-bs-target="#deleteConfirmModal">删除</a>
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <div th:replace="~{/include/pagination.html}"></div>
-
     </div>
+
     <!-- Delete Modal -->
     <th:block th:replace="/include/delete.html::deleteConfirmModalHtml" />
     <div th:replace="~{/include/script.html}"></div>
