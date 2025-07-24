@@ -52,6 +52,7 @@ public class AuthApiService {
 
             boolean active = calcSubActive(subscriptionInfo, request);
             if (active) {
+                response.addHeader("X-User-ID", user.getId().toString());
                 // 找到了一个满足的订阅
                 return "success";
             }
