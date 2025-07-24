@@ -46,6 +46,10 @@ server {
     # auth_request    /api/v1.0/auth/access;
     location = /xxx/api/v1.0/auth/access {
         proxy_pass              http://127.0.0.1:8081/xxx/api/v1.0/auth/access;
+        # 如果proxy_pass用的是https协议,需要开启以下两行
+        # 并且proxy_ssl_name需要设置为https的域名
+        # proxy_ssl_server_name   on;
+        # proxy_ssl_name          xxx.domain.com;
         proxy_http_version      1.1;
         proxy_set_header        Connection keep-alive;
         proxy_set_header        Host $http_host;
