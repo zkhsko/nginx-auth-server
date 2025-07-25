@@ -56,6 +56,8 @@ server {
         proxy_set_header        X-Original-URI $request_uri;
         proxy_set_header        X-Real-IP $remote_addr;
         proxy_set_header        Content-Length "";
+        proxy_set_header        Authorization $http_authorization;
+        proxy_set_header        X-goog-api-key $http_x_goog_api_key;
         proxy_read_timeout      3600;
     }
 
