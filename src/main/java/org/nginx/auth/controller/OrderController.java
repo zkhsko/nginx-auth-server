@@ -52,7 +52,7 @@ public class OrderController {
         model.addAttribute("pagination", pagination);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/user/order/index.html";
+        return "user/order/index";
     }
 
     @PostMapping("/create")
@@ -86,7 +86,7 @@ public class OrderController {
 
         model.addAttribute("orderDetailVO", detail);
 
-        return "/user/order/detail.html";
+        return "user/order/detail";
     }
 
     @GetMapping("/pay.html")
@@ -97,6 +97,6 @@ public class OrderController {
 
         model.addAttribute("pay", pay);
 
-        return "/user/order/pay.html";
+        return "user/order/pay";
     }
 }

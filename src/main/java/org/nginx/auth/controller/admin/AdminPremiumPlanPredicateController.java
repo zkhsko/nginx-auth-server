@@ -37,13 +37,13 @@ public class AdminPremiumPlanPredicateController {
         model.addAttribute("pagination", predicatePageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/predicate/index.html";
+        return "admin/predicate/index";
     }
 
     @GetMapping("/{version}/create.html")
     public String createPredicatePage(@PathVariable String version, Model model) {
         model.addAttribute("form", new AdminPremiumPlanPredicateCreateForm());
-        return "/admin/predicate/" + version + "/create.html";
+        return "admin/predicate/" + version + "/create";
     }
 
     @PostMapping("/{version}/create.html")
@@ -52,7 +52,7 @@ public class AdminPremiumPlanPredicateController {
         if (MapUtils.isNotEmpty(validateRtn)) {
             model.addAllAttributes(validateRtn);
             model.addAttribute("form", createForm);
-            return "/admin/predicate/" + version + "/create.html";
+            return "admin/predicate/" + version + "/create";
         }
 
         adminPremiumPlanPredicateService.createPredicate(createForm);
@@ -78,7 +78,7 @@ public class AdminPremiumPlanPredicateController {
         model.addAttribute("form", updateForm);
         model.addAttribute("redirect", redirect);
 
-        return "/admin/predicate/" + version + "/update.html";
+        return "admin/predicate/" + version + "/update";
     }
 
     @PostMapping("/{version}/update.html")
@@ -90,7 +90,7 @@ public class AdminPremiumPlanPredicateController {
             model.addAllAttributes(validateRtn);
             model.addAttribute("form", updateForm);
             model.addAttribute("redirect", redirect);
-            return "/admin/predicate/" + version + "/update.html";
+            return "admin/predicate/" + version + "/update";
         }
 
         adminPremiumPlanPredicateService.updatePredicate(updateForm);

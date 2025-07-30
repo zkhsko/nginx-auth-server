@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8" />
     <title>申请退款</title>
-    <div th:replace="~{/include/css.html}"></div>
+    <div th:replace="~{include/css}"></div>
 </head>
 
 <body>
     <div class="container">
-        <div th:replace="~{/include/user/nav.html}"></div>
+        <div th:replace="~{include/user/nav}"></div>
 
         <h1>申请退款</h1>
         <form th:action="@{/user/support/refund/create.html}" method="post">
@@ -31,7 +31,7 @@
             <button type="submit" class="btn btn-primary">提交申请</button>
         </form>
     </div>
-    <div th:replace="~{/include/script.html}"></div>
+    <div th:replace="~{include/script}"></div>
 </body>
 
 </html>

@@ -10,7 +10,7 @@ public class PremiumPlanController {
 
     @GetMapping(value = {"/", "/index.html"})
     public String index() {
-        return "/normal/premium-plan/index.html";
+        return "normal/premium-plan/index";
     }
 
 }

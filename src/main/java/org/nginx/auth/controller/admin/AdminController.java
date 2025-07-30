@@ -40,7 +40,7 @@ public class AdminController {
 
     @RequestMapping(value = {"", "/"})
     public String index() {
-        return "/admin/index.html";
+        return "admin/index";
     }
 
     // -- user --
@@ -57,7 +57,7 @@ public class AdminController {
         model.addAttribute("pagination", userInfoPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/user/index.html";
+        return "admin/user/index";
     }
 
     // block

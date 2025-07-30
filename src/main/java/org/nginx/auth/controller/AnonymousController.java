@@ -36,7 +36,7 @@ public class AnonymousController {
         model.addAttribute("pagination", premiumPlanPageVO);
 
 
-        return "/anonymous/premium_plan/index.html";
+        return "anonymous/premium_plan/index";
     }
 
 }

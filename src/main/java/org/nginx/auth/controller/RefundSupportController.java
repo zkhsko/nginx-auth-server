@@ -48,7 +48,7 @@ public class RefundSupportController {
         model.addAttribute("pagination", refundPage);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/user/support/refund/index.html";
+        return "user/support/refund/index";
     }
 
     /**
@@ -63,7 +63,7 @@ public class RefundSupportController {
         OrderInfo orderInfo = orderInfoService.selectByOrderId(orderId);
         model.addAttribute("order", orderInfo);
         model.addAttribute("orderId", orderId);
-        return "/user/support/refund/page.html";
+        return "user/support/refund/page";
     }
 
     @PostMapping("/create.html")

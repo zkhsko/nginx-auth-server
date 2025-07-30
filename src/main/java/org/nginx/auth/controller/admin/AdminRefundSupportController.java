@@ -57,7 +57,7 @@ public class AdminRefundSupportController {
         model.addAttribute("pagination", refundPage);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/support/refund/index.html";
+        return "admin/support/refund/index";
     }
 
     @RequestMapping("/detail.html")
@@ -74,7 +74,7 @@ public class AdminRefundSupportController {
         List<OrderPaymentInfo> paymentList = orderPaymentInfoService.selectListByOrderId(refundSupport.getOrderId());
         model.addAttribute("paymentList", paymentList);
         model.addAttribute("refundHistory", orderRefundInfoService.selectListByOrderId(refundSupport.getOrderId()));
-        return "/admin/support/refund/detail.html";
+        return "admin/support/refund/detail";
     }
 
     /**

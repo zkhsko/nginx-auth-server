@@ -48,7 +48,7 @@ public class AdminPremiumPlanController {
         model.addAttribute("pagination", premiumPlanPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/premium_plan/index.html";
+        return "admin/premium_plan/index";
     }
 
     @GetMapping("/{version}/create.html")
@@ -63,7 +63,7 @@ public class AdminPremiumPlanController {
         premiumPlanCreateForm.setPremiumPlanTimeUnit("DAY");
         model.addAttribute("form", premiumPlanCreateForm);
 
-        return "/admin/premium_plan/" + version + "/create.html";
+        return "admin/premium_plan/" + version + "/create";
     }
 
     @PostMapping("/{version}/create.html")
@@ -82,7 +82,7 @@ public class AdminPremiumPlanController {
             PageParam pageParam = new PageParam(null, null, "id desc");
             PageHelper.startPage(pageParam);
 
-            return "/admin/premium_plan/" + version + "/create.html";
+            return "admin/premium_plan/" + version + "/create";
         }
 
         adminPremiumPlanService.createPremiumPlan(premiumPlanCreateForm);
@@ -131,7 +131,7 @@ public class AdminPremiumPlanController {
         premiumPlanUpdateForm.setPremiumPlanTimeValue(premiumPlan.getPremiumPlanTimeValue());
         model.addAttribute("form", premiumPlanUpdateForm);
 
-        return "/admin/premium_plan/" + version + "/update.html";
+        return "admin/premium_plan/" + version + "/update";
     }
 
     @PostMapping("/{version}/update.html")
@@ -153,7 +153,7 @@ public class AdminPremiumPlanController {
             model.addAllAttributes(validateRtn);
             model.addAttribute("form", premiumPlanUpdateForm);
             model.addAttribute("redirect", redirect);
-            return "/admin/premium_plan/" + version + "/update.html";
+            return "admin/premium_plan/" + version + "/update";
         }
 
         adminPremiumPlanService.updatePremiumPlan(premiumPlanUpdateForm);

@@ -51,7 +51,7 @@ public class AdminOrderInfoController {
         model.addAttribute("pagination", orderPage);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "/admin/order/index.html";
+        return "admin/order/index";
     }
 
     @GetMapping("/detail.html")
@@ -71,7 +71,7 @@ public class AdminOrderInfoController {
                 .contains(detail.getOrderInfo().getOrderStatus());
         model.addAttribute("refundBtn", refundBtn);
 
-        return "/admin/order/detail.html";
+        return "admin/order/detail";
     }
 
 
