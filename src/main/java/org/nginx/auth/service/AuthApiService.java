@@ -4,12 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.model.PremiumPlanPredicate;
+import org.nginx.auth.model.PremiumPlanSkp;
 import org.nginx.auth.model.SubscriptionInfo;
 import org.nginx.auth.model.User;
 import org.nginx.auth.repository.PremiumPlanPredicateRepository;
-import org.nginx.auth.repository.PremiumPlanRepository;
+import org.nginx.auth.repository.PremiumPlanSkpRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
@@ -25,7 +25,7 @@ public class AuthApiService {
     @Autowired
     private SubscriptionInfoService subscriptionInfoService;
     @Autowired
-    private PremiumPlanRepository premiumPlanRepository;
+    private PremiumPlanSkpRepository premiumPlanSkpRepository;
     @Autowired
     private PremiumPlanPredicateRepository premiumPlanPredicateRepository;
 
@@ -87,8 +87,8 @@ public class AuthApiService {
         }
 
         // 如果订阅没有过期,判断predicate是否满足
-        Long premiumPlanId = subscriptionInfo.getPremiumPlanId();
-        PremiumPlan premiumPlan = premiumPlanRepository.selectById(premiumPlanId);
+        Long premiumPlanSkpId = subscriptionInfo.getPremiumPlanSkpId();
+        PremiumPlanSkp premiumPlan = premiumPlanSkpRepository.selectById(premiumPlanSkpId);
         if (premiumPlan == null) {
             return false; // 如果没有找到对应的PremiumPlan,跳过
         }
