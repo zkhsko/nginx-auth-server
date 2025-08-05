@@ -38,10 +38,10 @@ public class SubscriptionInfoService {
         return subscriptionInfoRepository.selectList(queryWrapper);
     }
 
-    public SubscriptionInfo selectByUserIdAndPremiumPlanId(Long userId, Long premiumPlanId) {
+    public SubscriptionInfo selectByUserIdAndPremiumPlanSkpId(Long userId, Long premiumPlanSkpId) {
         LambdaQueryWrapper<SubscriptionInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SubscriptionInfo::getUserId, userId);
-        queryWrapper.eq(SubscriptionInfo::getPremiumPlanId, premiumPlanId);
+        queryWrapper.eq(SubscriptionInfo::getPremiumPlanSkpId, premiumPlanSkpId);
         return subscriptionInfoRepository.selectOne(queryWrapper);
     }
 
@@ -71,7 +71,7 @@ public class SubscriptionInfoService {
         }
 
         // TODO: 暂时每次只能买一个产品
-        Long premiumPlanId = skuList.get(0).getPremiumPlanId();
+        Long premiumPlanSkpId = skuList.get(0).getPremiumPlanSkpId();
 
         // 计算总订阅时间（单位和时间值乘以数量）
         long totalDays = 0;
@@ -103,7 +103,7 @@ public class SubscriptionInfoService {
         }
 
         // 查询当前用户订阅信息
-        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanId(userId, premiumPlanId);
+        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanSkpId(userId, premiumPlanSkpId);
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime baseTime;
@@ -138,6 +138,7 @@ public class SubscriptionInfoService {
             // 如果没有订阅记录，创建新的订阅记录
             SubscriptionInfo subscriptionInfoInsert = new SubscriptionInfo();
             subscriptionInfoInsert.setUserId(userId);
+            subscriptionInfoInsert.setPremiumPlanSkpId(premiumPlanSkpId);
             subscriptionInfoInsert.setSubscribeExpireTime(newExpireDate);
             subscriptionInfoRepository.insert(subscriptionInfoInsert);
             logger.info("Created new subscription for userId {} with expire time {}", userId, newExpireDate);
@@ -174,10 +175,10 @@ public class SubscriptionInfoService {
         }
 
         // TODO: 暂时每次只能买一个产品
-        Long premiumPlanId = skuList.get(0).getPremiumPlanId();
+        Long premiumPlanSkpId = skuList.get(0).getPremiumPlanSkpId();
 
         // 查询当前用户订阅信息
-        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanId(userId, premiumPlanId);
+        SubscriptionInfo subscriptionInfo = selectByUserIdAndPremiumPlanSkpId(userId, premiumPlanSkpId);
         if (subscriptionInfo == null) {
             logger.warn("SubscriptionInfo not found for userId: {}", userId);
             return;
