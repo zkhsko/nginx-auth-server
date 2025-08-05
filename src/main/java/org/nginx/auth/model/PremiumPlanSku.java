@@ -5,26 +5,17 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 /**
  * @author dongpo.li
- * @date 2023/12/15
+ * @date 2024/08/01
  */
-@TableName("premium_plan")
-public class PremiumPlan extends AutoIncrementBaseEntity {
+@TableName("premium_plan_sku")
+public class PremiumPlanSku extends AutoIncrementBaseEntity {
 
     /**
-     * 高级商品名称
+     * premium_plan_skp.id
      */
-    @TableField("premium_plan_name")
-    private String premiumPlanName;
-    /**
-     * 高级商品描述
-     */
-    @TableField("premium_plan_desc")
-    private String premiumPlanDesc;
-    /**
-     * TODO 要加注释
-     */
-    @TableField("predicate_list_text")
-    private String predicateListText;
+    @TableField("premium_plan_skp_id")
+    private Long premiumPlanSkpId;
+
     /**
      * 商品价格，单位分
      */
@@ -45,34 +36,13 @@ public class PremiumPlan extends AutoIncrementBaseEntity {
      */
     @TableField("premium_plan_stock")
     private Integer premiumPlanStock;
-    /**
-     * 是否上架中，上架中的商品才能下单
-     */
-    @TableField("in_use")
-    private Boolean inUse;
 
-    public String getPremiumPlanName() {
-        return premiumPlanName;
+    public Long getPremiumPlanSkpId() {
+        return premiumPlanSkpId;
     }
 
-    public void setPremiumPlanName(String premiumPlanName) {
-        this.premiumPlanName = premiumPlanName;
-    }
-
-    public String getPremiumPlanDesc() {
-        return premiumPlanDesc;
-    }
-
-    public void setPremiumPlanDesc(String premiumPlanDesc) {
-        this.premiumPlanDesc = premiumPlanDesc;
-    }
-
-    public String getPredicateListText() {
-        return predicateListText;
-    }
-
-    public void setPredicateListText(String predicateListText) {
-        this.predicateListText = predicateListText;
+    public void setPremiumPlanSkpId(Long premiumPlanSkpId) {
+        this.premiumPlanSkpId = premiumPlanSkpId;
     }
 
     public Long getPremiumPlanPrice() {
@@ -105,13 +75,5 @@ public class PremiumPlan extends AutoIncrementBaseEntity {
 
     public void setPremiumPlanStock(Integer premiumPlanStock) {
         this.premiumPlanStock = premiumPlanStock;
-    }
-
-    public Boolean getInUse() {
-        return inUse;
-    }
-
-    public void setInUse(Boolean inUse) {
-        this.inUse = inUse;
     }
 }

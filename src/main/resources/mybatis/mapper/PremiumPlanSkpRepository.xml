@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.nginx.auth.repository.PremiumPlanSkpRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.PremiumPlanSkp">
+        <id column="id" property="id"/>
+        <result column="premium_plan_name" property="premiumPlanName"/>
+        <result column="premium_plan_desc" property="premiumPlanDesc"/>
+        <result column="predicate_list_text" property="predicateListText"/>
+        <result column="in_use" property="inUse"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `premium_plan_name`, `premium_plan_desc`, `predicate_list_text`,
+        `in_use`, `create_time`, `update_time`
+    </sql>
+
+</mapper>
