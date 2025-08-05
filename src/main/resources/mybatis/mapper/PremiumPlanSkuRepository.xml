@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.nginx.auth.repository.PremiumPlanSkuRepository">
+
+    <resultMap id="BaseResultMap" type="org.nginx.auth.model.PremiumPlanSku">
+        <id column="id" property="id"/>
+        <result column="premium_plan_skp_id" property="premiumPlanSkpId"/>
+        <result column="premium_plan_price" property="premiumPlanPrice"/>
+        <result column="premium_plan_time_unit" property="premiumPlanTimeUnit"/>
+        <result column="premium_plan_time_value" property="premiumPlanTimeValue"/>
+        <result column="premium_plan_stock" property="premiumPlanStock"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        `id`, `premium_plan_skp_id`, `premium_plan_price`,
+        `premium_plan_time_unit`, `premium_plan_time_value`,
+        `premium_plan_stock`, `create_time`, `update_time`
+    </sql>
+
+    <update id="reduceStock" parameterType="org.nginx.auth.model.PremiumPlanSku">
+        UPDATE premium_plan_sku
+        SET premium_plan_stock = premium_plan_stock - 1
+        WHERE id = #{id}
+        AND premium_plan_stock > 0
+    </update>
+
+</mapper>
