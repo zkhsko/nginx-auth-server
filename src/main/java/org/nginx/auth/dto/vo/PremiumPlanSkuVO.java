@@ -1,19 +1,19 @@
 package org.nginx.auth.dto.vo;
 
-import org.nginx.auth.model.PremiumPlan;
+import org.nginx.auth.model.PremiumPlanSku;
 
-public class PremiumPlanVO {
+public class PremiumPlanSkuVO {
 
-    private PremiumPlan premiumPlan;
+    private PremiumPlanSku premiumPlanSku;
 
     private String premiumPlanPriceYuan;
 
-    public PremiumPlan getPremiumPlan() {
-        return premiumPlan;
+    public PremiumPlanSku getPremiumPlanSku() {
+        return premiumPlanSku;
     }
 
-    public void setPremiumPlan(PremiumPlan premiumPlan) {
-        this.premiumPlan = premiumPlan;
+    public void setPremiumPlanSku(PremiumPlanSku premiumPlanSku) {
+        this.premiumPlanSku = premiumPlanSku;
     }
 
     public String getPremiumPlanPriceYuan() {

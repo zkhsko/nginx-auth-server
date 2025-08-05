@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title></title>
+    <div th:replace="~{include/css}"></div>
+</head>
+
+<body>
+    <div class="container">
+        <div th:replace="~{include/user/nav}"></div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            <div class="col" th:each="item : ${pagination.data}">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${item.premiumPlanSkp.premiumPlanName}">商品名称</h5>
+                        <p class="card-text flex-grow-1" style="white-space: pre-wrap;" th:utext="${item.premiumPlanSkp.premiumPlanDesc}">商品详情</p>
+                        <form method="post" th:action="@{/user/order/create}" class="mt-auto">
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item" th:each="sku, itemStat : ${item.premiumPlanSkuList}">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="skuId" th:id="${'sku_' + sku.premiumPlanSku.id}" th:value="${sku.premiumPlanSku.id}" th:checked="${itemStat.index == 0}">
+                                        <label class="form-check-label" th:for="${'sku_' + sku.premiumPlanSku.id}">
+                                            <span th:text="${sku.premiumPlanPriceYuan + '元 / ' + sku.premiumPlanSku.premiumPlanTimeUnit}"></span>
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                            <input type="hidden" name="cnt" value="1" />
+                            <button type="submit" class="btn btn-primary w-100">下单</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{include/pagination}"></div>
+
+    </div>
+    <div th:replace="~{include/script}"></div>
+</body>
+
+</html>

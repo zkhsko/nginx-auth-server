@@ -1,7 +1,6 @@
 package org.nginx.auth.controller;
 
-import org.nginx.auth.dto.vo.PremiumPlanVO;
-import org.nginx.auth.model.PremiumPlan;
+import org.nginx.auth.dto.vo.PremiumPlanSkpVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +23,7 @@ public class AnonymousController {
     private PremiumPlanService premiumPlanService;
 
     @GetMapping("/premium-plan/index.html")
-    public String premiumPlanListPage(Model model, Integer page, Integer size) {
+    public String premiumPlanSkpListPage(Model model, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
@@ -32,11 +31,11 @@ public class AnonymousController {
             size = 12;
         }
 
-        BasicPaginationVO<PremiumPlanVO> premiumPlanPageVO = premiumPlanService.premiumPlanListPage(page, size);
+        BasicPaginationVO<PremiumPlanSkpVO> premiumPlanPageVO = premiumPlanService.premiumPlanListPage(page, size);
         model.addAttribute("pagination", premiumPlanPageVO);
 
 
-        return "anonymous/premium_plan/index";
+        return "anonymous/premium-plan/index";
     }
 
 }

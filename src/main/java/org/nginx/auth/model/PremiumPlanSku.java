@@ -37,6 +37,12 @@ public class PremiumPlanSku extends AutoIncrementBaseEntity {
     @TableField("premium_plan_stock")
     private Integer premiumPlanStock;
 
+    /**
+     * 是否上架中，上架中的商品才能下单
+     */
+    @TableField("in_use")
+    private Boolean inUse;
+
     public Long getPremiumPlanSkpId() {
         return premiumPlanSkpId;
     }
@@ -75,5 +81,13 @@ public class PremiumPlanSku extends AutoIncrementBaseEntity {
 
     public void setPremiumPlanStock(Integer premiumPlanStock) {
         this.premiumPlanStock = premiumPlanStock;
+    }
+
+    public Boolean getInUse() {
+        return inUse;
+    }
+
+    public void setInUse(Boolean inUse) {
+        this.inUse = inUse;
     }
 }
