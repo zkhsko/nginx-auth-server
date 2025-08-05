@@ -15,10 +15,11 @@ public class SubscriptionInfo extends AutoIncrementBaseEntity {
     @TableField("user_id")
     private Long userId;
     /**
-     * premium_plan.id
+     * premium_plan_skp.id
      * 订阅的哪个产品,跟userId联合唯一
      */
-    private Long premiumPlanId;
+    @TableField("premium_plan_skp_id")
+    private Long premiumPlanSkpId;
     /**
      * 订阅到期时间
      */
@@ -33,12 +34,12 @@ public class SubscriptionInfo extends AutoIncrementBaseEntity {
         this.userId = userId;
     }
 
-    public Long getPremiumPlanId() {
-        return premiumPlanId;
+    public Long getPremiumPlanSkpId() {
+        return premiumPlanSkpId;
     }
 
-    public void setPremiumPlanId(Long premiumPlanId) {
-        this.premiumPlanId = premiumPlanId;
+    public void setPremiumPlanSkpId(Long premiumPlanSkpId) {
+        this.premiumPlanSkpId = premiumPlanSkpId;
     }
 
     public Date getSubscribeExpireTime() {
