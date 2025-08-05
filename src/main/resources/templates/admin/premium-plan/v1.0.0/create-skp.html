@@ -12,7 +12,7 @@
 <body>
     <div class="container">
 
-        <form action="#" th:action="@{/admin/premium-plan/v1.0.0/create.html}" method="post">
+        <form action="#" th:action="@{/admin/premium-plan/v1.0.0/create-skp.html}" method="post">
             <div class="mb-3">
                 <label for="premium-plan-name-input" class="form-label">商品名称</label>
                 <input type="text" class="form-control" id="premium-plan-name-input" name="premiumPlanName"
@@ -52,43 +52,6 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="premium-plan-price-input" class="form-label">商品价格</label>
-                <input type="text" class="form-control" id="premium-plan-price-input" name="premiumPlanPrice"
-                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanPriceFormError)) ? '' : 'is-invalid'}"
-                    th:value="${form?.premiumPlanPrice}">
-                <div class="invalid-feedback" th:text="${premiumPlanPriceFormError}"></div>
-                <div class="form-text">0.00，单位：元，保留至多两位小数</div>
-            </div>
-            <div class="input-group mb-3">
-                <!-- <input type="text" class="form-control" aria-label="Text input with dropdown button"> -->
-                <input type="number" class="form-control" id="premium-plan-time-value-input" name="premiumPlanTimeValue"
-                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanTimeValueFormError)) ? '' : 'is-invalid'}"
-                    th:value="${form?.premiumPlanTimeValue}">
-                <select class="form-select" id="premiumPlanTimeUnit" name="premiumPlanTimeUnit"
-                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanTimeUnitFormError)) ? '' : 'is-invalid'}">
-                    <!-- <option selected>Choose...</option> -->
-                    <option value="DAY" th:selected="form?.premiumPlanTimeUnit=='DAY'">天</option>
-                    <option value="MONTH" th:selected="form?.premiumPlanTimeUnit=='MONTH'">月</option>
-                    <option value="YEAR" th:selected="form?.premiumPlanTimeUnit=='YEAR'">年</option>
-                </select>
-                <div class="invalid-feedback" th:text="${premiumPlanTimeValueFormError}"></div>
-                <div class="invalid-feedback" th:text="${premiumPlanTimeUnitFormError}"></div>
-            </div>
-            <div class="mb-3">
-                <label for="premium-plan-stock-input" class="form-label">库存</label>
-                <input type="text" class="form-control" id="premium-plan-stock-input" name="premiumPlanStock"
-                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanStockFormError)) ? '' : 'is-invalid'}"
-                    th:value="${form?.premiumPlanStock}">
-                <div class="invalid-feedback" th:text="${premiumPlanStockFormError}"></div>
-                <!-- <div class="form-text">0.00，单位：元，保留至多两位小数</div> -->
-            </div>
-            <div class="mb-3">
-                <!-- <label for="premium-plan-name-input" class="form-label">开启上架销售</label> -->
-                <!-- <input type="text" class="form-control" id="premium-plan-name-input" name="premiumPlanName"
-                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanNameFormError)) ? '' : 'is-invalid'}"
-                    th:value="${form?.premiumPlanName}">
-                <div class="invalid-feedback" th:text="${premiumPlanNameFormError}"></div>
-                <div class="form-text">0.00，单位：元，保留至多两位小数</div> -->
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="true" id="inUse"
                         th:checked="${form?.inUse==true}" name="inUse">

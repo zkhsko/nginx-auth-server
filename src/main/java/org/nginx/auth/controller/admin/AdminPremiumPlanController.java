@@ -5,12 +5,13 @@ import com.github.pagehelper.PageParam;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.nginx.auth.dto.form.AdminPremiumPlanCreateForm;
-import org.nginx.auth.dto.form.AdminPremiumPlanUpdateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanSkpCreateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanSkpUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
-import org.nginx.auth.model.PremiumPlan;
 import org.nginx.auth.model.PremiumPlanPredicate;
+import org.nginx.auth.model.PremiumPlanSkp;
 import org.nginx.auth.repository.PremiumPlanPredicateRepository;
+import org.nginx.auth.repository.PremiumPlanSkuRepository;
 import org.nginx.auth.service.AdminPremiumPlanService;
 import org.nginx.auth.util.BeanCopyUtil;
 import org.nginx.auth.util.RedirectPageUtil;
@@ -20,8 +21,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +33,11 @@ public class AdminPremiumPlanController {
     private AdminPremiumPlanService adminPremiumPlanService;
     @Autowired
     private PremiumPlanPredicateRepository premiumPlanPredicateRepository;
+    @Autowired
+    private PremiumPlanSkuRepository premiumPlanSkuRepository;
 
     @GetMapping("/index.html")
-    public String premiumPlanListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
+    public String premiumPlanSkpListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
         if (page == null || page < 1) {
             page = 1;
         }
@@ -44,65 +45,66 @@ public class AdminPremiumPlanController {
             size = 10;
         }
 
-        BasicPaginationVO<PremiumPlan> premiumPlanPageVO = adminPremiumPlanService.premiumPlanListPage(page, size);
+        BasicPaginationVO<PremiumPlanSkp> premiumPlanPageVO = adminPremiumPlanService.premiumPlanSkpListPage(page, size);
         model.addAttribute("pagination", premiumPlanPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
-        return "admin/premium_plan/index";
+        return "admin/premium-plan/index";
     }
 
-    @GetMapping("/{version}/create.html")
-    public String createPremiumPlanPage(@PathVariable String version, Model model) {
+    @GetMapping("/{version}/create-skp.html")
+    public String createPremiumPlanSkpPage(@PathVariable String version, Model model) {
 
         PageParam pageParam = new PageParam(null, null, "id desc");
         PageHelper.startPage(pageParam);
         List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
         model.addAttribute("predicateList", predicateInfoList);
 
-        AdminPremiumPlanCreateForm premiumPlanCreateForm = new AdminPremiumPlanCreateForm();
-        premiumPlanCreateForm.setPremiumPlanTimeUnit("DAY");
-        model.addAttribute("form", premiumPlanCreateForm);
+        AdminPremiumPlanSkpCreateForm premiumPlanSkpCreateForm = new AdminPremiumPlanSkpCreateForm();
+        model.addAttribute("form", premiumPlanSkpCreateForm);
 
-        return "admin/premium_plan/" + version + "/create";
+        return "admin/premium-plan/" + version + "/create-skp";
     }
 
-    @PostMapping("/{version}/create.html")
-    public String createPremiumPlanAction(@PathVariable String version, Model model,
-                                          AdminPremiumPlanCreateForm premiumPlanCreateForm) {
+    @PostMapping("/{version}/create-skp.html")
+    public String createPremiumPlanSkpAction(@PathVariable String version, Model model,
+                                             AdminPremiumPlanSkpCreateForm premiumPlanSkpCreateForm) {
 
-        if (premiumPlanCreateForm.getInUse() == null) {
-            premiumPlanCreateForm.setInUse(false);
+        if (premiumPlanSkpCreateForm.getInUse() == null) {
+            premiumPlanSkpCreateForm.setInUse(false);
         }
 
-        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanCreateForm);
+        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanSkpCreateForm);
         if (MapUtils.isNotEmpty(validateRtn)) {
             model.addAllAttributes(validateRtn);
-            model.addAttribute("form", premiumPlanCreateForm);
+            model.addAttribute("form", premiumPlanSkpCreateForm);
 
             PageParam pageParam = new PageParam(null, null, "id desc");
             PageHelper.startPage(pageParam);
+            List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
+            model.addAttribute("predicateList", predicateInfoList);
 
-            return "admin/premium_plan/" + version + "/create";
+            return "admin/premium-plan/" + version + "/create-skp";
         }
 
-        adminPremiumPlanService.createPremiumPlan(premiumPlanCreateForm);
+        adminPremiumPlanService.createPremiumPlanSkp(premiumPlanSkpCreateForm);
         return "redirect:/admin/premium-plan/index.html";
     }
 
-    @PostMapping("/delete.html")
-    public String deletePremiumPlanAction(HttpServletRequest request, @RequestParam Long id, @RequestParam String redirect) {
-        adminPremiumPlanService.deletePremiumPlan(id);
+    @PostMapping("/delete-skp.html")
+    public String deletePremiumPlanSkpAction(HttpServletRequest request, @RequestParam Long id, @RequestParam String redirect) {
+        adminPremiumPlanService.deletePremiumPlanSkp(id);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
-    @GetMapping("/{version}/update.html")
-    public String updatePremiumPlanPage(HttpServletRequest request, @PathVariable String version, Model model,
-                                        @RequestParam Long id, @RequestParam String redirect) {
-        PremiumPlan premiumPlan = adminPremiumPlanService.getPremiumPlan(id);
+    @GetMapping("/{version}/update-skp.html")
+    public String updatePremiumPlanSkpPage(HttpServletRequest request, @PathVariable String version, Model model,
+                                           @RequestParam Long id, @RequestParam String redirect) {
+        PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(id);
 
         model.addAttribute("redirect", redirect);
 
-        if (premiumPlan == null) {
+        if (premiumPlanSkp == null) {
             return "redirect:/admin/premium-plan/index.html";
         }
 
@@ -111,33 +113,29 @@ public class AdminPremiumPlanController {
         List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
         model.addAttribute("predicateList", predicateInfoList);
 
-        AdminPremiumPlanUpdateForm premiumPlanUpdateForm = new AdminPremiumPlanUpdateForm();
-        BeanCopyUtil.copy(premiumPlan, premiumPlanUpdateForm);
-        BigDecimal premiumPlanPrice = new BigDecimal(premiumPlan.getPremiumPlanPrice())
-                .divide(new BigDecimal(100), 2, RoundingMode.HALF_UP);
-        premiumPlanUpdateForm.setPremiumPlanPrice(premiumPlanPrice);
-        String predicateListText = premiumPlan.getPredicateListText();
+        AdminPremiumPlanSkpUpdateForm premiumPlanSkpUpdateForm = new AdminPremiumPlanSkpUpdateForm();
+        BeanCopyUtil.copy(premiumPlanSkp, premiumPlanSkpUpdateForm);
+
+        String predicateListText = premiumPlanSkp.getPredicateListText();
         if (StringUtils.isNotBlank(predicateListText)) {
             String[] predicateList = predicateListText.split(",");
             LinkedHashSet<Long> predicateListSet = new LinkedHashSet<>();
             for (String predicateId : predicateList) {
                 predicateListSet.add(Long.valueOf(predicateId));
             }
-            premiumPlanUpdateForm.setPredicateList(predicateListSet);
+            premiumPlanSkpUpdateForm.setPredicateList(predicateListSet);
         } else {
-            premiumPlanUpdateForm.setPredicateList(new LinkedHashSet<>());
+            premiumPlanSkpUpdateForm.setPredicateList(new LinkedHashSet<>());
         }
-        premiumPlanUpdateForm.setPremiumPlanStock(premiumPlan.getPremiumPlanStock());
-        premiumPlanUpdateForm.setPremiumPlanTimeValue(premiumPlan.getPremiumPlanTimeValue());
-        model.addAttribute("form", premiumPlanUpdateForm);
+        model.addAttribute("form", premiumPlanSkpUpdateForm);
 
-        return "admin/premium_plan/" + version + "/update";
+        return "admin/premium-plan/" + version + "/update-skp";
     }
 
-    @PostMapping("/{version}/update.html")
-    public String updatePremiumPlanAction(HttpServletRequest request, @PathVariable String version,
-                                          @RequestParam Long id, @RequestParam String redirect,
-                                          Model model, AdminPremiumPlanUpdateForm premiumPlanUpdateForm) {
+    @PostMapping("/{version}/update-skp.html")
+    public String updatePremiumPlanSkpAction(HttpServletRequest request, @PathVariable String version,
+                                             @RequestParam Long id, @RequestParam String redirect,
+                                             Model model, AdminPremiumPlanSkpUpdateForm premiumPlanUpdateForm) {
         premiumPlanUpdateForm.setId(id);
         if (premiumPlanUpdateForm.getInUse() == null) {
             premiumPlanUpdateForm.setInUse(false);
@@ -153,10 +151,36 @@ public class AdminPremiumPlanController {
             model.addAllAttributes(validateRtn);
             model.addAttribute("form", premiumPlanUpdateForm);
             model.addAttribute("redirect", redirect);
-            return "admin/premium_plan/" + version + "/update";
+            return "admin/premium-plan/" + version + "/update-skp";
         }
 
-        adminPremiumPlanService.updatePremiumPlan(premiumPlanUpdateForm);
+        adminPremiumPlanService.updatePremiumPlanSkp(premiumPlanUpdateForm);
+        return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
+    }
+
+    @PostMapping("/{version}/detail-skp.html")
+    public String selectPremiumPlanSkpDetailPage(HttpServletRequest request, @PathVariable String version,
+                                                 @RequestParam Long id, @RequestParam String redirect,
+                                                 Model model, AdminPremiumPlanSkpUpdateForm premiumPlanUpdateForm) {
+        premiumPlanUpdateForm.setId(id);
+        if (premiumPlanUpdateForm.getInUse() == null) {
+            premiumPlanUpdateForm.setInUse(false);
+        }
+
+        PageParam pageParam = new PageParam(null, null, "id desc");
+        PageHelper.startPage(pageParam);
+        List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
+        model.addAttribute("predicateList", predicateInfoList);
+
+        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanUpdateForm);
+        if (MapUtils.isNotEmpty(validateRtn)) {
+            model.addAllAttributes(validateRtn);
+            model.addAttribute("form", premiumPlanUpdateForm);
+            model.addAttribute("redirect", redirect);
+            return "admin/premium-plan/" + version + "/update-skp";
+        }
+
+        adminPremiumPlanService.updatePremiumPlanSkp(premiumPlanUpdateForm);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
