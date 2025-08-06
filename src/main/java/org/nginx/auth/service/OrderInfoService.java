@@ -21,6 +21,7 @@ import org.nginx.auth.util.OrderInfoUtils;
 import org.nginx.auth.util.SessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
@@ -39,7 +40,9 @@ public class OrderInfoService {
     private static final Logger logger = LoggerFactory.getLogger(OrderInfoService.class);
 
     @Autowired
-    private PremiumPlanRepository premiumPlanRepository;
+    private PremiumPlanSkpRepository premiumPlanSkpRepository;
+    @Autowired
+    private PremiumPlanSkuRepository premiumPlanSkuRepository;
     @Autowired
     private OrderPaymentInfoService orderPaymentInfoService;
     @Autowired
@@ -99,9 +102,10 @@ public class OrderInfoService {
         for (OrderCreateParam param : paramList) {
 
             long skuId = Long.parseLong(param.getSkuId());
-            PremiumPlan premiumPlan = premiumPlanRepository.selectById(skuId);
+            PremiumPlanSku premiumPlanSku = premiumPlanSkuRepository.selectById(skuId);
+            PremiumPlanSkp premiumPlanSkp = premiumPlanSkpRepository.selectById(premiumPlanSku.getPremiumPlanSkpId());
 
-            int reduceStock = premiumPlanRepository.reduceStock(premiumPlan.getId());
+            int reduceStock = premiumPlanSkuRepository.reduceStock(premiumPlanSku.getId());
             if (reduceStock <= 0) {
                 logger.info("下单扣减库存失败,应该是没有库存了, skuId={}", param.getSkuId());
                 // 手动回滚事务
@@ -110,16 +114,19 @@ public class OrderInfoService {
             }
 
             OrderSkuInfo orderSkuInfo = new OrderSkuInfo();
-            OrderInfoUtils.PREMIUM_PLAN_2_ORDER_SKU_INFO
-                    .copy(premiumPlan, orderSkuInfo, null);
-            orderSkuInfo.setId(null);
-            orderSkuInfo.setPremiumPlanId(premiumPlan.getId());
             orderSkuInfo.setOrderId(orderId);
+            orderSkuInfo.setPremiumPlanSkpId(premiumPlanSkp.getId());
+            orderSkuInfo.setPremiumPlanSkuId(premiumPlanSku.getId());
+            orderSkuInfo.setPremiumPlanName(premiumPlanSkp.getPremiumPlanName());
+            orderSkuInfo.setPremiumPlanDesc(premiumPlanSkp.getPremiumPlanDesc());
+            orderSkuInfo.setPremiumPlanPrice(premiumPlanSku.getPremiumPlanPrice());
+            orderSkuInfo.setPremiumPlanTimeUnit(premiumPlanSku.getPremiumPlanTimeUnit());
+            orderSkuInfo.setPremiumPlanTimeValue(premiumPlanSku.getPremiumPlanTimeValue());
             orderSkuInfo.setCnt(param.getCnt());
             orderSkuInfoList.add(orderSkuInfo);
 
 
-            totalOrderAmount = totalOrderAmount.add(BigDecimal.valueOf(premiumPlan.getPremiumPlanPrice() * param.getCnt()));
+            totalOrderAmount = totalOrderAmount.add(BigDecimal.valueOf(premiumPlanSku.getPremiumPlanPrice() * param.getCnt()));
 
         }
 

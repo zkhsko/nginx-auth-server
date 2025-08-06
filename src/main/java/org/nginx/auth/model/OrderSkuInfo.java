@@ -5,9 +5,13 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
     private String orderId;
 
     /**
-     * premium_plan表的id
+     * premium_plan_sku表的id
      */
-    private Long premiumPlanId;
+    private Long premiumPlanSkuId;
+    /**
+     * premium_plan_skp表的id,冗余一下,应该会经常用到
+     */
+    private Long premiumPlanSkpId;
     /**
      * 数量
      */
@@ -17,10 +21,6 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
     // --- 以下字段来自product_info表 ---
     private String premiumPlanName;
     private String premiumPlanDesc;
-    /**
-     * 权限路径表达式,参见AntPathMatcher
-     */
-    private String pattern;
     /**
      * 产品价格,单位分
      */
@@ -47,12 +47,20 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
         this.orderId = orderId;
     }
 
-    public Long getPremiumPlanId() {
-        return premiumPlanId;
+    public Long getPremiumPlanSkuId() {
+        return premiumPlanSkuId;
     }
 
-    public void setPremiumPlanId(Long premiumPlanId) {
-        this.premiumPlanId = premiumPlanId;
+    public void setPremiumPlanSkuId(Long premiumPlanSkuId) {
+        this.premiumPlanSkuId = premiumPlanSkuId;
+    }
+
+    public Long getPremiumPlanSkpId() {
+        return premiumPlanSkpId;
+    }
+
+    public void setPremiumPlanSkpId(Long premiumPlanSkpId) {
+        this.premiumPlanSkpId = premiumPlanSkpId;
     }
 
     public Long getCnt() {
@@ -77,14 +85,6 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
 
     public void setPremiumPlanDesc(String premiumPlanDesc) {
         this.premiumPlanDesc = premiumPlanDesc;
-    }
-
-    public String getPattern() {
-        return pattern;
-    }
-
-    public void setPattern(String pattern) {
-        this.pattern = pattern;
     }
 
     public Long getPremiumPlanPrice() {
