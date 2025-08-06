@@ -38,14 +38,23 @@
                     <td th:text="${item.premiumPlanStock}">100</td>
                     <td th:text="${item.inUse == true ? '上架中' : '未上架'}">上架中</td>
                     <td>
-                        <a href="#">修改</a>
-                        <a href="#">删除</a>
+                        <a th:href="@{/admin/premium-plan/v1.0.0/update-sku.html(id=${item.id})}">修改</a>
+                        <a type="button" href="#" data-bs-toggle="modal"
+                           data-bs-href="/admin/premium-plan/delete-sku.html?id=1"
+                           th:data-bs-href="@{/admin/premium-plan/delete-sku.html(id=${item.id})}"
+                           data-bs-id="1"
+                           th:data-bs-id="${item.id}"
+                           data-bs-target="#deleteConfirmModal">删除</a>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <!-- Delete Modal -->
+    <th:block th:replace="include/delete::deleteConfirmModalHtml" />
     <div th:replace="~{include/script}"></div>
+    <!-- Delete Modal -->
+    <th:block th:replace="include/delete::deleteConfirmModalScript" />
 </body>
 
 </html>

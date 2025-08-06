@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nginx.auth.dto.form.AdminPremiumPlanSkuCreateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanSkuUpdateForm;
 import org.nginx.auth.repository.PremiumPlanSkpRepository;
 
 @Controller
@@ -215,5 +216,74 @@ public class AdminPremiumPlanController {
 
         adminPremiumPlanService.createPremiumPlanSku(skpId, createForm);
         return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + skpId;
+    }
+
+    @GetMapping("/{version}/update-sku.html")
+    public String updatePremiumPlanSkuPage(@PathVariable String version, Model model,
+                                           @RequestParam Long id) {
+        PremiumPlanSku premiumPlanSku = adminPremiumPlanService.selectPremiumPlanSku(id);
+        if (premiumPlanSku == null) {
+            return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + id;
+        }
+
+        PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(premiumPlanSku.getPremiumPlanSkpId());
+        if (premiumPlanSkp == null) {
+            return "redirect:/admin/premium-plan/index.html";
+        }
+
+        AdminPremiumPlanSkuUpdateForm updateForm = new AdminPremiumPlanSkuUpdateForm();
+        BeanCopyUtil.copy(premiumPlanSku, updateForm);
+        updateForm.setPremiumPlanPrice(new java.math.BigDecimal(premiumPlanSku.getPremiumPlanPrice()).divide(new java.math.BigDecimal(100)));
+
+        model.addAttribute("skp", premiumPlanSkp);
+        model.addAttribute("form", updateForm);
+
+        return "admin/premium-plan/" + version + "/update-sku";
+    }
+
+    @PostMapping("/{version}/update-sku.html")
+    public String updatePremiumPlanSkuAction(@PathVariable String version, Model model,
+                                             @RequestParam Long id,
+                                             AdminPremiumPlanSkuUpdateForm updateForm) {
+        updateForm.setId(id);
+        if (updateForm.getInUse() == null) {
+            updateForm.setInUse(false);
+        }
+
+        Map<String, String> validateRtn = ValidatorUtil.validate(updateForm);
+        if (MapUtils.isNotEmpty(validateRtn)) {
+            model.addAllAttributes(validateRtn);
+            model.addAttribute("form", updateForm);
+
+            PremiumPlanSku premiumPlanSku = adminPremiumPlanService.selectPremiumPlanSku(id);
+            PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(premiumPlanSku.getPremiumPlanSkpId());
+            model.addAttribute("skp", premiumPlanSkp);
+            return "admin/premium-plan/" + version + "/update-sku";
+        }
+
+        PremiumPlanSku premiumPlanSku = adminPremiumPlanService.selectPremiumPlanSku(id);
+        if (premiumPlanSku == null) {
+            return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + id;
+        }
+
+        PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(premiumPlanSku.getPremiumPlanSkpId());
+        if (premiumPlanSkp == null) {
+            return "redirect:/admin/premium-plan/index.html";
+        }
+
+        adminPremiumPlanService.updatePremiumPlanSku(updateForm);
+        return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + premiumPlanSku.getPremiumPlanSkpId();
+    }
+
+    @PostMapping("/delete-sku.html")
+    public String deletePremiumPlanSkuAction(@RequestParam Long id) {
+        PremiumPlanSku premiumPlanSku = adminPremiumPlanService.selectPremiumPlanSku(id);
+        if (premiumPlanSku == null) {
+            return "redirect:/admin/premium-plan/index.html";
+        }
+        adminPremiumPlanService.deletePremiumPlanSku(id);
+
+
+        return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + premiumPlanSku.getPremiumPlanSkpId();
     }
 }
