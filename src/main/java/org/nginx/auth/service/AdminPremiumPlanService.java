@@ -6,6 +6,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkpCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkpUpdateForm;
+import org.nginx.auth.dto.form.AdminPremiumPlanSkuCreateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.model.PremiumPlanSkp;
 import org.nginx.auth.model.PremiumPlanSku;
@@ -53,6 +54,15 @@ public class AdminPremiumPlanService {
 //        parsePremiumPlanPrice(premiumPlanSku, premiumPlanPrice);
 //        premiumPlanSku.setPremiumPlanSkpId(premiumPlanSkp.getId());
 //        premiumPlanSkuRepository.insert(premiumPlanSku);
+    }
+
+    @Transactional
+    public void createPremiumPlanSku(Long skpId, AdminPremiumPlanSkuCreateForm createForm) {
+        PremiumPlanSku premiumPlanSku = new PremiumPlanSku();
+        BeanCopyUtil.copy(createForm, premiumPlanSku);
+        premiumPlanSku.setPremiumPlanSkpId(skpId);
+        parsePremiumPlanPrice(premiumPlanSku, createForm.getPremiumPlanPrice());
+        premiumPlanSkuRepository.insert(premiumPlanSku);
     }
 
     private void parsePremiumPlanPrice(PremiumPlanSku premiumPlan, BigDecimal price) {

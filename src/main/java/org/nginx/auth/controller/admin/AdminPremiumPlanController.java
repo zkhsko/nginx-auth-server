@@ -26,6 +26,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.nginx.auth.dto.form.AdminPremiumPlanSkuCreateForm;
+import org.nginx.auth.repository.PremiumPlanSkpRepository;
+
 @Controller
 @RequestMapping("/admin/premium-plan")
 public class AdminPremiumPlanController {
@@ -36,6 +39,8 @@ public class AdminPremiumPlanController {
     private PremiumPlanPredicateRepository premiumPlanPredicateRepository;
     @Autowired
     private PremiumPlanSkuRepository premiumPlanSkuRepository;
+    @Autowired
+    private PremiumPlanSkpRepository premiumPlanSkpRepository;
 
     @GetMapping("/index.html")
     public String premiumPlanSkpListPage(HttpServletRequest request, Model model, Integer page, Integer size) {
@@ -136,10 +141,10 @@ public class AdminPremiumPlanController {
     @PostMapping("/{version}/update-skp.html")
     public String updatePremiumPlanSkpAction(HttpServletRequest request, @PathVariable String version,
                                              @RequestParam Long id, @RequestParam String redirect,
-                                             Model model, AdminPremiumPlanSkpUpdateForm premiumPlanUpdateForm) {
-        premiumPlanUpdateForm.setId(id);
-        if (premiumPlanUpdateForm.getInUse() == null) {
-            premiumPlanUpdateForm.setInUse(false);
+                                             Model model, AdminPremiumPlanSkpUpdateForm updateForm) {
+        updateForm.setId(id);
+        if (updateForm.getInUse() == null) {
+            updateForm.setInUse(false);
         }
 
         PageParam pageParam = new PageParam(null, null, "id desc");
@@ -147,22 +152,20 @@ public class AdminPremiumPlanController {
         List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
         model.addAttribute("predicateList", predicateInfoList);
 
-        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanUpdateForm);
+        Map<String, String> validateRtn = ValidatorUtil.validate(updateForm);
         if (MapUtils.isNotEmpty(validateRtn)) {
             model.addAllAttributes(validateRtn);
-            model.addAttribute("form", premiumPlanUpdateForm);
-            model.addAttribute("redirect", redirect);
+            model.addAttribute("form", updateForm);
             return "admin/premium-plan/" + version + "/update-skp";
         }
 
-        adminPremiumPlanService.updatePremiumPlanSkp(premiumPlanUpdateForm);
+        adminPremiumPlanService.updatePremiumPlanSkp(updateForm);
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
     @GetMapping("/{version}/detail-skp.html")
     public String selectPremiumPlanSkpDetailPage(HttpServletRequest request, @PathVariable String version,
-                                                 @RequestParam Long id, @RequestParam String redirect,
-                                                 Model model) {
+                                                 @RequestParam Long id, Model model) {
         PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(id);
         if (premiumPlanSkp == null) {
             return "redirect:/admin/premium-plan/index.html";
@@ -172,9 +175,45 @@ public class AdminPremiumPlanController {
 
         model.addAttribute("skp", premiumPlanSkp);
         model.addAttribute("skuList", skuList);
-        model.addAttribute("redirect", redirect);
 
         return "admin/premium-plan/" + version + "/detail-skp";
     }
 
+    @GetMapping("/{version}/create-sku.html")
+    public String createPremiumPlanSkuPage(@PathVariable String version, Model model, @RequestParam Long skpId) {
+        PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(skpId);
+        if (premiumPlanSkp == null) {
+            return "redirect:/admin/premium-plan/index.html";
+        }
+
+        model.addAttribute("skp", premiumPlanSkp);
+        model.addAttribute("form", new AdminPremiumPlanSkuCreateForm());
+
+        return "admin/premium-plan/" + version + "/create-sku";
+    }
+
+    @PostMapping("/{version}/create-sku.html")
+    public String createPremiumPlanSkuAction(@PathVariable String version, Model model,
+                                             @RequestParam Long skpId,
+                                             AdminPremiumPlanSkuCreateForm createForm) {
+        PremiumPlanSkp premiumPlanSkp = premiumPlanSkpRepository.selectById(skpId);
+        if (premiumPlanSkp == null) {
+            return "redirect:/admin/premium-plan/index.html";
+        }
+
+        if (createForm.getInUse() == null) {
+            createForm.setInUse(false);
+        }
+
+        Map<String, String> validateRtn = ValidatorUtil.validate(createForm);
+        if (MapUtils.isNotEmpty(validateRtn)) {
+            model.addAllAttributes(validateRtn);
+            model.addAttribute("form", createForm);
+            model.addAttribute("skp", premiumPlanSkp);
+            return "admin/premium-plan/" + version + "/create-sku";
+        }
+
+        adminPremiumPlanService.createPremiumPlanSku(skpId, createForm);
+        return "redirect:/admin/premium-plan/v1.0.0/detail-skp.html?id=" + skpId;
+    }
 }

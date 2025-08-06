@@ -25,7 +25,7 @@
                     <th scope="col">库存</th>
                     <th scope="col">上架状态</th>
                     <th scope="col">
-                        <a href="/admin/premium-plan/create-sku.html" th:href="@{/admin/premium-plan/v1.0.0/create-sku.html(skpId=${skp.id})}">新建SKU</a>
+                        <a href="/admin/premium-plan/create-sku.html" th:href="@{/admin/premium-plan/v1.0.0/create-sku.html(skpId=${skp.id}, redirect=${redirect})}">新建SKU</a>
                     </th>
                 </tr>
             </thead>
