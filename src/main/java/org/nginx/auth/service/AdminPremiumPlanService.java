@@ -100,4 +100,10 @@ public class AdminPremiumPlanService {
         return premiumPlanSkpRepository.selectById(id);
     }
 
+    public List<PremiumPlanSku> selectPremiumPlanSkuListBySkpId(Long skpId) {
+        LambdaQueryWrapper<PremiumPlanSku> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PremiumPlanSku::getPremiumPlanSkpId, skpId);
+        return premiumPlanSkuRepository.selectList(queryWrapper);
+    }
+
 }

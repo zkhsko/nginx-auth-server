@@ -31,7 +31,7 @@
                     <td th:text="${item.inUse == true ? '上架中' : '未上架'}">上架中</td>
                     <td>
                         <a href="/admin/premium-plan/update-skp.html"
-                            th:href="@{/admin/premium-plan/v1.0.0/update-skp.html(id=${item.id}, redirect=${redirect})}">详情</a>
+                            th:href="@{/admin/premium-plan/v1.0.0/detail-skp.html(id=${item.id}, redirect=${redirect})}">详情</a>
                         <a href="/admin/premium-plan/update-skp.html"
                             th:href="@{/admin/premium-plan/v1.0.0/update-skp.html(id=${item.id}, redirect=${redirect})}">修改</a>
                         <a type="button" href="#" data-bs-toggle="modal"

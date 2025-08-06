@@ -10,6 +10,7 @@ import org.nginx.auth.dto.form.AdminPremiumPlanSkpUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.model.PremiumPlanPredicate;
 import org.nginx.auth.model.PremiumPlanSkp;
+import org.nginx.auth.model.PremiumPlanSku;
 import org.nginx.auth.repository.PremiumPlanPredicateRepository;
 import org.nginx.auth.repository.PremiumPlanSkuRepository;
 import org.nginx.auth.service.AdminPremiumPlanService;
@@ -158,30 +159,22 @@ public class AdminPremiumPlanController {
         return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
     }
 
-    @PostMapping("/{version}/detail-skp.html")
+    @GetMapping("/{version}/detail-skp.html")
     public String selectPremiumPlanSkpDetailPage(HttpServletRequest request, @PathVariable String version,
                                                  @RequestParam Long id, @RequestParam String redirect,
-                                                 Model model, AdminPremiumPlanSkpUpdateForm premiumPlanUpdateForm) {
-        premiumPlanUpdateForm.setId(id);
-        if (premiumPlanUpdateForm.getInUse() == null) {
-            premiumPlanUpdateForm.setInUse(false);
+                                                 Model model) {
+        PremiumPlanSkp premiumPlanSkp = adminPremiumPlanService.selectPremiumPlanSkp(id);
+        if (premiumPlanSkp == null) {
+            return "redirect:/admin/premium-plan/index.html";
         }
 
-        PageParam pageParam = new PageParam(null, null, "id desc");
-        PageHelper.startPage(pageParam);
-        List<PremiumPlanPredicate> predicateInfoList = premiumPlanPredicateRepository.selectList(null);
-        model.addAttribute("predicateList", predicateInfoList);
+        List<PremiumPlanSku> skuList = adminPremiumPlanService.selectPremiumPlanSkuListBySkpId(id);
 
-        Map<String, String> validateRtn = ValidatorUtil.validate(premiumPlanUpdateForm);
-        if (MapUtils.isNotEmpty(validateRtn)) {
-            model.addAllAttributes(validateRtn);
-            model.addAttribute("form", premiumPlanUpdateForm);
-            model.addAttribute("redirect", redirect);
-            return "admin/premium-plan/" + version + "/update-skp";
-        }
+        model.addAttribute("skp", premiumPlanSkp);
+        model.addAttribute("skuList", skuList);
+        model.addAttribute("redirect", redirect);
 
-        adminPremiumPlanService.updatePremiumPlanSkp(premiumPlanUpdateForm);
-        return "redirect:" + RedirectPageUtil.resolveRedirectUrl(redirect);
+        return "admin/premium-plan/" + version + "/detail-skp";
     }
 
 }

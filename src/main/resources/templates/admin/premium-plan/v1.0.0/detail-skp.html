@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>商品详情</title>
+    <div th:replace="~{include/css}"></div>
+</head>
+
+<body>
+    <div class="container">
+        <div th:replace="~{include/nav}"></div>
+
+        <h3 th:text="${skp.premiumPlanName}">商品名称</h3>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+<!--                    <th scope="col">SKU名称</th>-->
+                    <th scope="col">价格</th>
+                    <th scope="col">有效期</th>
+                    <th scope="col">库存</th>
+                    <th scope="col">上架状态</th>
+                    <th scope="col">
+                        <a href="/admin/premium-plan/create-sku.html" th:href="@{/admin/premium-plan/v1.0.0/create-sku.html(skpId=${skp.id})}">新建SKU</a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="item : ${skuList}">
+                    <th scope="row" th:text="${item.id}">1</th>
+<!--                    <td th:text="${item.premiumPlanName}">SKU-1</td>-->
+                    <td th:text="${item.premiumPlanPrice / 100.0}">10.00</td>
+                    <td th:text="${item.premiumPlanTimeValue + '&nbsp;' + item.premiumPlanTimeUnit}">30 DAY</td>
+                    <td th:text="${item.premiumPlanStock}">100</td>
+                    <td th:text="${item.inUse == true ? '上架中' : '未上架'}">上架中</td>
+                    <td>
+                        <a href="#">修改</a>
+                        <a href="#">删除</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="~{include/script}"></div>
+</body>
+
+</html>
