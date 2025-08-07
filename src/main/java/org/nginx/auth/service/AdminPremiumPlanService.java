@@ -9,6 +9,7 @@ import org.nginx.auth.dto.form.AdminPremiumPlanSkpUpdateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkuCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkuUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
+import org.nginx.auth.dto.vo.AdminPremiumPlanSkpPageDataVO;
 import org.nginx.auth.model.PremiumPlanSkp;
 import org.nginx.auth.model.PremiumPlanSku;
 import org.nginx.auth.repository.PremiumPlanSkpRepository;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -35,11 +37,39 @@ public class AdminPremiumPlanService {
     @Autowired
     private PremiumPlanSkuRepository premiumPlanSkuRepository;
 
-    public BasicPaginationVO<PremiumPlanSkp> premiumPlanSkpListPage(int page, int size) {
+    public BasicPaginationVO<AdminPremiumPlanSkpPageDataVO> premiumPlanSkpListPage(int page, int size) {
         PageHelper.startPage(page, size, "id desc");
         List<PremiumPlanSkp> premiumPlanSkpList = premiumPlanSkpRepository.selectList(null);
+        
+        List<AdminPremiumPlanSkpPageDataVO> resultList = new ArrayList<>();
+        for (PremiumPlanSkp skp : premiumPlanSkpList) {
+            AdminPremiumPlanSkpPageDataVO vo = new AdminPremiumPlanSkpPageDataVO();
+            vo.setPremiumPlanSkp(skp);
+            resultList.add(vo);
+
+            // 如果当前skp没有上架,始终不显示警告
+            if (skp.getInUse() == null || !skp.getInUse()) {
+                // 假装自己有合法的sku
+                vo.setHasActiveSku(true);
+                continue;
+            }
+
+            // 如果skp当前上架中,查询是否有上架中的sku,没有的话显示一个警告
+            LambdaQueryWrapper<PremiumPlanSku> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(PremiumPlanSku::getPremiumPlanSkpId, skp.getId());
+            queryWrapper.eq(PremiumPlanSku::getInUse, true);
+            PageHelper.startPage(1, 1); // 只需要查询一个结果
+            PremiumPlanSku existsActiveSku = premiumPlanSkuRepository.selectOne(queryWrapper);
+            vo.setHasActiveSku(existsActiveSku != null);
+
+        }
+        
         PageInfo<PremiumPlanSkp> pageInfo = new PageInfo<>(premiumPlanSkpList);
-        return BasicPaginationUtils.create(pageInfo);
+
+        BasicPaginationVO<AdminPremiumPlanSkpPageDataVO> voPageInfo = BasicPaginationUtils.copy(pageInfo);
+        voPageInfo.setData(resultList);
+
+        return voPageInfo;
     }
 
     @Transactional

@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkpCreateForm;
 import org.nginx.auth.dto.form.AdminPremiumPlanSkpUpdateForm;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
+import org.nginx.auth.dto.vo.AdminPremiumPlanSkpPageDataVO;
 import org.nginx.auth.model.PremiumPlanPredicate;
 import org.nginx.auth.model.PremiumPlanSkp;
 import org.nginx.auth.model.PremiumPlanSku;
@@ -52,7 +53,7 @@ public class AdminPremiumPlanController {
             size = 10;
         }
 
-        BasicPaginationVO<PremiumPlanSkp> premiumPlanPageVO = adminPremiumPlanService.premiumPlanSkpListPage(page, size);
+        BasicPaginationVO<AdminPremiumPlanSkpPageDataVO> premiumPlanPageVO = adminPremiumPlanService.premiumPlanSkpListPage(page, size);
         model.addAttribute("pagination", premiumPlanPageVO);
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 

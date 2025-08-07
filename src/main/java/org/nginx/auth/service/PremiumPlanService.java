@@ -40,8 +40,6 @@ public class PremiumPlanService {
         queryWrapper.eq(PremiumPlanSkp::getInUse, true);
         List<PremiumPlanSkp> premiumPlanSkpList = premiumPlanSkpRepository.selectList(queryWrapper);
 
-        PageInfo<PremiumPlanSkp> pageInfo = new PageInfo<>(premiumPlanSkpList);
-
         List<Long> skpIds = premiumPlanSkpList
                 .stream()
                 .map(PremiumPlanSkp::getId)
@@ -49,10 +47,8 @@ public class PremiumPlanService {
 
         Map<Long, List<PremiumPlanSku>> premiumPlanSkuMap = selectSkuListGroupBySkpId(skpIds);
 
-        PageInfo<PremiumPlanSkpVO> voPageInfo = new PageInfo<>();
-        List<PremiumPlanSkp> data = pageInfo.getList();
-        List<PremiumPlanSkpVO> skpVoList = new ArrayList<>(data.size());
-        for (PremiumPlanSkp premiumPlan : data) {
+        List<PremiumPlanSkpVO> skpVoList = new ArrayList<>(premiumPlanSkpList.size());
+        for (PremiumPlanSkp premiumPlan : premiumPlanSkpList) {
             PremiumPlanSkpVO skpVo = new PremiumPlanSkpVO();
             skpVoList.add(skpVo);
 
@@ -74,10 +70,12 @@ public class PremiumPlanService {
             }
             skpVo.setPremiumPlanSkuList(skuVoList);
         }
-        BeanCopyUtil.copy(pageInfo, voPageInfo);
-        voPageInfo.setList(skpVoList);
 
-        return BasicPaginationUtils.create(voPageInfo);
+        PageInfo<PremiumPlanSkp> pageInfo = new PageInfo<>(premiumPlanSkpList);
+        BasicPaginationVO<PremiumPlanSkpVO> voPageInfo = BasicPaginationUtils.copy(pageInfo);
+        voPageInfo.setData(skpVoList);
+
+        return voPageInfo;
     }
 
     private Map<Long, List<PremiumPlanSku>> selectSkuListGroupBySkpId(Collection<Long> skpIdList) {

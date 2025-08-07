@@ -38,4 +38,20 @@ public class BasicPaginationUtils {
         return basicPaginationVO;
     }
 
+    public static <T> BasicPaginationVO<T> copy(PageInfo<?> pageInfo) {
+        BasicPaginationVO<T> basicPaginationVO = new BasicPaginationVO<>();
+//        basicPaginationVO.setData(pageInfo.getList());
+        basicPaginationVO.setPage(pageInfo.getPageNum());
+        basicPaginationVO.setSize(pageInfo.getPageSize());
+        basicPaginationVO.setPages(pageInfo.getPages());
+        basicPaginationVO.setTotal(pageInfo.getTotal());
+        basicPaginationVO.setPrev(pageInfo.getPrePage());
+        int nextPage = pageInfo.getNextPage();
+        if (nextPage == 0 && pageInfo.getPages() > 0) {
+            nextPage = pageInfo.getPages();
+        }
+        basicPaginationVO.setNext(nextPage);
+        return basicPaginationVO;
+    }
+
 }

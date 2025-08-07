@@ -6,7 +6,9 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
     <title></title>
-    <div th:replace="~{include/css}"></div>
+    <style th:replace="~{include/css}"></style>
+    <link th:href="@{/res/lib/bootstrap-icons-1.13.1/bootstrap-icons.min.css}" rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 </head>
 
 <body>
@@ -26,19 +28,28 @@
             </thead>
             <tbody>
                 <tr th:each="item : ${pagination.data}">
-                    <th scope="row" th:text="${item.id}">1</th>
-                    <td th:text="${item.premiumPlanName}">Mark</td>
-                    <td th:text="${item.inUse == true ? '上架中' : '未上架'}">上架中</td>
+                    <th scope="row" th:text="${item.premiumPlanSkp.id}">1</th>
+                    <td>
+                        <span th:if="${!item.hasActiveSku}"
+                              class="text-warning"
+                              data-bs-toggle="tooltip"
+                              data-bs-placement="right"
+                              title="该商品没有上架中的SKU">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </span>
+                        <span th:text="${item.premiumPlanSkp.premiumPlanName}">Mark</span>
+                    </td>
+                    <td th:text="${item.premiumPlanSkp.inUse == true ? '上架中' : '未上架'}">上架中</td>
                     <td>
                         <a href="/admin/premium-plan/update-skp.html"
-                            th:href="@{/admin/premium-plan/v1.0.0/detail-skp.html(id=${item.id})}">详情</a>
+                            th:href="@{/admin/premium-plan/v1.0.0/detail-skp.html(id=${item.premiumPlanSkp.id})}">详情</a>
                         <a href="/admin/premium-plan/update-skp.html"
-                            th:href="@{/admin/premium-plan/v1.0.0/update-skp.html(id=${item.id}, redirect=${redirect})}">修改</a>
+                            th:href="@{/admin/premium-plan/v1.0.0/update-skp.html(id=${item.premiumPlanSkp.id}, redirect=${redirect})}">修改</a>
                         <a type="button" href="#" data-bs-toggle="modal"
                             data-bs-href="/admin/premium-plan/delete-skp.html?id=1"
-                            th:data-bs-href="@{/admin/premium-plan/delete-skp.html(id=${item.id}, redirect=${redirect})}"
+                            th:data-bs-href="@{/admin/premium-plan/delete-skp.html(id=${item.premiumPlanSkp.id}, redirect=${redirect})}"
                             data-bs-id="1"
-                            th:data-bs-id="${item.id}"
+                            th:data-bs-id="${item.premiumPlanSkp.id}"
                             data-bs-target="#deleteConfirmModal">删除</a>
 
                     </td>
@@ -55,6 +66,15 @@
     <div th:replace="~{include/script}"></div>
     <!-- Delete Modal -->
     <th:block th:replace="include/delete::deleteConfirmModalScript" />
+    <script>
+        // 初始化Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
 </body>
 
 </html>
