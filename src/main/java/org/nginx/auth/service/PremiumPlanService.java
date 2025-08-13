@@ -54,21 +54,7 @@ public class PremiumPlanService {
 
             skpVo.setPremiumPlanSkp(premiumPlan);
             List<PremiumPlanSku> skuList = premiumPlanSkuMap.get(premiumPlan.getId());
-            if (CollectionUtils.isEmpty(skuList)) {
-                skpVo.setPremiumPlanSkuList(new ArrayList<>());
-                continue;
-            }
-
-            List<PremiumPlanSkuVO> skuVoList = new ArrayList<>(skuList.size());
-            for (PremiumPlanSku premiumPlanSku : skuList) {
-                PremiumPlanSkuVO skuVo = new PremiumPlanSkuVO();
-                skuVo.setPremiumPlanSku(premiumPlanSku);
-                BigDecimal priceYuan = BigDecimal.valueOf(premiumPlanSku.getPremiumPlanPrice())
-                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
-                skuVo.setPremiumPlanPriceYuan(priceYuan.toString());
-                skuVoList.add(skuVo);
-            }
-            skpVo.setPremiumPlanSkuList(skuVoList);
+            buildPremiumPlanSkpVO(skpVo, skuList);
         }
 
         PageInfo<PremiumPlanSkp> pageInfo = new PageInfo<>(premiumPlanSkpList);
@@ -94,4 +80,36 @@ public class PremiumPlanService {
                 .collect(Collectors.groupingBy(PremiumPlanSku::getPremiumPlanSkpId));
     }
 
+    private void buildPremiumPlanSkpVO(PremiumPlanSkpVO skpVo, List<PremiumPlanSku> skuList) {
+        if (CollectionUtils.isEmpty(skuList)) {
+            skpVo.setPremiumPlanSkuList(new ArrayList<>());
+        } else {
+            List<PremiumPlanSkuVO> skuVoList = new ArrayList<>(skuList.size());
+            for (PremiumPlanSku premiumPlanSku : skuList) {
+                PremiumPlanSkuVO skuVo = new PremiumPlanSkuVO();
+                skuVo.setPremiumPlanSku(premiumPlanSku);
+                BigDecimal priceYuan = BigDecimal.valueOf(premiumPlanSku.getPremiumPlanPrice())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
+                skuVo.setPremiumPlanPriceYuan(priceYuan.toString());
+                skuVoList.add(skuVo);
+            }
+            skpVo.setPremiumPlanSkuList(skuVoList);
+        }
+    }
+
+    public PremiumPlanSkpVO selectPremiumPlanSkp(Long skpId) {
+        PremiumPlanSkp premiumPlanSkp = premiumPlanSkpRepository.selectById(skpId);
+        if (premiumPlanSkp == null) {
+            return null;
+        }
+
+        Map<Long, List<PremiumPlanSku>> premiumPlanSkuMap = selectSkuListGroupBySkpId(List.of(skpId));
+
+        PremiumPlanSkpVO skpVo = new PremiumPlanSkpVO();
+        skpVo.setPremiumPlanSkp(premiumPlanSkp);
+        List<PremiumPlanSku> skuList = premiumPlanSkuMap.get(premiumPlanSkp.getId());
+        buildPremiumPlanSkpVO(skpVo, skuList);
+
+        return skpVo;
+    }
 }

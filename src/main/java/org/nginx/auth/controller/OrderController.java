@@ -17,13 +17,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.nginx.auth.dto.vo.PremiumPlanSkpVO;
+import org.nginx.auth.service.PremiumPlanService;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +37,8 @@ public class OrderController {
     private OrderInfoService orderInfoService;
     @Autowired
     private RefundSupportService refundSupportService;
+    @Autowired
+    private PremiumPlanService premiumPlanService;
 
     @GetMapping(value = {"/", "/index.html"})
     public String index(HttpServletRequest request, Model model, Integer page, Integer size) {
@@ -53,6 +56,14 @@ public class OrderController {
         model.addAttribute("redirect", RedirectPageUtil.buildRedirectUrl(request));
 
         return "user/order/index";
+    }
+
+    @GetMapping("/confirm.html")
+    public String confirmOrder(Long skpId, @RequestParam(required = false) Long skuId, Model model) {
+        PremiumPlanSkpVO premiumPlanSkpVO = premiumPlanService.selectPremiumPlanSkp(skpId);
+        model.addAttribute("skp", premiumPlanSkpVO);
+        model.addAttribute("selectedSkuId", skuId);
+        return "user/order/confirm";
     }
 
     @PostMapping("/create")
