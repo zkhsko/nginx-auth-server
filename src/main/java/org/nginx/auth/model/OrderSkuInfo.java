@@ -22,6 +22,10 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
     private String premiumPlanName;
     private String premiumPlanDesc;
     /**
+     * 商品sku的展示名称 如 月，季度，半年，年等
+     */
+    private String premiumPlanSkuName;
+    /**
      * 产品价格,单位分
      */
     private Long premiumPlanPrice;
@@ -89,6 +93,14 @@ public class OrderSkuInfo extends AutoIncrementBaseEntity {
 
     public Long getPremiumPlanPrice() {
         return premiumPlanPrice;
+    }
+
+    public String getPremiumPlanSkuName() {
+        return premiumPlanSkuName;
+    }
+
+    public void setPremiumPlanSkuName(String premiumPlanSkuName) {
+        this.premiumPlanSkuName = premiumPlanSkuName;
     }
 
     public void setPremiumPlanPrice(Long premiumPlanPrice) {

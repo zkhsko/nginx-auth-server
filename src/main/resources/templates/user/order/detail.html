@@ -35,7 +35,7 @@
             <div class="card-body">
                 <ul>
                     <li th:each="item : ${orderDetailVO.orderSkuInfoList}"
-                        th:text="${item.premiumPlanName + ' * ' + item.cnt}"></li>
+                        th:text="${item.premiumPlanName + ' - ' + item.premiumPlanSkuName + ' * ' + item.cnt}"></li>
                 </ul>
             </div>
         </div>

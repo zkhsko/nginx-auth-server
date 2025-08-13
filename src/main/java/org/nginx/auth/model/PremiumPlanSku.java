@@ -15,7 +15,11 @@ public class PremiumPlanSku extends AutoIncrementBaseEntity {
      */
     @TableField("premium_plan_skp_id")
     private Long premiumPlanSkpId;
-
+    /**
+     * 商品sku的展示名称 如 月，季度，半年，年等
+     */
+    @TableField("premium_plan_sku_name")
+    private String premiumPlanSkuName;
     /**
      * 商品价格，单位分
      */
@@ -36,7 +40,6 @@ public class PremiumPlanSku extends AutoIncrementBaseEntity {
      */
     @TableField("premium_plan_stock")
     private Integer premiumPlanStock;
-
     /**
      * 是否上架中，上架中的商品才能下单
      */
@@ -49,6 +52,14 @@ public class PremiumPlanSku extends AutoIncrementBaseEntity {
 
     public void setPremiumPlanSkpId(Long premiumPlanSkpId) {
         this.premiumPlanSkpId = premiumPlanSkpId;
+    }
+
+    public String getPremiumPlanSkuName() {
+        return premiumPlanSkuName;
+    }
+
+    public void setPremiumPlanSkuName(String premiumPlanSkuName) {
+        this.premiumPlanSkuName = premiumPlanSkuName;
     }
 
     public Long getPremiumPlanPrice() {

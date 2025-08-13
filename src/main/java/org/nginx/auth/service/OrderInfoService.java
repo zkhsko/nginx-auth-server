@@ -77,9 +77,9 @@ public class OrderInfoService {
 
         // TODO 校验是否合法商品 存在 上架 库存 等信息
 
-        // 假的,记得替换
         User user = SessionUtil.getCurrentUser();
         if (user == null) {
+            // 其实也没啥必要,之前有拦截器判断过了,这里加上是因为不加的话Idea会报警告
             throw new IllegalArgumentException("用户未登录");
         }
 
@@ -119,6 +119,7 @@ public class OrderInfoService {
             orderSkuInfo.setPremiumPlanSkuId(premiumPlanSku.getId());
             orderSkuInfo.setPremiumPlanName(premiumPlanSkp.getPremiumPlanName());
             orderSkuInfo.setPremiumPlanDesc(premiumPlanSkp.getPremiumPlanDesc());
+            orderSkuInfo.setPremiumPlanSkuName(premiumPlanSku.getPremiumPlanSkuName());
             orderSkuInfo.setPremiumPlanPrice(premiumPlanSku.getPremiumPlanPrice());
             orderSkuInfo.setPremiumPlanTimeUnit(premiumPlanSku.getPremiumPlanTimeUnit());
             orderSkuInfo.setPremiumPlanTimeValue(premiumPlanSku.getPremiumPlanTimeValue());

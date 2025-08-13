@@ -23,7 +23,7 @@
                         <select class="form-select mb-3" th:id="'sku-select-' + ${item.premiumPlanSkp.id}"
                             th:if="${not #lists.isEmpty(item.premiumPlanSkuList)}">
                             <option th:each="sku : ${item.premiumPlanSkuList}" th:value="${sku.premiumPlanSku.id}"
-                                th:text="${sku.premiumPlanPriceYuan + '元 / ' + sku.premiumPlanSku.premiumPlanTimeUnit}">
+                                th:text="${sku.premiumPlanPriceYuan + '元 / ' + sku.premiumPlanSku.premiumPlanSkuName}">
                             </option>
                         </select>
                         <a th:href="@{/user/order/confirm.html(skpId=${item.premiumPlanSkp.id})}"
