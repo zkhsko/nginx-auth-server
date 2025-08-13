@@ -11,6 +11,9 @@ import java.util.LinkedHashSet;
  */
 public class AdminPremiumPlanSkuCreateForm {
 
+    @NotBlank(message = "商品SKU名称不能为空")
+    @Size(max = 50, message = "商品SKU名称长度不能超过50个字符")
+    private String premiumPlanSkuName;
     @NotNull(message = "商品价格不能为空")
     @Digits(integer = 9, fraction = 2, message = "商品价格不合法")
     @Positive(message = "商品价格必须为正数")
@@ -37,6 +40,14 @@ public class AdminPremiumPlanSkuCreateForm {
      */
     @NotNull(message = "是否上架不能为空")
     private Boolean inUse;
+
+    public String getPremiumPlanSkuName() {
+        return premiumPlanSkuName;
+    }
+
+    public void setPremiumPlanSkuName(String premiumPlanSkuName) {
+        this.premiumPlanSkuName = premiumPlanSkuName;
+    }
 
     public BigDecimal getPremiumPlanPrice() {
         return premiumPlanPrice;

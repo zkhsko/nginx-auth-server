@@ -14,6 +14,14 @@
 
         <form action="#" th:action="@{/admin/premium-plan/v1.0.0/update-sku.html(id=${form.id}, redirect=${redirect})}" method="post">
             <div class="mb-3">
+                <label for="premium-plan-sku-name-input" class="form-label">商品SKU名称</label>
+                <input type="text" class="form-control" id="premium-plan-sku-name-input" name="premiumPlanSkuName"
+                    th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanSkuNameFormError)) ? '' : 'is-invalid'}"
+                    th:value="${form?.premiumPlanSkuName}" maxlength="50">
+                <div class="invalid-feedback" th:text="${premiumPlanSkuNameFormError}"></div>
+                <div class="form-text">商品SKU的展示名称，如月、季度、半年、年等，最多50个字符</div>
+            </div>
+            <div class="mb-3">
                 <label for="premium-plan-price-input" class="form-label">商品价格</label>
                 <input type="text" class="form-control" id="premium-plan-price-input" name="premiumPlanPrice"
                     th:classappend="${#strings.isEmpty(#strings.trim(premiumPlanPriceFormError)) ? '' : 'is-invalid'}"

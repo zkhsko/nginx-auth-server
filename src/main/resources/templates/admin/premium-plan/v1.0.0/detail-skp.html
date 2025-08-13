@@ -19,7 +19,7 @@
             <thead>
                 <tr>
                     <th scope="col">#</th>
-<!--                    <th scope="col">SKU名称</th>-->
+                    <th scope="col">SKU名称</th>
                     <th scope="col">价格</th>
                     <th scope="col">有效期</th>
                     <th scope="col">库存</th>
@@ -32,7 +32,7 @@
             <tbody>
                 <tr th:each="item : ${skuList}">
                     <th scope="row" th:text="${item.id}">1</th>
-<!--                    <td th:text="${item.premiumPlanName}">SKU-1</td>-->
+                    <td th:text="${item.premiumPlanSkuName}">SKU-1</td>
                     <td th:text="${item.premiumPlanPrice / 100.0}">10.00</td>
                     <td th:text="${item.premiumPlanTimeValue + '&nbsp;' + item.premiumPlanTimeUnit}">30 DAY</td>
                     <td th:text="${item.premiumPlanStock}">100</td>
