@@ -3,14 +3,13 @@ package org.nginx.auth.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
-import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.service.AuthApiService;
 import org.nginx.auth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -91,9 +90,10 @@ public class AuthApiController {
 
         @Override
         User getCurrUser(HttpServletRequest request) {
-            String license = request.getHeader("X-goog-api-key");
-            if (StringUtils.isNotBlank(license)) {
-                User user = userService.selectByLicense(license);
+            String accessKey = request.getHeader("X-goog-api-key");
+            if (StringUtils.isNotBlank(accessKey)) {
+                String accessKeyHash = DigestUtils.sha256Hex(accessKey);
+                User user = userService.selectByAccessKey(accessKeyHash);
                 if (user != null) {
                     return user;
                 }
@@ -117,9 +117,10 @@ public class AuthApiController {
         User getCurrUser(HttpServletRequest request) {
             String authorizationValue = request.getHeader("Authorization");
             if (StringUtils.isNotBlank(authorizationValue)) {
-                String license = StringUtils.removeStartIgnoreCase(authorizationValue, "Bearer ");
-                if (StringUtils.isNotBlank(license)) {
-                    User user = userService.selectByLicense(license);
+                String accessKey = StringUtils.removeStartIgnoreCase(authorizationValue, "Bearer ");
+                if (StringUtils.isNotBlank(accessKey)) {
+                    String accessKeyHash = DigestUtils.sha256Hex(accessKey);
+                    User user = userService.selectByAccessKey(accessKeyHash);
                     if (user != null) {
                         return user;
                     }

@@ -3,12 +3,18 @@ package org.nginx.auth.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.crypto.Crypto;
+import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.jcajce.provider.digest.SHA256;
 import org.nginx.auth.model.User;
 import org.nginx.auth.repository.UserRepository;
 import org.nginx.auth.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.security.MessageDigest;
 
 @Service
 public class UserService {
@@ -18,13 +24,13 @@ public class UserService {
     @Autowired
     private MessageSenderService messageSenderService;
 
-    public User selectByLicense(String license) {
-        if (license == null || license.isEmpty()) {
+    public User selectByAccessKey(String accessKey) {
+        if (StringUtils.isBlank(accessKey)) {
             return null;
         }
 
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getLicense, license);
+        queryWrapper.eq(User::getAccessKey, accessKey);
 
         return userRepository.selectOne(queryWrapper);
     }
@@ -62,18 +68,20 @@ public class UserService {
             return "Email already registered";
         }
 
-        String license = UserUtil.generateUserLicense();
-        User user = selectByLicense(license);
+        String accessKey = UserUtil.generateUserAccessKey();
+        String accessKeyHash = DigestUtils.sha256Hex(accessKey);
+        User user = selectByAccessKey(accessKeyHash);
         // 确保生成的 license 是唯一的
         while (user != null) {
-            license = UserUtil.generateUserLicense();
-            user = selectByLicense(license);
+            accessKey = UserUtil.generateUserAccessKey();
+            accessKeyHash = DigestUtils.sha256Hex(accessKey);
+            user = selectByAccessKey(accessKeyHash);
         }
 
         // 创建新用户
         User newUser = new User();
         newUser.setEmail(email);
-        newUser.setLicense(license); // 注册时不设置密码
+        newUser.setAccessKey(accessKeyHash); // 注册时不设置密码
         newUser.setBlocked(false);
 
         int insertResult = userRepository.insert(newUser);
@@ -84,7 +92,7 @@ public class UserService {
 
         try {
             String subject = "Welcome to Our Service";
-            String content = "Thank you for registering! Your license is: " + license;
+            String content = "Thank you for registering! Your accessKey is: " + accessKey;
             messageSenderService.sendHtml(email, subject, content);
         } catch (MessagingException e) {
             throw new RuntimeException(e);

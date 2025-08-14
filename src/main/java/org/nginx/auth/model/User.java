@@ -11,9 +11,9 @@ public class User extends AutoIncrementBaseEntity {
      */
     private String email;
     /**
-     * 加密后的密码
+     * 加密后的口令,管理账号和请求服务的唯一凭证
      */
-    private String license;
+    private String accessKey;
     /**
      * 账号是否被禁用
      */
@@ -27,12 +27,12 @@ public class User extends AutoIncrementBaseEntity {
         this.email = email;
     }
 
-    public String getLicense() {
-        return license;
+    public String getAccessKey() {
+        return accessKey;
     }
 
-    public void setLicense(String license) {
-        this.license = license;
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
     }
 
     public Boolean getBlocked() {

@@ -41,6 +41,7 @@ dependencies {
     implementation 'org.apache.commons:commons-collections4:4.4'
     implementation 'commons-io:commons-io:2.15.1'
     implementation 'org.apache.commons:commons-crypto:1.2.0'
+    implementation 'commons-codec:commons-codec:1.19.0'
     implementation 'com.alipay.sdk:alipay-sdk-java:4.38.170.ALL'
     implementation 'com.google.zxing:core:3.5.2'
     implementation 'com.google.zxing:javase:3.5.2'

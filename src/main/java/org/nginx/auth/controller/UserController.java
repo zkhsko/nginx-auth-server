@@ -3,6 +3,7 @@ package org.nginx.auth.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
 import org.nginx.auth.service.UserService;
@@ -41,18 +42,19 @@ public class UserController {
     }
 
     @PostMapping("/login.html")
-    public String loginAction(String username, HttpServletRequest request, HttpServletResponse response, Model model) {
+    public String loginAction(String accessKey, HttpServletRequest request, HttpServletResponse response, Model model) {
 
-        User user = userService.selectByLicense(username);
+        String accessKeyHash = DigestUtils.sha256Hex(accessKey);
+        User user = userService.selectByAccessKey(accessKeyHash);
         if (user == null) {
-            model.addAttribute("licenseText", username);
-            model.addAttribute("licenseNotFountError", "License invalid");
+            model.addAttribute("accessKeyText", accessKey);
+            model.addAttribute("accessKeyError", "accessKey invalid");
             return "login.html";
         }
 
         if (user.getBlocked() != null && user.getBlocked()) {
-            model.addAttribute("licenseText", username);
-            model.addAttribute("licenseNotFountError", "user is blocked");
+            model.addAttribute("accessKeyText", accessKey);
+            model.addAttribute("accessKeyError", "user is blocked");
             return "login.html";
         }
 
@@ -61,7 +63,7 @@ public class UserController {
 
         String browserUserAgent = request.getHeaders("User-Agent").nextElement();
 
-        boolean admin = UserUtil.isAdmin(user.getEmail());
+        boolean admin = UserUtil.isAdmin(user.getAccessKey());
         if (admin) {
             return "redirect:/admin/premium-plan/index.html";
         } else {
