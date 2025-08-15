@@ -19,11 +19,21 @@
                 订单基本信息
             </div>
             <div class="card-body">
-                <p><strong>订单号:</strong> <span th:text="${orderId}"></span></p>
-                <p><strong>订单状态:</strong> <span th:text="${orderDetailVO.orderInfo.orderStatus}"></span></p>
-                <p><strong>订单金额:</strong> <span th:text="${orderDetailVO.orderInfo.orderAmount / 100.0}"></span></p>
-                <p><strong>创建时间:</strong> <span
-                        th:text="${#dates.format(orderDetailVO.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
+                <p>
+                    <strong>订单号:</strong>
+                    <span th:text="${orderId}"></span>
+                </p>
+                <p>
+                    <strong>订单状态:</strong>
+                    <span th:text="${orderDetailVO.orderInfo.orderStatus}"></span>
+                </p>
+                <p>
+                    <strong>订单金额:</strong>
+                    <span th:text="${orderDetailVO.orderInfo.orderAmount / 100.0}"></span>
+                </p>
+                <p>
+                    <strong>创建时间:</strong>
+                    <span th:text="${#dates.format(orderDetailVO.orderInfo.orderCreateTime, 'yyyy-MM-dd HH:mm:ss')}"></span>
                 </p>
             </div>
         </div>
@@ -72,7 +82,7 @@
                     </table>
                 </div>
             </div>
-    
+
             <div class="card mt-3">
                 <div class="card-header">
                     订单退款历史
@@ -100,7 +110,7 @@
                     </table>
                 </div>
             </div>
-    
+
             <div class="card mt-3">
                 <div class="card-header">
                     退款申请历史
@@ -124,7 +134,7 @@
                     </table>
                 </div>
             </div>
-    
+
             <div class="mt-3">
                 <a th:href="@{/user/support/refund/page.html(orderId=${orderId})}" class="btn btn-warning">申请退款</a>
             </div>
@@ -132,6 +142,78 @@
 
 
     </div>
+    <!-- AccessKey弹窗 -->
+    <div th:if="${accessKey != null}" class="modal fade" id="accessKeyModal" tabindex="-1"
+        aria-labelledby="accessKeyModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="accessKeyModalLabel">重要提示：您的AccessKey</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="text-danger fw-bold fs-4">请立即保存您的AccessKey！</p>
+                    <p>此AccessKey是您账户的唯一凭证，系统<strong>不再展示且无法找回</strong>，请务必妥善保存。</p>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control fs-5" id="accessKeyInput" th:value="${accessKey}"
+                            readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyAccessKey">复制</button>
+                    </div>
+                    <p class="text-muted">倒计时 <span id="countdown">5</span> 秒后可关闭</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="closeModalBtn" disabled>关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 处理URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('accessKey')) {
+                urlParams.delete('accessKey');
+                const newUrl = window.location.pathname + (urlParams.toString() ? '?' + urlParams.toString() : '') + window.location.hash;
+                window.history.replaceState({}, document.title, newUrl);
+            }
+
+            // 原有弹窗逻辑
+            const accessKeyModal = document.getElementById('accessKeyModal');
+            if (accessKeyModal) {
+                const modal = new bootstrap.Modal(accessKeyModal);
+                modal.show();
+
+                const countdownElement = document.getElementById('countdown');
+                const closeModalBtn = document.getElementById('closeModalBtn');
+                const copyBtn = document.getElementById('copyAccessKey');
+                const accessKeyInput = document.getElementById('accessKeyInput');
+
+                let countdown = 5;
+                const timer = setInterval(() => {
+                    countdown--;
+                    countdownElement.textContent = countdown;
+                    if (countdown <= 0) {
+                        clearInterval(timer);
+                        closeModalBtn.disabled = false;
+                        countdownElement.textContent = '0';
+                    }
+                }, 1000);
+
+                copyBtn.addEventListener('click', function () {
+                    accessKeyInput.select();
+                    document.execCommand('copy');
+                    this.textContent = '已复制';
+                    setTimeout(() => {
+                        this.textContent = '复制';
+                    }, 2000);
+                });
+
+                closeModalBtn.addEventListener('click', function () {
+                    modal.hide();
+                });
+            }
+        });
+    </script>
     <div th:replace="~{include/script}"></div>
 </body>
 

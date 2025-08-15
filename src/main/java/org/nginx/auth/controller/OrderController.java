@@ -102,11 +102,20 @@ public class OrderController {
             return "redirect:/user/order/index.html?error=" + errMsg;
         }
 
-        return "redirect:/user/order/detail.html?orderId=" + orderId;
+        String accessKeyQueryString = "";
+        if (StringUtils.isNotBlank(responseBO.getAccessKey())) {
+            accessKeyQueryString = "&accessKey=" + responseBO.getAccessKey();
+        }
+        return "redirect:/user/order/detail.html?orderId=" + orderId + accessKeyQueryString;
     }
 
     @GetMapping("/detail.html")
-    public String orderDetail(String orderId, Model model) {
+    public String orderDetailPage(String orderId, String accessKey, Model model) {
+
+        // accessKey一般不存在也不需要,只有在下单的新建账户了,传过来给用户展示一下创建的用户
+        if (StringUtils.isNotBlank(accessKey)) {
+            model.addAttribute("accessKey", accessKey);
+        }
 
         model.addAttribute("orderId", orderId);
 
@@ -118,7 +127,7 @@ public class OrderController {
     }
 
     @GetMapping("/pay.html")
-    public String orderDetail(String orderId, String paymentChannel, Model model) {
+    public String pay(String orderId, String paymentChannel, Model model) {
         String pay = orderInfoService.pay(orderId, paymentChannel);
 
         pay = "data:image/png;base64," + pay;
