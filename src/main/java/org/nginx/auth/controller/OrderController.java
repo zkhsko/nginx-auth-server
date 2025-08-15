@@ -2,7 +2,9 @@ package org.nginx.auth.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.nginx.auth.constant.BasicConstant;
+import org.nginx.auth.dto.bo.OrderCreateResponseBO;
 import org.nginx.auth.dto.vo.BasicPaginationVO;
 import org.nginx.auth.dto.vo.OrderDetailVO;
 import org.nginx.auth.model.OrderInfo;
@@ -66,16 +68,19 @@ public class OrderController {
         return "user/order/confirm";
     }
 
+    /**
+     * 下单接口
+     * 如果没有传accessKey,表示用户新买,需要先新建账号
+     * 如果传了,表示续费,要先看之前买的和当前续费的是不是同一个商品
+     *
+     * @param skuId
+     * @param cnt
+     * @param accessKey
+     * @return
+     */
     @PostMapping("/create")
 //    public OrderCreateDTO createOrder(@RequestBody List<OrderCreateParam> paramList) {
-    public String createOrder(String skuId, Long cnt) {
-
-//        String paymentChannel = param.getPaymentChannel();
-//        boolean validEnum = EnumUtils.isValidEnum(PaymentChannelEnum.class, paymentChannel);
-//        if (!validEnum) {
-//            throw new IllegalArgumentException("支付渠道不合法");
-//        }
-//        PaymentChannelEnum paymentChannelEnum = EnumUtils.getEnum(PaymentChannelEnum.class, paymentChannel);
+    public String createOrder(String skuId, Long cnt, @RequestParam(required = false) String accessKey) {
 
         List<OrderCreateParam> paramList = new ArrayList<>();
         OrderCreateParam param = new OrderCreateParam();
@@ -84,7 +89,19 @@ public class OrderController {
         paramList.add(param);
 
 
-        String orderId = orderInfoService.createOrder(paramList);
+        OrderCreateResponseBO responseBO = orderInfoService.createOrder(accessKey, paramList);
+
+        String orderId = responseBO.getOrderId();
+        if (StringUtils.isBlank(orderId)) {
+            // 订单创建失败
+            String errMsg = responseBO.getErrMsg();
+            if (StringUtils.isBlank(errMsg)) {
+                errMsg = "下单失败,请稍后再试";
+            }
+            // TODO: 这个错误页面要是一个单独的最好
+            return "redirect:/user/order/index.html?error=" + errMsg;
+        }
+
         return "redirect:/user/order/detail.html?orderId=" + orderId;
     }
 

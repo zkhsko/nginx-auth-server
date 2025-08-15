@@ -26,4 +26,16 @@ public class SessionUtil {
         return (User) session.getAttribute(BasicConstant.CURRENT_USER_SESSION_KEY);
     }
 
+    public static void setCurrentUser(User user) {
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attrs == null) {
+            return;
+        }
+        HttpServletRequest request = attrs.getRequest();
+        HttpSession session = request.getSession();
+        if (session != null) {
+            session.setAttribute(BasicConstant.CURRENT_USER_SESSION_KEY, user);
+        }
+    }
+
 }

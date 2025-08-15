@@ -35,6 +35,10 @@ public class UserService {
         return userRepository.selectOne(queryWrapper);
     }
 
+    public void create(User user) {
+        userRepository.insert(user);
+    }
+
     public User selectByEmail(String email) {
         if (email == null || email.isEmpty()) {
             return null;

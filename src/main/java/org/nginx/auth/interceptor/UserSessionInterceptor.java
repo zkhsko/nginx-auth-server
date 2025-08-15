@@ -1,20 +1,14 @@
 package org.nginx.auth.interceptor;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import org.apache.commons.lang3.StringUtils;
-import org.nginx.auth.constant.BasicConstant;
 import org.nginx.auth.model.User;
 import org.nginx.auth.util.SessionUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class UserSessionInterceptor implements HandlerInterceptor {
@@ -32,9 +26,12 @@ public class UserSessionInterceptor implements HandlerInterceptor {
         List<String> excludeUrlList = new ArrayList<>();
         excludeUrlList.add(contextPath + "/res/");
         excludeUrlList.add(contextPath + loginPage);
-        excludeUrlList.add(contextPath + "/user/register.html");
+//        excludeUrlList.add(contextPath + "/user/register.html");
         excludeUrlList.add(contextPath + "/api/v1.0/auth/access");
         excludeUrlList.add(contextPath + "/anonymous/");
+        // 下单可以不登录
+        excludeUrlList.add(contextPath + "/user/order/confirm.html");
+        excludeUrlList.add(contextPath + "/user/order/create");
 
         for (String url : excludeUrlList) {
             if (requestURI.startsWith(url)) {
